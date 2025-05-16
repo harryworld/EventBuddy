@@ -55,3 +55,9 @@ alwaysApply: false
 
 8. Reserved words
    - Prevent using `Task` as type name in favor of Swift Concurrency
+
+9. Simple app architecture
+   - All the files are located in the same app
+   - Source codes can be found in the same app target
+   - Do not use SPM, modules and frameworks to organize code
+   - Prevent using syntax like `@_exported import` or `@_implementationOnly import`
