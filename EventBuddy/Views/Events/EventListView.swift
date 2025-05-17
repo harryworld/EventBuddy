@@ -109,47 +109,7 @@ struct EventListView: View {
                 }
                 
                 // Tab bar
-                HStack(spacing: 0) {
-                    TabButton(
-                        title: "Events",
-                        iconName: "calendar",
-                        isSelected: selectedTab == 0
-                    ) {
-                        selectedTab = 0
-                    }
-                    
-                    TabButton(
-                        title: "Friends",
-                        iconName: "person.2",
-                        isSelected: selectedTab == 1
-                    ) {
-                        selectedTab = 1
-                    }
-                    
-                    TabButton(
-                        title: "Profile",
-                        iconName: "person.crop.circle",
-                        isSelected: selectedTab == 2
-                    ) {
-                        selectedTab = 2
-                    }
-                    
-                    TabButton(
-                        title: "Settings",
-                        iconName: "gear",
-                        isSelected: selectedTab == 3
-                    ) {
-                        selectedTab = 3
-                    }
-                }
-                .padding(.vertical, 8)
-                .background(Color(.systemBackground))
-                .overlay(
-                    Rectangle()
-                        .frame(height: 0.5)
-                        .foregroundColor(Color(.systemGray4)),
-                    alignment: .top
-                )
+                TabBarView(selectedTab: $selectedTab)
             }
         }
     }
@@ -215,95 +175,6 @@ struct EventListView: View {
                 return day1 < day2
             }
         }
-    }
-}
-
-struct TabButton: View {
-    let title: String
-    let iconName: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: iconName)
-                    .font(.system(size: 20))
-                    .foregroundColor(isSelected ? .blue : .gray)
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(isSelected ? .blue : .gray)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct EventDetailView: View {
-    let event: Event
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(event.name)
-                        .font(.largeTitle)
-                        .bold()
-                    
-                    HStack {
-                        Image(systemName: "calendar")
-                        Text(event.day.replacingOccurrences(of: ", ", with: "\n"))
-                    }
-                    .foregroundColor(.secondary)
-                    
-                    HStack {
-                        Image(systemName: "clock")
-                        Text(event.dateTime)
-                    }
-                    .foregroundColor(.secondary)
-                    
-                    HStack {
-                        Image(systemName: "mappin.and.ellipse")
-                        Text(event.location)
-                    }
-                    .foregroundColor(.secondary)
-                }
-                .padding(.bottom, 8)
-                
-                if event.requiresTicket {
-                    Label("This event requires a ticket", systemImage: "ticket.fill")
-                        .font(.headline)
-                        .foregroundColor(.orange)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.1))
-                        .cornerRadius(8)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("About this event")
-                        .font(.headline)
-                    
-                    Text(event.description)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                Button(action: {
-                    // Add to calendar functionality would go here
-                }) {
-                    Label("Add to Calendar", systemImage: "calendar.badge.plus")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-            }
-            .padding()
-        }
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
