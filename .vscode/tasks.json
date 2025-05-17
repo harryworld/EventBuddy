@@ -1,0 +1,18 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // Custom task to open file in Xcode to the current line. Provided by [ethanhuang13](https://patreon.com/ethanhuang13).
+            "label": "Open file in Xcode with current line",
+            "type": "shell",
+            "command": "xed -l ${lineNumber} \"${relativeFile}\"",
+            "presentation": {
+                "reveal": "silent",
+                 "revealProblems": "onProblem",
+                 "close": true
+            }
+        }
+    ]
+}
