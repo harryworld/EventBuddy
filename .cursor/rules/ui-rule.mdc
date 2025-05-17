@@ -1,7 +1,7 @@
 ---
-description: This rule is for SwiftUI views, only when the file contains "import SwiftUI"
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # UI framework rules for SwiftUI
 
