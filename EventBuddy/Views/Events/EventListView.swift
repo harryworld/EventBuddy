@@ -71,7 +71,7 @@ struct EventListView: View {
                 
                 // Events List
                 List {
-                    ForEach(groupedEvents.keys.sorted(), id: \.self) { day in
+                    ForEach(sortedDays, id: \.self) { day in
                         Section(header: Text(day.contains("June") ? day : day.uppercased())
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -190,6 +190,31 @@ struct EventListView: View {
     
     var groupedEvents: [String: [Event]] {
         Dictionary(grouping: filteredEvents) { $0.day }
+    }
+    
+    var sortedDays: [String] {
+        let dayOrder = [
+            "Saturday, June 7th",
+            "Sunday, June 8th", 
+            "Monday, June 9th",
+            "Tuesday, June 10th", 
+            "Wednesday, June 11th",
+            "Thursday, June 12th",
+            "Watch Parties" // Keep "Watch Parties" at the end
+        ]
+        
+        return groupedEvents.keys.sorted { day1, day2 in
+            if let index1 = dayOrder.firstIndex(of: day1), 
+               let index2 = dayOrder.firstIndex(of: day2) {
+                return index1 < index2
+            } else if dayOrder.contains(day1) {
+                return true
+            } else if dayOrder.contains(day2) {
+                return false
+            } else {
+                return day1 < day2
+            }
+        }
     }
 }
 
