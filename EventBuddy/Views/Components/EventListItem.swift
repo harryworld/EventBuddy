@@ -10,15 +10,13 @@ struct EventListItem: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                 
-                if event.location == "Apple Park" {
-                    Text("Apple Park")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                } else {
-                    Text(event.location)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
+                Text(event.type.rawValue)
+                    .font(.caption)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(typeColor(for: event.type))
+                    .clipShape(Capsule())
             }
             .frame(width: 80, alignment: .trailing)
             
@@ -78,6 +76,21 @@ struct EventListItem: View {
         .accessibilityLabel("\(event.name), \(event.dateTime), \(event.location)")
         .accessibilityHint("\(event.description). \(event.requiresTicket ? "Requires a ticket." : "No ticket required.")")
         .contentShape(Rectangle())
+    }
+    
+    private func typeColor(for type: EventType) -> Color {
+        switch type {
+        case .keynote:
+            return .red
+        case .watchParty:
+            return .purple
+        case .social:
+            return .blue
+        case .event:
+            return .orange
+        case .meetup:
+            return .green
+        }
     }
 }
 
