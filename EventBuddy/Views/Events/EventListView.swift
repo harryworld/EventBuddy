@@ -4,7 +4,7 @@ struct EventListView: View {
     let eventStore = EventStore()
     @State private var searchText = ""
     @State private var selectedCategory: EventCategory = .all
-    @State private var selectedTab = 0
+    @Binding var selectedTab: Int
     
     enum EventCategory: String, CaseIterable, Identifiable {
         case all = "All"
@@ -107,9 +107,6 @@ struct EventListView: View {
                         }
                     }
                 }
-                
-                // Tab bar
-                TabBarView(selectedTab: $selectedTab)
             }
         }
     }
@@ -179,5 +176,5 @@ struct EventListView: View {
 }
 
 #Preview {
-    EventListView()
+    EventListView(selectedTab: .constant(0))
 } 
