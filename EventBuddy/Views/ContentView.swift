@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    private let userStore = UserStore()
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -17,9 +18,7 @@ struct ContentView: View {
                 }
                 .tag(1)
                 
-            Text("Profile")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            ProfileView(userStore: userStore)
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
@@ -29,7 +28,7 @@ struct ContentView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .tabItem {
-                    Label("Settings", systemImage: "clock")
+                    Label("Settings", systemImage: "gear")
                 }
                 .tag(3)
         }
