@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = 0
     private let userStore = UserStore()
+    private let settingsStore = SettingsStore()
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -24,9 +25,7 @@ struct ContentView: View {
                 }
                 .tag(2)
                 
-            Text("Settings")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            SettingsView(settingsStore: settingsStore)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
