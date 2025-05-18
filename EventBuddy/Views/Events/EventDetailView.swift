@@ -9,6 +9,8 @@ struct EventDetailView: View {
     @State private var newFriendName = ""
     @State private var searchText = ""
     @FocusState private var isFocused: Bool
+    @State private var selectedFriend: Friend?
+    @State private var showFriendDetail = false
     
     init(event: Event, eventStore: EventStore = EventStore(), friendStore: FriendStore = FriendStore()) {
         self.event = event
@@ -221,34 +223,48 @@ struct EventDetailView: View {
                     } else {
                         VStack(spacing: 8) {
                             ForEach(filteredAttendingFriends) { friend in
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(friend.name)
-                                            .font(.headline)
+                                Button(action: {
+                                    navigateToEditFriend(friend)
+                                }) {
+                                    HStack {
+                                        VStack(alignment: .leading) {
+                                            Text(friend.name)
+                                                .font(.headline)
+                                            
+                                            if let company = friend.company {
+                                                Text(company)
+                                                    .font(.subheadline)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
                                         
-                                        if let company = friend.company {
-                                            Text(company)
-                                                .font(.subheadline)
-                                                .foregroundStyle(.secondary)
+                                        Spacer()
+                                        
+                                        HStack(spacing: 12) {
+                                            Button(action: {
+                                                navigateToEditFriend(friend)
+                                            }) {
+                                                Image(systemName: "pencil")
+                                                    .foregroundStyle(.blue)
+                                            }
+                                            .buttonStyle(.plain)
+                                            
+                                            Button(action: {
+                                                eventFriendService.removeFriendFromEvent(friend: friend, event: event)
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundStyle(.red.opacity(0.7))
+                                            }
+                                            .buttonStyle(.plain)
                                         }
                                     }
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        eventFriendService.removeFriendFromEvent(friend: friend, event: event)
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.red.opacity(0.7))
-                                    }
-                                    .buttonStyle(.plain)
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.gray.opacity(0.1))
+                                    )
                                 }
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.gray.opacity(0.1))
-                                )
-                                .contentShape(Rectangle())
+                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -264,6 +280,7 @@ struct EventDetailView: View {
                                 Button(action: {
                                     let newFriend = eventFriendService.addNewFriendToEvent(name: searchText, event: event)
                                     searchText = ""
+                                    navigateToEditFriend(newFriend)
                                 }) {
                                     HStack {
                                         Text("Create new friend \"\(searchText)\"")
@@ -355,6 +372,45 @@ struct EventDetailView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isAddingFriend)
+        .sheet(isPresented: $showFriendDetail, onDismiss: {
+            // Reset the selection
+            selectedFriend = nil
+        }) {
+            if let friend = selectedFriend {
+                NavigationStack {
+                    EditFriendView(
+                        friend: friend,
+                        store: friendStore,
+                        onSave: {
+                            if let index = friendStore.friends.firstIndex(where: { $0.id == friend.id }) {
+                                friendStore.friends[index] = friend
+                            }
+                            showFriendDetail = false
+                        },
+                        onCancel: {
+                            showFriendDetail = false
+                        }
+                    )
+                    .navigationTitle("Edit Friend")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                showFriendDetail = false
+                            }
+                        }
+                        
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") {
+                                if let index = friendStore.friends.firstIndex(where: { $0.id == friend.id }) {
+                                    friendStore.friends[index] = friend
+                                }
+                                showFriendDetail = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // Helper functions for filtering
@@ -391,14 +447,28 @@ struct EventDetailView: View {
         if let existingFriend = eventFriendService.findExistingFriend(name: newFriendName) {
             // If exists, add to event
             eventFriendService.addFriendToEvent(friend: existingFriend, event: event)
+            
+            // Reset fields
+            newFriendName = ""
+            isAddingFriend = false
         } else {
             // Create new friend and add to event
-            eventFriendService.addNewFriendToEvent(name: newFriendName, event: event)
+            let newFriend = eventFriendService.addNewFriendToEvent(name: newFriendName, event: event)
+            
+            // Reset fields
+            newFriendName = ""
+            isAddingFriend = false
+            
+            // Navigate to edit the new friend's details
+            navigateToEditFriend(newFriend)
         }
-        
-        // Reset fields
-        newFriendName = ""
-        isAddingFriend = false
+    }
+    
+    // New function to directly edit a friend's details
+    private func navigateToEditFriend(_ friend: Friend) {
+        // Set the selected friend and show the edit sheet directly
+        selectedFriend = friend
+        showFriendDetail = true
     }
     
     // Helper functions to format date strings

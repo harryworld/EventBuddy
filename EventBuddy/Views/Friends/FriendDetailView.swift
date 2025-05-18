@@ -9,13 +9,31 @@ struct FriendDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var editedFriend: Friend
-    @State private var isEditing = false
+    @State private var isEditing: Bool
+    let startInEditMode: Bool
+    let returnToEvent: Bool
     
+    // Standard initializer
     init(friend: Friend, store: FriendStore, eventStore: EventStore = EventStore()) {
         self.friend = friend
         self.store = store
         self.eventStore = eventStore
         self._editedFriend = State(initialValue: friend)
+        self._isEditing = State(initialValue: false)
+        self.startInEditMode = false
+        self.returnToEvent = false
+        self._eventFriendService = State(initialValue: EventFriendService(eventStore: eventStore, friendStore: store))
+    }
+    
+    // Initializer for creating a new friend from an event that starts in edit mode
+    init(friend: Friend, store: FriendStore, eventStore: EventStore = EventStore(), startInEditMode: Bool, returnToEvent: Bool) {
+        self.friend = friend
+        self.store = store
+        self.eventStore = eventStore
+        self._editedFriend = State(initialValue: friend)
+        self._isEditing = State(initialValue: startInEditMode)
+        self.startInEditMode = startInEditMode
+        self.returnToEvent = returnToEvent
         self._eventFriendService = State(initialValue: EventFriendService(eventStore: eventStore, friendStore: store))
     }
     
@@ -158,25 +176,52 @@ struct FriendDetailView: View {
                 }
             }
             .sheet(isPresented: $isEditing) {
+                if returnToEvent && startInEditMode {
+                    // If coming from an event and was in edit mode, return to event on dismiss
+                    dismiss()
+                }
+            } content: {
                 NavigationStack {
-                    EditFriendView(friend: editedFriend, store: store)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Cancel") {
-                                    isEditing = false
-                                }
-                            }
-                            
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Save") {
-                                    saveFriendEdits()
-                                    isEditing = false
+                    EditFriendView(friend: editedFriend, store: store, onSave: {
+                        saveFriendEdits()
+                        isEditing = false
+                        if returnToEvent && startInEditMode {
+                            dismiss()
+                        }
+                    }, onCancel: {
+                        isEditing = false
+                        if returnToEvent && startInEditMode {
+                            dismiss()
+                        }
+                    })
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                isEditing = false
+                                if returnToEvent && startInEditMode {
+                                    dismiss()
                                 }
                             }
                         }
-                        .navigationTitle("Edit Friend")
+                        
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") {
+                                saveFriendEdits()
+                                isEditing = false
+                                if returnToEvent && startInEditMode {
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }
+                    .navigationTitle("Edit Friend")
                 }
                 .presentationDetents([.large])
+            }
+            .onAppear {
+                if startInEditMode && !isEditing {
+                    isEditing = true
+                }
             }
         }
         .navigationTitle("Friend Details")
@@ -213,6 +258,15 @@ struct ContactRow: View {
 struct EditFriendView: View {
     @Bindable var friend: Friend
     let store: FriendStore
+    var onSave: (() -> Void)?
+    var onCancel: (() -> Void)?
+    
+    init(friend: Friend, store: FriendStore, onSave: (() -> Void)? = nil, onCancel: (() -> Void)? = nil) {
+        self.friend = friend
+        self.store = store
+        self.onSave = onSave
+        self.onCancel = onCancel
+    }
     
     var body: some View {
         Form {
