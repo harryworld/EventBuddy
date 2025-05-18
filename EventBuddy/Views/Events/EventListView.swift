@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct EventListView: View {
-    let eventStore = EventStore()
+    let eventStore: EventStore
+    let friendStore: FriendStore
     @State private var searchText = ""
     @State private var selectedCategory: EventCategory = .all
+    
+    init(eventStore: EventStore = EventStore(), friendStore: FriendStore = FriendStore()) {
+        self.eventStore = eventStore
+        self.friendStore = friendStore
+    }
     
     enum EventCategory: String, CaseIterable, Identifiable {
         case all = "All"
@@ -77,7 +83,7 @@ struct EventListView: View {
                             .textCase(nil)
                         ) {
                             ForEach(groupedEvents[day] ?? []) { event in
-                                NavigationLink(destination: EventDetailView(event: event)) {
+                                NavigationLink(destination: EventDetailView(event: event, eventStore: eventStore, friendStore: friendStore)) {
                                     EventListItem(event: event)
                                 }
                                 .listRowSeparator(.hidden)

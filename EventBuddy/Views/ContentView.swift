@@ -4,16 +4,18 @@ struct ContentView: View {
     @State private var selectedTab = 0
     private let userStore = UserStore()
     private let settingsStore = SettingsStore()
+    private let eventStore = EventStore()
+    private let friendStore = FriendStore()
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            EventListView()
+            EventListView(eventStore: eventStore, friendStore: friendStore)
                 .tabItem {
                     Label("Events", systemImage: "calendar")
                 }
                 .tag(0)
                 
-            FriendsListView()
+            FriendsListView(friendStore: friendStore, eventStore: eventStore)
                 .tabItem {
                     Label("Friends", systemImage: "person.2")
                 }

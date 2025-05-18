@@ -11,10 +11,11 @@ import Foundation
     var notes: String?
     var meetLocation: String?
     var meetTime: Date?
+    var attendedEventIds: [UUID] = [] // Events the friend has attended
     
     init(name: String, phoneNumber: String? = nil, email: String? = nil, 
          company: String? = nil, isFavorite: Bool = false, notes: String? = nil,
-         meetLocation: String? = nil, meetTime: Date? = nil) {
+         meetLocation: String? = nil, meetTime: Date? = nil, attendedEventIds: [UUID] = []) {
         self.name = name
         self.phoneNumber = phoneNumber
         self.email = email
@@ -23,6 +24,21 @@ import Foundation
         self.notes = notes
         self.meetLocation = meetLocation
         self.meetTime = meetTime
+        self.attendedEventIds = attendedEventIds
+    }
+    
+    func addAttendedEvent(_ eventId: UUID) {
+        if !attendedEventIds.contains(eventId) {
+            attendedEventIds.append(eventId)
+        }
+    }
+    
+    func removeAttendedEvent(_ eventId: UUID) {
+        attendedEventIds.removeAll { $0 == eventId }
+    }
+    
+    func hasAttendedEvent(_ eventId: UUID) -> Bool {
+        return attendedEventIds.contains(eventId)
     }
 }
 
@@ -71,14 +87,41 @@ import Foundation
             friends[index].isFavorite.toggle()
         }
     }
+    
+    // New methods to manage events and friends
+    func addFriendToEvent(friendId: UUID, eventId: UUID) {
+        if let friendIndex = friends.firstIndex(where: { $0.id == friendId }) {
+            friends[friendIndex].addAttendedEvent(eventId)
+        }
+    }
+    
+    func removeFriendFromEvent(friendId: UUID, eventId: UUID) {
+        if let friendIndex = friends.firstIndex(where: { $0.id == friendId }) {
+            friends[friendIndex].removeAttendedEvent(eventId)
+        }
+    }
+    
+    func getFriendsForEvent(eventId: UUID) -> [Friend] {
+        return friends.filter { $0.hasAttendedEvent(eventId) }
+    }
+    
+    func getFriendById(_ id: UUID) -> Friend? {
+        return friends.first { $0.id == id }
+    }
 }
 
 struct FriendsListView: View {
-    let friendStore = FriendStore()
+    let friendStore: FriendStore
+    let eventStore: EventStore
     @State private var searchText = ""
     @State private var isAddingFriend = false
     @State private var newFriendName = ""
     @State private var showFavorites = false
+    
+    init(friendStore: FriendStore = FriendStore(), eventStore: EventStore = EventStore()) {
+        self.friendStore = friendStore
+        self.eventStore = eventStore
+    }
     
     var body: some View {
         NavigationStack {
@@ -163,7 +206,7 @@ struct FriendsListView: View {
                 // Friends List
                 List {
                     ForEach(filteredFriends) { friend in
-                        FriendRow(friend: friend, store: friendStore)
+                        FriendRow(friend: friend, store: friendStore, eventStore: eventStore)
                             .swipeActions {
                                 Button(role: .destructive) {
                                     if let index = friendStore.friends.firstIndex(where: { $0.id == friend.id }) {
@@ -233,9 +276,10 @@ struct FriendsListView: View {
 struct FriendRow: View {
     let friend: Friend
     let store: FriendStore
+    let eventStore: EventStore
     
     var body: some View {
-        NavigationLink(destination: FriendDetailView(friend: friend, store: store)) {
+        NavigationLink(destination: FriendDetailView(friend: friend, store: store, eventStore: eventStore)) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {

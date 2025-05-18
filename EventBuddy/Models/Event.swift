@@ -17,8 +17,9 @@ enum EventType: String, CaseIterable {
     var location: String
     var day: String
     var type: EventType
+    var attendingFriends: [UUID] = [] // Store friend IDs for events
     
-    init(name: String, dateTime: String, description: String, requiresTicket: Bool = false, location: String = "Cupertino", day: String, type: EventType = .event) {
+    init(name: String, dateTime: String, description: String, requiresTicket: Bool = false, location: String = "Cupertino", day: String, type: EventType = .event, attendingFriends: [UUID] = []) {
         self.name = name
         self.dateTime = dateTime
         self.description = description
@@ -26,6 +27,21 @@ enum EventType: String, CaseIterable {
         self.location = location
         self.day = day
         self.type = type
+        self.attendingFriends = attendingFriends
+    }
+    
+    func addFriend(_ friendId: UUID) {
+        if !attendingFriends.contains(friendId) {
+            attendingFriends.append(friendId)
+        }
+    }
+    
+    func removeFriend(_ friendId: UUID) {
+        attendingFriends.removeAll { $0 == friendId }
+    }
+    
+    func isFriendAttending(_ friendId: UUID) -> Bool {
+        return attendingFriends.contains(friendId)
     }
 }
 
@@ -34,6 +50,34 @@ enum EventType: String, CaseIterable {
     
     init() {
         loadWWDCEvents()
+    }
+    
+    // Friend management methods
+    func addFriendToEvent(eventId: UUID, friendId: UUID) {
+        if let eventIndex = events.firstIndex(where: { $0.id == eventId }) {
+            events[eventIndex].addFriend(friendId)
+        }
+    }
+    
+    func removeFriendFromEvent(eventId: UUID, friendId: UUID) {
+        if let eventIndex = events.firstIndex(where: { $0.id == eventId }) {
+            events[eventIndex].removeFriend(friendId)
+        }
+    }
+    
+    func getEventById(_ id: UUID) -> Event? {
+        return events.first { $0.id == id }
+    }
+    
+    func getAttendingFriendIds(for eventId: UUID) -> [UUID] {
+        if let event = getEventById(eventId) {
+            return event.attendingFriends
+        }
+        return []
+    }
+    
+    func getEventsAttendedByFriend(_ friendId: UUID) -> [Event] {
+        return events.filter { $0.attendingFriends.contains(friendId) }
     }
     
     private func loadWWDCEvents() {

@@ -4,15 +4,19 @@ import SwiftUI
 struct FriendDetailView: View {
     let friend: Friend
     let store: FriendStore
+    let eventStore: EventStore
+    @State private var eventFriendService: EventFriendService
     @Environment(\.dismiss) private var dismiss
     
     @State private var editedFriend: Friend
     @State private var isEditing = false
     
-    init(friend: Friend, store: FriendStore) {
+    init(friend: Friend, store: FriendStore, eventStore: EventStore = EventStore()) {
         self.friend = friend
         self.store = store
+        self.eventStore = eventStore
         self._editedFriend = State(initialValue: friend)
+        self._eventFriendService = State(initialValue: EventFriendService(eventStore: eventStore, friendStore: store))
     }
     
     var body: some View {
@@ -86,6 +90,48 @@ struct FriendDetailView: View {
                     
                     Divider()
                 }
+                
+                // Attended Events section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Attended Events")
+                        .font(.headline)
+                    
+                    let attendedEvents = eventFriendService.getEventsForFriend(friend: friend)
+                    
+                    if attendedEvents.isEmpty {
+                        Text("No events attended yet")
+                            .foregroundStyle(.secondary)
+                            .padding()
+                    } else {
+                        ForEach(attendedEvents) { event in
+                            NavigationLink(destination: EventDetailView(event: event, eventStore: eventStore, friendStore: store)) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(event.name)
+                                            .font(.headline)
+                                        
+                                        Text(event.day)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(0.1))
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                
+                Divider()
                 
                 // Notes section
                 if let notes = friend.notes {
@@ -225,6 +271,7 @@ struct EditFriendView: View {
                                         isFavorite: true, 
                                         notes: "Met at WWDC Keynote",
                                         meetLocation: "Apple Park"), 
-                         store: FriendStore())
+                         store: FriendStore(),
+                         eventStore: EventStore())
     }
 } 
