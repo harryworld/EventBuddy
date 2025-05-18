@@ -76,7 +76,6 @@ import Foundation
 struct FriendsListView: View {
     let friendStore = FriendStore()
     @State private var searchText = ""
-    @Binding var selectedTab: Int // Set to Friends tab
     @State private var isAddingFriend = false
     @State private var newFriendName = ""
     @State private var showFavorites = false
@@ -278,5 +277,5 @@ struct FriendRow: View {
 }
 
 #Preview {
-    FriendsListView(selectedTab: .constant(1))
+    FriendsListView()
 } 

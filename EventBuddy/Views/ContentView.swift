@@ -4,34 +4,34 @@ struct ContentView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                // Events Tab
-                if selectedTab == 0 {
-                    EventListView(selectedTab: $selectedTab)
+        TabView(selection: $selectedTab) {
+            EventListView()
+                .tabItem {
+                    Label("Events", systemImage: "calendar")
                 }
+                .tag(0)
                 
-                // Friends Tab
-                if selectedTab == 1 {
-                    FriendsListView(selectedTab: $selectedTab)
+            FriendsListView()
+                .tabItem {
+                    Label("Friends", systemImage: "person.2")
                 }
+                .tag(1)
                 
-                // Profile Tab (placeholder)
-                if selectedTab == 2 {
-                    Text("Profile")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+            Text("Profile")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
                 }
+                .tag(2)
                 
-                // Settings Tab (placeholder)
-                if selectedTab == 3 {
-                    Text("Settings")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+            Text("Settings")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .tabItem {
+                    Label("Settings", systemImage: "clock")
                 }
-            }
-            
-            TabBarView(selectedTab: $selectedTab)
+                .tag(3)
         }
     }
 }

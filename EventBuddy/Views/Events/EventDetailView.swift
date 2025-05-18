@@ -5,7 +5,7 @@ struct EventDetailView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        VStack(spacing: 0) {
+        TabView(selection: $selectedTab) {
             // Main content
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
@@ -102,9 +102,25 @@ struct EventDetailView: View {
                 }
                 .padding()
             }
+            .tabItem {
+                Label("Details", systemImage: "info.circle")
+            }
+            .tag(0)
             
-            // Tab bar
-            TabBarView(selectedTab: $selectedTab)
+            // Example of additional tabs that could be added
+            Text("Attendees")
+                .font(.largeTitle)
+                .tabItem {
+                    Label("Attendees", systemImage: "person.2")
+                }
+                .tag(1)
+                
+            Text("Related Events")
+                .font(.largeTitle)
+                .tabItem {
+                    Label("Related", systemImage: "calendar")
+                }
+                .tag(2)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Event Details")
