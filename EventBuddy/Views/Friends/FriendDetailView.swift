@@ -1,5 +1,4 @@
 import SwiftUI
-@_exported import Foundation // Needed to access Friend and FriendStore models
 
 struct FriendDetailView: View {
     let friend: Friend
@@ -90,6 +89,36 @@ struct FriendDetailView: View {
                 }
                 
                 Divider()
+                
+                // Social Media section
+                if !friend.socialAccounts.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Social Media")
+                            .font(.headline)
+                        
+                        ForEach(Array(friend.socialAccounts.keys.sorted()), id: \.self) { platform in
+                            if let username = friend.socialAccounts[platform], !username.isEmpty {
+                                HStack {
+                                    SocialMediaRow(platform: platform, username: username)
+                                    
+                                    Spacer()
+                                    
+                                    Button {
+                                        if let url = friend.getSocialUrl(platform: platform) {
+                                            UIApplication.shared.open(url)
+                                        }
+                                    } label: {
+                                        Image(systemName: "arrow.up.right.square")
+                                            .foregroundStyle(.blue)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+                    
+                    Divider()
+                }
                 
                 // Meeting information
                 if friend.meetLocation != nil || friend.meetTime != nil {
@@ -255,11 +284,47 @@ struct ContactRow: View {
     }
 }
 
+struct SocialMediaRow: View {
+    let platform: String
+    let username: String
+    
+    var icon: String {
+        switch platform {
+        case "Twitter": return "bird"
+        case "LinkedIn": return "network"
+        case "GitHub": return "chevron.left.forwardslash.chevron.right"
+        case "Instagram": return "camera"
+        case "Facebook": return "person.2.fill"
+        default: return "link"
+        }
+    }
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .frame(width: 30)
+                .foregroundStyle(.blue)
+            
+            VStack(alignment: .leading) {
+                Text(platform)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("@\(username)")
+            }
+        }
+    }
+}
+
 struct EditFriendView: View {
     @Bindable var friend: Friend
     let store: FriendStore
     var onSave: (() -> Void)?
     var onCancel: (() -> Void)?
+    
+    // Available social media platforms
+    let availablePlatforms = ["Twitter", "LinkedIn", "GitHub", "Instagram", "Facebook"]
+    @State private var selectedPlatform = "Twitter"
+    @State private var newUsername = ""
     
     init(friend: Friend, store: FriendStore, onSave: (() -> Void)? = nil, onCancel: (() -> Void)? = nil) {
         self.friend = friend
@@ -287,6 +352,55 @@ struct EditFriendView: View {
                     get: { friend.email ?? "" },
                     set: { friend.email = $0.isEmpty ? nil : $0 }
                 ))
+            }
+            
+            Section("Social Media") {
+                // Existing social media accounts
+                ForEach(Array(friend.socialAccounts.keys.sorted()), id: \.self) { platform in
+                    HStack {
+                        Text(platform)
+                        Spacer()
+                        Text("@\(friend.socialAccounts[platform] ?? "")")
+                            .foregroundStyle(.secondary)
+                        
+                        Button(role: .destructive) {
+                            friend.socialAccounts.removeValue(forKey: platform)
+                        } label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.red)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                
+                // Add new social media account
+                HStack {
+                    Picker("Platform", selection: $selectedPlatform) {
+                        ForEach(availablePlatforms.filter { !friend.socialAccounts.keys.contains($0) }, id: \.self) { platform in
+                            Text(platform).tag(platform)
+                        }
+                    }
+                    .labelsHidden()
+                    
+                    TextField("Username (without @)", text: $newUsername)
+                    
+                    Button {
+                        if !newUsername.isEmpty && !friend.socialAccounts.keys.contains(selectedPlatform) {
+                            friend.socialAccounts[selectedPlatform] = newUsername
+                            newUsername = ""
+                            
+                            // Find next available platform
+                            if let nextPlatform = availablePlatforms.first(where: { !friend.socialAccounts.keys.contains($0) }) {
+                                selectedPlatform = nextPlatform
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundStyle(.blue)
+                    }
+                    .disabled(newUsername.isEmpty || friend.socialAccounts.keys.contains(selectedPlatform))
+                }
+                .disabled(availablePlatforms.allSatisfy { friend.socialAccounts.keys.contains($0) })
             }
             
             Section("Meeting Details") {

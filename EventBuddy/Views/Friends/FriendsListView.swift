@@ -12,10 +12,12 @@ import Foundation
     var meetLocation: String?
     var meetTime: Date?
     var attendedEventIds: [UUID] = [] // Events the friend has attended
+    var socialAccounts: [String: String] = [:] // Platform name to username mapping
     
     init(name: String, phoneNumber: String? = nil, email: String? = nil, 
          company: String? = nil, isFavorite: Bool = false, notes: String? = nil,
-         meetLocation: String? = nil, meetTime: Date? = nil, attendedEventIds: [UUID] = []) {
+         meetLocation: String? = nil, meetTime: Date? = nil, attendedEventIds: [UUID] = [],
+         socialAccounts: [String: String] = [:]) {
         self.name = name
         self.phoneNumber = phoneNumber
         self.email = email
@@ -25,6 +27,7 @@ import Foundation
         self.meetLocation = meetLocation
         self.meetTime = meetTime
         self.attendedEventIds = attendedEventIds
+        self.socialAccounts = socialAccounts
     }
     
     func addAttendedEvent(_ eventId: UUID) {
@@ -39,6 +42,28 @@ import Foundation
     
     func hasAttendedEvent(_ eventId: UUID) -> Bool {
         return attendedEventIds.contains(eventId)
+    }
+    
+    // Get URL for a social platform
+    func getSocialUrl(platform: String) -> URL? {
+        guard let username = socialAccounts[platform], !username.isEmpty else {
+            return nil
+        }
+        
+        switch platform {
+        case "Twitter":
+            return URL(string: "https://twitter.com/\(username)")
+        case "LinkedIn":
+            return URL(string: "https://linkedin.com/in/\(username)")
+        case "GitHub":
+            return URL(string: "https://github.com/\(username)")
+        case "Instagram":
+            return URL(string: "https://instagram.com/\(username)")
+        case "Facebook":
+            return URL(string: "https://facebook.com/\(username)")
+        default:
+            return nil
+        }
     }
 }
 
@@ -56,7 +81,8 @@ import Foundation
                               company: "Apple", 
                               isFavorite: true, 
                               notes: "Met at WWDC Keynote",
-                              meetLocation: "Apple Park"))
+                              meetLocation: "Apple Park",
+                              socialAccounts: ["Twitter": "johnappleseed", "GitHub": "johnappleseed"]))
         
         friends.append(Friend(name: "Sarah Thompson", 
                               phoneNumber: "555-765-4321", 
@@ -66,7 +92,8 @@ import Foundation
         friends.append(Friend(name: "Miguel Rodriguez", 
                               email: "miguel@swiftui.dev", 
                               company: "SwiftUI Dev", 
-                              isFavorite: true))
+                              isFavorite: true,
+                              socialAccounts: ["GitHub": "migueldev", "Twitter": "miguelswift"]))
         
         friends.append(Friend(name: "Emily Chen", 
                               phoneNumber: "555-987-6543", 
