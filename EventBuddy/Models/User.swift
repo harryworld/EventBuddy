@@ -10,7 +10,7 @@ import Contacts
     var company: String
     var avatarSystemName: String
     var socialLinks: [SocialLink]
-    
+
     init(
         name: String = "",
         email: String = "",
@@ -28,11 +28,11 @@ import Contacts
         self.avatarSystemName = avatarSystemName
         self.socialLinks = socialLinks
     }
-    
+
     // Create a CNContact object to be encoded in the QR code
     func createContact() -> CNContact {
         let contact = CNMutableContact()
-        
+
         // Set name
         let nameComponents = name.components(separatedBy: " ")
         if nameComponents.count > 1 {
@@ -41,7 +41,7 @@ import Contacts
         } else {
             contact.givenName = name
         }
-        
+
         // Set email
         if !email.isEmpty {
             let emailAddress = CNLabeledValue(
@@ -50,7 +50,7 @@ import Contacts
             )
             contact.emailAddresses = [emailAddress]
         }
-        
+
         // Set phone
         if !phone.isEmpty {
             let phoneNumber = CNLabeledValue(
@@ -59,19 +59,19 @@ import Contacts
             )
             contact.phoneNumbers = [phoneNumber]
         }
-        
+
         // Set job details
         if !title.isEmpty {
             contact.jobTitle = title
         }
-        
+
         if !company.isEmpty {
             contact.organizationName = company
         }
-        
+
         // Set social profiles
         var socialProfiles: [CNLabeledValue<CNSocialProfile>] = []
-        
+
         for socialLink in socialLinks {
             if !socialLink.username.isEmpty {
                 let profile = CNSocialProfile(
@@ -80,18 +80,18 @@ import Contacts
                     userIdentifier: nil,
                     service: socialLink.service.toContactServiceName()
                 )
-                
+
                 let labeledProfile = CNLabeledValue(
                     label: socialLink.service.toContactServiceName(),
                     value: profile
                 )
-                
+
                 socialProfiles.append(labeledProfile)
             }
         }
-        
+
         contact.socialProfiles = socialProfiles
-        
+
         return contact
     }
 }
@@ -102,9 +102,11 @@ enum SocialService: String, CaseIterable, Identifiable {
     case github
     case instagram
     case facebook
-    
+    case threads
+    case youtube
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .twitter: return "Twitter / X"
@@ -112,9 +114,11 @@ enum SocialService: String, CaseIterable, Identifiable {
         case .github: return "GitHub"
         case .instagram: return "Instagram"
         case .facebook: return "Facebook"
+        case .threads: return "Threads"
+        case .youtube: return "YouTube"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .twitter: return "bird"
@@ -122,9 +126,11 @@ enum SocialService: String, CaseIterable, Identifiable {
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .instagram: return "camera"
         case .facebook: return "person.2.fill"
+        case .threads: return "text.bubble"
+        case .youtube: return "play.rectangle"
         }
     }
-    
+
     func toContactServiceName() -> String {
         switch self {
         case .twitter: return CNSocialProfileServiceTwitter
@@ -132,6 +138,8 @@ enum SocialService: String, CaseIterable, Identifiable {
         case .github: return "GitHub"
         case .instagram: return "Instagram"
         case .facebook: return CNSocialProfileServiceFacebook
+        case .threads: return "Threads"
+        case .youtube: return "YouTube"
         }
     }
 }
@@ -152,27 +160,33 @@ struct SocialLink: Identifiable {
             return "https://instagram.com/\(username)"
         case .facebook:
             return "https://facebook.com/\(username)"
+        case .threads:
+            return "https://threads.net/\(username)"
+        case .youtube:
+            return "https://youtube.com/\(username)"
         }
     }
 }
 
 @Observable class UserStore {
     var currentUser: User
-    
+
     init() {
         // Create a default user profile
         currentUser = User(
-            name: "John Appleseed",
-            email: "john@example.com",
-            phone: "+1 (555) 123-4567",
+            name: "Harry Ng",
+            email: "contact@buildwithharry.com",
+            phone: "",
             title: "iOS Developer",
-            company: "Apple Inc.",
+            company: "Build with Harry",
             avatarSystemName: "person.crop.circle.fill",
             socialLinks: [
-                SocialLink(service: .twitter, username: "johnappleseed"),
-                SocialLink(service: .github, username: "johnappleseed"),
-                SocialLink(service: .linkedIn, username: "johnappleseed")
+                SocialLink(service: .twitter, username: "harryworld"),
+                SocialLink(service: .github, username: "harryworld"),
+                SocialLink(service: .linkedIn, username: "harryng"),
+                SocialLink(service: .threads, username: "harryworld"),
+                SocialLink(service: .youtube, username: "harryworld"),
             ]
         )
     }
-} 
+}
