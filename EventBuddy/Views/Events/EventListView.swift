@@ -5,6 +5,7 @@ struct EventListView: View {
     let friendStore: FriendStore
     @State private var searchText = ""
     @State private var selectedCategory: EventCategory = .all
+    @State private var showingAddEvent = false
     
     init(eventStore: EventStore = EventStore(), friendStore: FriendStore = FriendStore()) {
         self.eventStore = eventStore
@@ -16,6 +17,7 @@ struct EventListView: View {
         case keynote = "Keynote"
         case watchParty = "Watch Party"
         case social = "Social"
+        case myEvents = "My Events"
         
         var id: String { self.rawValue }
     }
@@ -38,13 +40,14 @@ struct EventListView: View {
                     Spacer()
                     
                     Button(action: {
-                        // Add new event action
+                        showingAddEvent = true
                     }) {
                         Image(systemName: "plus")
                             .font(.system(size: 20))
                             .foregroundColor(.blue)
                             .frame(width: 44, height: 44)
                     }
+                    .accessibilityLabel("Add Event")
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -88,6 +91,15 @@ struct EventListView: View {
                                 }
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    if event.isCustomEvent {
+                                        Button(role: .destructive) {
+                                            eventStore.removeCustomEvent(id: event.id)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -113,6 +125,9 @@ struct EventListView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingAddEvent) {
+                AddEventView(eventStore: eventStore)
+            }
         }
     }
     
@@ -121,18 +136,25 @@ struct EventListView: View {
         
         // Filter by category
         if selectedCategory != .all {
-            events = events.filter { event in
-                switch selectedCategory {
-                case .keynote:
-                    return event.name.localizedCaseInsensitiveContains("Keynote")
-                case .watchParty:
-                    return event.name.localizedCaseInsensitiveContains("Watch Party")
-                case .social:
-                    return event.name.localizedCaseInsensitiveContains("Social") || 
-                           event.description.localizedCaseInsensitiveContains("Social")
-                default:
-                    return true
+            switch selectedCategory {
+            case .keynote:
+                events = events.filter { event in 
+                    event.type == .keynote
                 }
+            case .watchParty:
+                events = events.filter { event in 
+                    event.type == .watchParty
+                }
+            case .social:
+                events = events.filter { event in 
+                    event.type == .social
+                }
+            case .myEvents:
+                events = events.filter { event in
+                    event.isCustomEvent
+                }
+            default:
+                break
             }
         }
         

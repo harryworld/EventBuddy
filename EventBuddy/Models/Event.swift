@@ -18,8 +18,9 @@ enum EventType: String, CaseIterable {
     var day: String
     var type: EventType
     var attendingFriends: [UUID] = [] // Store friend IDs for events
+    var isCustomEvent: Bool = false
     
-    init(name: String, dateTime: String, description: String, requiresTicket: Bool = false, location: String = "Cupertino", day: String, type: EventType = .event, attendingFriends: [UUID] = []) {
+    init(name: String, dateTime: String, description: String, requiresTicket: Bool = false, location: String = "Cupertino", day: String, type: EventType = .event, attendingFriends: [UUID] = [], isCustomEvent: Bool = false) {
         self.name = name
         self.dateTime = dateTime
         self.description = description
@@ -28,6 +29,7 @@ enum EventType: String, CaseIterable {
         self.day = day
         self.type = type
         self.attendingFriends = attendingFriends
+        self.isCustomEvent = isCustomEvent
     }
     
     func addFriend(_ friendId: UUID) {
@@ -50,6 +52,18 @@ enum EventType: String, CaseIterable {
     
     init() {
         loadWWDCEvents()
+    }
+    
+    // Add a new custom event
+    func addCustomEvent(event: Event) {
+        var newEvent = event
+        newEvent.isCustomEvent = true
+        events.append(newEvent)
+    }
+    
+    // Remove a custom event
+    func removeCustomEvent(id: UUID) {
+        events.removeAll { $0.id == id && $0.isCustomEvent }
     }
     
     // Friend management methods

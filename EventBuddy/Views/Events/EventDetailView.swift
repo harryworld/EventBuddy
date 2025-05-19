@@ -11,6 +11,7 @@ struct EventDetailView: View {
     @FocusState private var isFocused: Bool
     @State private var selectedFriend: Friend?
     @State private var showFriendDetail = false
+    @State private var showingEditEvent = false
     
     init(event: Event, eventStore: EventStore = EventStore(), friendStore: FriendStore = FriendStore()) {
         self.event = event
@@ -24,14 +25,37 @@ struct EventDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Event header
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(event.name)
-                        .font(.title)
-                        .fontWeight(.bold)
+                    HStack {
+                        Text(event.name)
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        if event.isCustomEvent {
+                            Menu {
+                                Button(role: .destructive) {
+                                    eventStore.removeCustomEvent(id: event.id)
+                                } label: {
+                                    Label("Delete Event", systemImage: "trash")
+                                }
+                            } label: {
+                                Image(systemName: "ellipsis.circle")
+                                    .font(.title3)
+                            }
+                        }
+                    }
                     
                     HStack(spacing: 8) {
                         Text(event.type.rawValue)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                        
+                        if event.isCustomEvent {
+                            Text("(Custom Event)")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                        }
                     }
                 }
                 .padding(.bottom, 10)
