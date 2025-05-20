@@ -6,6 +6,7 @@ struct EventListView: View {
     @State private var searchText = ""
     @State private var selectedCategory: EventCategory = .all
     @State private var showingAddEvent = false
+    @State private var showOnlyAttendingEvents = false
     
     init(eventStore: EventStore = EventStore(), friendStore: FriendStore = FriendStore()) {
         self.eventStore = eventStore
@@ -18,6 +19,7 @@ struct EventListView: View {
         case watchParty = "Watch Party"
         case social = "Social"
         case myEvents = "My Events"
+        case attending = "Attending"
         
         var id: String { self.rawValue }
     }
@@ -52,12 +54,32 @@ struct EventListView: View {
                 .padding(.horizontal)
                 .padding(.top)
                 
+                // Toggle for attending events
+                if selectedCategory != .attending {
+                    HStack {
+                        Toggle("Show only events I'm attending", isOn: $showOnlyAttendingEvents)
+                            .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            .onChange(of: showOnlyAttendingEvents) { _, isOn in
+                                if isOn {
+                                    selectedCategory = .all
+                                }
+                            }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
+                
                 // Category buttons
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(EventCategory.allCases) { category in
                             Button(action: {
                                 selectedCategory = category
+                                if category == .attending {
+                                    showOnlyAttendingEvents = false
+                                }
                             }) {
                                 Text(category.rawValue)
                                     .font(.subheadline)
@@ -79,24 +101,34 @@ struct EventListView: View {
                 
                 // Events List
                 List {
-                    ForEach(sortedDays, id: \.self) { day in
-                        Section(header: Text(day.contains("June") ? day : day.uppercased())
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .textCase(nil)
-                        ) {
-                            ForEach(groupedEvents[day] ?? []) { event in
-                                NavigationLink(destination: EventDetailView(event: event, eventStore: eventStore, friendStore: friendStore)) {
-                                    EventListItem(event: event)
-                                }
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    if event.isCustomEvent {
-                                        Button(role: .destructive) {
-                                            eventStore.removeCustomEvent(id: event.id)
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                    if filteredEvents.isEmpty {
+                        ContentUnavailableView(
+                            "No Events Found",
+                            systemImage: "calendar.badge.exclamationmark",
+                            description: Text("Try changing your filters")
+                        )
+                    } else {
+                        ForEach(sortedDays, id: \.self) { day in
+                            if let dayEvents = groupedEvents[day], !dayEvents.isEmpty {
+                                Section(header: Text(day.contains("June") ? day : day.uppercased())
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .textCase(nil)
+                                ) {
+                                    ForEach(dayEvents) { event in
+                                        NavigationLink(destination: EventDetailView(event: event, eventStore: eventStore, friendStore: friendStore)) {
+                                            EventListItem(event: event)
+                                        }
+                                        .listRowSeparator(.hidden)
+                                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                            if event.isCustomEvent {
+                                                Button(role: .destructive) {
+                                                    eventStore.removeCustomEvent(id: event.id)
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -112,6 +144,10 @@ struct EventListView: View {
                             Button("All Events") {
                                 searchText = ""
                                 selectedCategory = .all
+                                showOnlyAttendingEvents = false
+                            }
+                            Button("Events I'm Attending") {
+                                selectedCategory = .attending
                             }
                             Button("Events Requiring Tickets") {
                                 searchText = "ticket"
@@ -134,6 +170,11 @@ struct EventListView: View {
     var filteredEvents: [Event] {
         var events = eventStore.events
         
+        // Filter for attending events if toggle is on
+        if showOnlyAttendingEvents {
+            events = events.filter { $0.isUserAttending }
+        }
+        
         // Filter by category
         if selectedCategory != .all {
             switch selectedCategory {
@@ -152,6 +193,10 @@ struct EventListView: View {
             case .myEvents:
                 events = events.filter { event in
                     event.isCustomEvent
+                }
+            case .attending:
+                events = events.filter { event in
+                    event.isUserAttending
                 }
             default:
                 break

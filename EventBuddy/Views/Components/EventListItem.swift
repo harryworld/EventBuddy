@@ -32,6 +32,12 @@ struct EventListItem: View {
                             .symbolEffect(.pulse)
                             .accessibilityLabel("Requires ticket")
                     }
+                    
+                    if event.isUserAttending {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .accessibilityLabel("You're attending")
+                    }
                 }
                 
                 if event.description.localizedCaseInsensitiveContains("registration suggested") {
@@ -74,8 +80,15 @@ struct EventListItem: View {
         .padding(.vertical, 12)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(event.name), \(event.dateTime), \(event.location)")
-        .accessibilityHint("\(event.description). \(event.requiresTicket ? "Requires a ticket." : "No ticket required.")")
+        .accessibilityHint("\(event.description). \(event.requiresTicket ? "Requires a ticket." : "No ticket required.")" + (event.isUserAttending ? " You are attending this event." : ""))
         .contentShape(Rectangle())
+        .background(
+            event.isUserAttending ? 
+                RoundedRectangle(cornerRadius: 8)
+                .fill(Color.green.opacity(0.1))
+                .padding(.horizontal, -8)
+                : nil
+        )
     }
     
     private func typeColor(for type: EventType) -> Color {

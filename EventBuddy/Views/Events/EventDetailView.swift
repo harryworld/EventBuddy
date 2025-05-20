@@ -60,6 +60,29 @@ struct EventDetailView: View {
                 }
                 .padding(.bottom, 10)
                 
+                // Attendance Button
+                Button(action: {
+                    eventStore.toggleUserAttendance(for: event.id)
+                }) {
+                    HStack {
+                        Image(systemName: event.isUserAttending ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(event.isUserAttending ? .green : .gray)
+                        Text(event.isUserAttending ? "I'm attending" : "Mark as attending")
+                            .fontWeight(event.isUserAttending ? .bold : .medium)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(event.isUserAttending ? Color.green.opacity(0.1) : Color(.systemGray6))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(event.isUserAttending ? Color.green : Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+                
                 // Date & Time section
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Date & Time")
