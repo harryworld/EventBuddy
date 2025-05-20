@@ -11,6 +11,7 @@ struct ProfileView: View {
     @State private var qrCodeContact: CNContact
     @State private var qrCodeRefreshTrigger = UUID()
     @State private var isShowingRefreshFeedback = false
+    @State private var isShowingNameDrop = false
     
     init(userStore: UserStore = UserStore()) {
         self.userStore = userStore
@@ -56,6 +57,12 @@ struct ProfileView: View {
                         } label: {
                             Label("Share Contact", systemImage: "square.and.arrow.up")
                         }
+                        
+                        Button {
+                            startNameDrop()
+                        } label: {
+                            Label("Share via NameDrop", systemImage: "wave.3.right")
+                        }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -70,6 +77,9 @@ struct ProfileView: View {
                 ProfileEditView(user: userStore.currentUser, onSave: {
                     refreshQRCode()
                 })
+            }
+            .sheet(isPresented: $isShowingNameDrop) {
+                NameDropView(contact: qrCodeContact)
             }
             .overlay {
                 if isShowingRefreshFeedback {
@@ -144,6 +154,24 @@ struct ProfileView: View {
             Text("Scan to add me to contacts")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                
+            // NameDrop button
+            Button {
+                startNameDrop()
+            } label: {
+                HStack {
+                    Image(systemName: "wave.3.right.circle.fill")
+                        .font(.title2)
+                    Text("Share via NameDrop")
+                        .fontWeight(.medium)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(12)
+            }
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical)
@@ -256,6 +284,11 @@ struct ProfileView: View {
         if contactData != nil {
             showingShareSheet = true
         }
+    }
+    
+    private func startNameDrop() {
+        // Show the NameDrop sheet which will handle the interaction
+        isShowingNameDrop = true
     }
 }
 
