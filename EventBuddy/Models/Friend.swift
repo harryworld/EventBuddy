@@ -12,6 +12,7 @@ final class Friend {
     var notes: String?
     var createdAt: Date
     var updatedAt: Date
+    var isFavorite: Bool = false
     
     @Relationship(deleteRule: .cascade, inverse: \Event.attendees)
     var events: [Event] = []
@@ -21,7 +22,8 @@ final class Friend {
          email: String? = nil, 
          phone: String? = nil, 
          socialMediaHandles: [String: String] = [:], 
-         notes: String? = nil) {
+         notes: String? = nil,
+         isFavorite: Bool = false) {
         self.id = id
         self.name = name
         self.email = email
@@ -30,6 +32,12 @@ final class Friend {
         self.notes = notes
         self.createdAt = Date()
         self.updatedAt = Date()
+        self.isFavorite = isFavorite
+    }
+
+    func toggleFavorite() {
+        isFavorite.toggle()
+        updatedAt = Date()
     }
 }
 
@@ -42,7 +50,7 @@ extension Friend {
             email: "john@example.com",
             phone: "+1 (555) 123-4567",
             socialMediaHandles: [
-                "twitter": "@johnappleseed",
+                "twitter": "johnappleseed",
                 "github": "johnappleseed"
             ],
             notes: "Met at WWDC 2024"

@@ -12,6 +12,11 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 0
     
+    // Flag to determine if we're in preview mode
+    private var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             EventListView()
@@ -20,7 +25,7 @@ struct ContentView: View {
                 }
                 .tag(0)
 
-            Text("Friends Tab - Coming Soon")
+            FriendListView()
                 .tabItem {
                     Label("Friends", systemImage: "person.2")
                 }
@@ -39,8 +44,10 @@ struct ContentView: View {
                 .tag(3)
         }
         .onAppear {
-            // Always add sample data for demonstration purposes
-            loadSampleData()
+            // Only load sample data when not in preview
+            if !isPreview {
+                loadSampleData()
+            }
         }
     }
     
@@ -49,6 +56,7 @@ struct ContentView: View {
         Task {
             await MainActor.run {
                 EventService.addSampleWWDCEvents(modelContext: modelContext)
+                FriendService.addSampleFriends(modelContext: modelContext)
             }
         }
     }
@@ -56,5 +64,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Event.self, Friend.self, Profile.self])
+        .modelContainer(for: [Event.self, Friend.self, Profile.self], inMemory: true)
 }
