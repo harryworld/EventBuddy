@@ -15,7 +15,7 @@ struct FriendListView: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        NavigationStack {
             VStack {
                 // Search bar
                 HStack {
@@ -102,6 +102,50 @@ struct FriendListView: View {
                             FriendDetailView(friend: friend)
                         } label: {
                             FriendRowView(friend: friend)
+                                .swipeActions {
+                                    NavigationLink(destination: EditFriendView(friend: friend)) {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                    
+                                    Button(role: .destructive) {
+                                        modelContext.delete(friend)
+                                        try? modelContext.save()
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
+                                    Button {
+                                        friend.toggleFavorite()
+                                        try? modelContext.save()
+                                    } label: {
+                                        Label(friend.isFavorite ? "Unfavorite" : "Favorite", 
+                                              systemImage: friend.isFavorite ? "star.slash" : "star.fill")
+                                    }
+                                    .tint(.yellow)
+                                }
+                                .contextMenu {
+                                    NavigationLink(destination: EditFriendView(friend: friend)) {
+                                        Label("Edit Friend", systemImage: "pencil")
+                                    }
+                                    
+                                    Button {
+                                        friend.toggleFavorite()
+                                        try? modelContext.save()
+                                    } label: {
+                                        Label(friend.isFavorite ? "Remove from Favorites" : "Add to Favorites", 
+                                              systemImage: friend.isFavorite ? "star.slash" : "star.fill")
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        modelContext.delete(friend)
+                                        try? modelContext.save()
+                                    } label: {
+                                        Label("Delete Friend", systemImage: "trash")
+                                    }
+                                }
                         }
                     }
                     .onDelete(perform: deleteFriends)
@@ -133,8 +177,6 @@ struct FriendListView: View {
             .sheet(isPresented: $showingAddFriendSheet) {
                 AddFriendView()
             }
-        } detail: {
-            Text("Select a friend to view details")
         }
     }
     

@@ -4,7 +4,25 @@ import SwiftData
 struct EventDetailView: View {
     @Bindable var event: Event
     @State private var searchText = ""
+    @State private var showingAddFriendSheet = false
+    @State private var newFriendName = ""
+    @State private var isAddingQuickFriend = false
+    @State private var selectedFriendForDetailEdit: Friend? = nil
     @Environment(\.modelContext) private var modelContext
+    @FocusState private var isAddFriendFieldFocused: Bool
+    
+    @Query private var allFriends: [Friend]
+    
+    private var filteredFriends: [Friend] {
+        if searchText.isEmpty {
+            return []
+        } else {
+            return allFriends.filter { friend in
+                friend.name.localizedCaseInsensitiveContains(searchText) &&
+                !event.attendees.contains { $0.id == friend.id }
+            }
+        }
+    }
     
     var body: some View {
         ScrollView {
@@ -97,42 +115,180 @@ struct EventDetailView: View {
                 
                 // Attendees Section
                 SectionContainer(title: "Attendees", icon: "person.2.fill", trailingText: "\(event.attendees.count) friends") {
-                    // Add Friend Button
-                    Button(action: {
-                        // Add friend action
-                    }) {
+                    // Quick Add Friend Button/Field
+                    if showingAddFriendSheet {
                         HStack {
-                            Image(systemName: "plus.circle.fill")
+                            Image(systemName: "person.fill.badge.plus")
                                 .foregroundColor(.blue)
                             
-                            Text("Add Friend")
-                                .fontWeight(.medium)
-                                .foregroundColor(.blue)
+                            TextField("Friend name", text: $newFriendName)
+                                .font(.body)
+                                .submitLabel(.done)
+                                .focused($isAddFriendFieldFocused)
+                                .onSubmit {
+                                    addQuickFriend()
+                                }
                             
-                            Spacer()
+                            Button {
+                                addQuickFriend()
+                            } label: {
+                                Text("Save")
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(newFriendName.isEmpty ? Color.gray : Color.blue)
+                            .cornerRadius(8)
+                            .disabled(newFriendName.isEmpty)
+                            
+                            Button {
+                                showingAddFriendSheet = false
+                                newFriendName = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
                         }
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
                         )
+                    } else {
+                        // Add Friend Button
+                        Button(action: {
+                            showingAddFriendSheet = true
+                            // Set focus after a short delay to allow the view to update
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                isAddFriendFieldFocused = true
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(.blue)
+                                
+                                Text("Add Friend")
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.blue)
+                                
+                                Spacer()
+                            }
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                     
                     // Search field
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.secondary)
+                            
+                            TextField("Search or create new friend", text: $searchText)
+                                .font(.body)
+                                .submitLabel(.search)
+                                .onChange(of: searchText) { _, newValue in
+                                    // Reset quick add state if search changes
+                                    if isAddingQuickFriend && newValue != newFriendName {
+                                        isAddingQuickFriend = false
+                                    }
+                                }
+                        }
+                        .padding(12)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
                         
-                        TextField("Search friends", text: $searchText)
-                            .font(.body)
+                        // Search results
+                        if !searchText.isEmpty {
+                            VStack(alignment: .leading, spacing: 0) {
+                                if filteredFriends.isEmpty && !isAddingQuickFriend {
+                                    Button {
+                                        isAddingQuickFriend = true
+                                        newFriendName = searchText
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "plus.circle")
+                                            Text("Create \"\(searchText)\"")
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 12)
+                                        .padding(.horizontal, 8)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .background(Color(.systemGray6).opacity(0.5))
+                                }
+                                
+                                if isAddingQuickFriend {
+                                    HStack {
+                                        Image(systemName: "person.fill.badge.plus")
+                                        TextField("Confirm name", text: $newFriendName)
+                                            .submitLabel(.done)
+                                            .onSubmit {
+                                                addQuickFriend()
+                                            }
+                                        
+                                        Button("Save") {
+                                            addQuickFriend()
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(12)
+                                    }
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 8)
+                                    .background(Color(.systemGray6).opacity(0.5))
+                                }
+                                
+                                ForEach(filteredFriends) { friend in
+                                    Button {
+                                        addFriendToEvent(friend)
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "person.circle.fill")
+                                                .font(.title3)
+                                                .foregroundColor(.blue)
+                                            
+                                            Text(friend.name)
+                                                .font(.body)
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "plus.circle")
+                                                .foregroundColor(.green)
+                                        }
+                                        .padding(.vertical, 12)
+                                        .padding(.horizontal, 8)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .background(Color(.systemGray6).opacity(0.3))
+                                }
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            )
+                        }
                     }
-                    .padding(12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
                     
                     if !event.attendees.isEmpty {
+                        HStack {
+                            Text("Attending")
+                                .font(.headline)
+                            
+                            Spacer()
+                        }
+                        .padding(.top, 12)
+                        
                         ForEach(event.attendees) { friend in
+                            // Normal display mode
                             HStack {
                                 Image(systemName: "person.circle.fill")
                                     .font(.title2)
@@ -142,6 +298,37 @@ struct EventDetailView: View {
                                     .font(.body)
                                 
                                 Spacer()
+                                
+                                Button {
+                                    selectedFriendForDetailEdit = friend
+                                } label: {
+                                    Image(systemName: "pencil.circle")
+                                        .foregroundColor(.blue)
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button {
+                                        selectedFriendForDetailEdit = friend
+                                    } label: {
+                                        Label("Edit Friend", systemImage: "pencil")
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        removeFriendFromEvent(friend)
+                                    } label: {
+                                        Label("Remove", systemImage: "xmark.circle")
+                                    }
+                                }
+                                
+                                Button {
+                                    removeFriendFromEvent(friend)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red.opacity(0.7))
+                                }
+                                .buttonStyle(.plain)
                             }
                             .padding(.vertical, 8)
                         }
@@ -161,6 +348,41 @@ struct EventDetailView: View {
                 }
             }
         }
+        .sheet(item: $selectedFriendForDetailEdit) { friend in
+            EditFriendView(friend: friend)
+        }
+    }
+    
+    private func addFriendToEvent(_ friend: Friend) {
+        event.addFriend(friend)
+        searchText = ""
+        try? modelContext.save()
+    }
+    
+    private func removeFriendFromEvent(_ friend: Friend) {
+        event.removeFriend(friend.id)
+        try? modelContext.save()
+    }
+    
+    private func addQuickFriend() {
+        guard !newFriendName.isEmpty else { return }
+        
+        // Create new friend with trimmed name
+        let trimmedName = newFriendName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        
+        let friend = Friend(name: trimmedName)
+        modelContext.insert(friend)
+        
+        // Add to event
+        event.addFriend(friend)
+        try? modelContext.save()
+        
+        // Reset UI state
+        newFriendName = ""
+        showingAddFriendSheet = false
+        isAddingQuickFriend = false
+        isAddFriendFieldFocused = false
     }
     
     private var formattedDate: String {
@@ -244,5 +466,5 @@ struct SectionContainer<Content: View>: View {
     NavigationStack {
         EventDetailView(event: Event.preview)
     }
-    .modelContainer(for: Event.self, inMemory: true)
+    .modelContainer(for: [Event.self, Friend.self], inMemory: true)
 } 
