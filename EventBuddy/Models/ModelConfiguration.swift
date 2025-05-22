@@ -32,17 +32,3 @@ extension SwiftUI.App {
         return EventBuddySchema.sharedModelContainer
     }
 }
-
-/*
-Usage in App:
-
-@main
-struct EventBuddyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(for: [Event.self, Friend.self, Profile.self])
-    }
-}
-*/ 
