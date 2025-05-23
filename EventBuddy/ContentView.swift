@@ -11,6 +11,8 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 0
+    private let userStore = UserStore()
+    private let settingsStore = SettingsStore()
     
     // Flag to determine if we're in preview mode
     private var isPreview: Bool {
@@ -31,13 +33,13 @@ struct ContentView: View {
                 }
                 .tag(1)
 
-            Text("Profile Tab - Coming Soon")
+            ProfileView(userStore: userStore)
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }
                 .tag(2)
 
-            Text("Settings Tab - Coming Soon")
+            SettingsView(settingsStore: settingsStore)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
@@ -57,6 +59,7 @@ struct ContentView: View {
             await MainActor.run {
                 EventService.addSampleWWDCEvents(modelContext: modelContext)
                 FriendService.addSampleFriends(modelContext: modelContext)
+                // Note: UserStore already has sample data, no need to load from ProfileService
             }
         }
     }
@@ -64,5 +67,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Event.self, Friend.self, Profile.self], inMemory: true)
+        .modelContainer(for: [Event.self, Friend.self], inMemory: true)
 }

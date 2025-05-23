@@ -8,7 +8,7 @@ class EventService {
     // Add sample WWDC events based on the GitHub repo data
     static func addSampleWWDCEvents(modelContext: ModelContext) {
         // Clear existing events first
-        clearExistingEvents(modelContext: modelContext)
+//        clearExistingEvents(modelContext: modelContext)
         
         let events = [
             // SATURDAY, June 7th
