@@ -8,7 +8,7 @@ class EventService {
     // Add sample WWDC events based on the GitHub repo data
     static func addSampleWWDCEvents(modelContext: ModelContext) {
         // Clear existing events first
-//        clearExistingEvents(modelContext: modelContext)
+        clearExistingEvents(modelContext: modelContext)
         
         let events = [
             // SATURDAY, June 7th
@@ -498,15 +498,8 @@ class EventService {
     
     // Clear existing events
     private static func clearExistingEvents(modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Event>(predicate: #Predicate { $0.isWWDCEvent == true })
-        
         do {
-            let existingEvents = try modelContext.fetch(descriptor)
-            for event in existingEvents {
-                modelContext.delete(event)
-            }
-            try modelContext.save()
-            print("Cleared \(existingEvents.count) existing events")
+            try modelContext.delete(model: Event.self)
         } catch {
             print("Error clearing existing events: \(error)")
         }
