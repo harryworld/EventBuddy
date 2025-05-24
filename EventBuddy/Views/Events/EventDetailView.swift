@@ -1,5 +1,9 @@
 import SwiftUI
 import SwiftData
+import MapKit
+import CoreLocation
+import MapKit
+import CoreLocation
 
 struct EventDetailView: View {
     @Bindable var event: Event
@@ -87,23 +91,28 @@ struct EventDetailView: View {
                 
                 // Location Section
                 SectionContainer(title: "Location", icon: "mappin.circle.fill") {
-                    HStack {
-                        Text(event.location)
-                            .font(.headline)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            openMap()
-                        }) {
-                            Text("Map")
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text(event.location)
+                                .font(.headline)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                openMap()
+                            }) {
+                                Text("Directions")
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 8)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(20)
+                            }
                         }
+                        
+                        // Embedded Map
+                        EventMapView(event: event)
                     }
                 }
                 
@@ -420,7 +429,18 @@ struct EventDetailView: View {
     }
     
     private func openMap() {
-        // Logic to open map would go here
+        // Use geocoding to find the location and open in Maps
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(event.location) { placemarks, error in
+            if let placemark = placemarks?.first,
+               let _ = placemark.location {
+                let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
+                mapItem.name = event.title
+                mapItem.openInMaps(launchOptions: [
+                    MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+                ])
+            }
+        }
     }
     
     private func share() {

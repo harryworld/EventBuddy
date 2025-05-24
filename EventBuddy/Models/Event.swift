@@ -42,7 +42,7 @@ final class Event {
     init(id: UUID = UUID(), 
          title: String, 
          eventDescription: String, 
-         location: String, 
+         location: String,
          startDate: Date, 
          endDate: Date, 
          category: String,
@@ -102,7 +102,7 @@ extension Event {
         Event(
             title: "WWDC 2025",
             eventDescription: "Apple's Worldwide Developers Conference",
-            location: "Apple Park, Cupertino, CA",
+            location: "1 Apple Park Way, Cupertino, CA",
             startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 2, hour: 10))!,
             endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 6, hour: 18))!,
             category: "Conference",
