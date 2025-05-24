@@ -368,10 +368,11 @@ struct EventDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    share()
+                    openEventWebsite()
                 } label: {
-                    Image(systemName: "square.and.arrow.up")
+                    Image(systemName: "globe")
                 }
+                .disabled(event.url == nil)
             }
         }
         .sheet(item: $selectedFriendForDetailEdit) { friend in
@@ -490,8 +491,13 @@ struct EventDetailView: View {
         }
     }
     
-    private func share() {
-        // Logic to share event would go here
+    private func openEventWebsite() {
+        guard let urlString = event.url,
+              let url = URL(string: urlString) else {
+            return
+        }
+        
+        UIApplication.shared.open(url)
     }
 }
 

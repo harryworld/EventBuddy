@@ -111,7 +111,8 @@ extension Event {
             isWWDCEvent: true,
             countryCode: "US",
             countryFlag: "🇺🇸",
-            requiresTicket: true
+            requiresTicket: true,
+            url: "https://developer.apple.com/wwdc/"
         )
     }
     
