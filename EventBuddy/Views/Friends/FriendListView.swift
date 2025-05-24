@@ -17,84 +17,15 @@ struct FriendListView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // Search bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                    TextField("Search friends", text: $searchText)
-                        .autocorrectionDisabled()
-                }
-                .padding(10)
-                .background(Color(uiColor: .systemGray6))
-                .cornerRadius(8)
-                .padding(.horizontal)
-                
                 // Friends count and filter
-                HStack {
-                    Text("Friends")
-                        .font(.largeTitle)
-                        .bold()
-                    Spacer()
-                    Text("\(filteredFriends.count) connections")
-                        .foregroundColor(.secondary)
-                    
-                    Button {
-                        // Add friend action
-                        showingAddFriendSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                    }
-                }
-                .padding(.horizontal)
-                
+                friendsCount
+
                 // Filter buttons
-                HStack(spacing: 10) {
-                    // All Friends filter
-                    Button {
-                        selectedFilter = .all
-                    } label: {
-                        HStack {
-                            Image(systemName: selectedFilter == .all ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(selectedFilter == .all ? .blue : .gray)
-                            Text(FriendFilter.all.rawValue)
-                                .foregroundColor(.primary)
-                        }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                        .background(
-                            Capsule()
-                                .fill(selectedFilter == .all ? 
-                                      Color(uiColor: .systemGray5) : 
-                                      Color(uiColor: .systemGray6))
-                        )
-                    }
-                    
-                    // Favorites filter
-                    Button {
-                        selectedFilter = .favorites
-                    } label: {
-                        HStack {
-                            Image(systemName: selectedFilter == .favorites ? "star.fill" : "star")
-                                .foregroundColor(selectedFilter == .favorites ? .yellow : .gray)
-                            Text(FriendFilter.favorites.rawValue)
-                                .foregroundColor(.primary)
-                        }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                        .background(
-                            Capsule()
-                                .fill(selectedFilter == .favorites ? 
-                                      Color(uiColor: .systemGray5) : 
-                                      Color(uiColor: .systemGray6))
-                        )
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.horizontal)
-                
+                filterView
+
+                // Search bar
+                searchBar
+
                 // Friends list
                 List {
                     ForEach(filteredFriends) { friend in
@@ -157,11 +88,94 @@ struct FriendListView: View {
                     }
                 }
             }
-            .navigationBarHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        // Add friend action
+                        showingAddFriendSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
             .sheet(isPresented: $showingAddFriendSheet) {
                 AddFriendView()
             }
         }
+    }
+
+    private var searchBar: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            TextField("Search friends", text: $searchText)
+                .autocorrectionDisabled()
+        }
+        .padding(10)
+        .background(Color(uiColor: .systemGray6))
+        .cornerRadius(8)
+        .padding(.horizontal)
+    }
+
+    private var friendsCount: some View {
+        HStack {
+            Text("Friends")
+                .font(.largeTitle)
+                .bold()
+            Spacer()
+            Text("\(filteredFriends.count) connections")
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal)
+    }
+
+    private var filterView: some View {
+        HStack(spacing: 10) {
+            // All Friends filter
+            Button {
+                selectedFilter = .all
+            } label: {
+                HStack {
+                    Image(systemName: selectedFilter == .all ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(selectedFilter == .all ? .blue : .gray)
+                    Text(FriendFilter.all.rawValue)
+                        .foregroundColor(.primary)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    Capsule()
+                        .fill(selectedFilter == .all ?
+                              Color(uiColor: .systemGray5) :
+                              Color(uiColor: .systemGray6))
+                )
+            }
+
+            // Favorites filter
+            Button {
+                selectedFilter = .favorites
+            } label: {
+                HStack {
+                    Image(systemName: selectedFilter == .favorites ? "star.fill" : "star")
+                        .foregroundColor(selectedFilter == .favorites ? .yellow : .gray)
+                    Text(FriendFilter.favorites.rawValue)
+                        .foregroundColor(.primary)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    Capsule()
+                        .fill(selectedFilter == .favorites ?
+                              Color(uiColor: .systemGray5) :
+                              Color(uiColor: .systemGray6))
+                )
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal)
     }
 
     // Flag to determine if we're in preview mode

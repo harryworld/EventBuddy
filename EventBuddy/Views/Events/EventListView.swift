@@ -24,9 +24,6 @@ struct EventListView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
-                // Search bar
-                searchBar
-                
                 // Title and dates
                 eventHeaderInfo
                 
@@ -48,16 +45,6 @@ struct EventListView: View {
                         Image(systemName: "plus")
                             .font(.title2)
                             .foregroundColor(.blue)
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        // Menu button action
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.blue)
-                            .font(.title2)
                     }
                 }
             }
@@ -167,6 +154,9 @@ struct EventListView: View {
 
     private var eventListByDate: some View {
         ScrollView {
+            // Search bar
+            searchBar
+
             LazyVStack(alignment: .leading, spacing: 25) {
                 if filteredEvents.isEmpty {
                     ContentUnavailableView {
