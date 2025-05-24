@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 class EventService {
     
-    // Add sample WWDC events based on the GitHub repo data
+    // Add sample WWDC events based on cross-referenced data from official sources
     static func addSampleWWDCEvents(modelContext: ModelContext) {
         // Clear existing events first
         clearExistingEvents(modelContext: modelContext)
@@ -15,16 +15,17 @@ class EventService {
             Event(
                 title: "One More Thing 2025",
                 eventDescription: "Conference event for iOS developers",
-                location: "Cupertino, California",
+                location: "Cupertino, California", // Location not specified on official site
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 9, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 16, minute: 0),
                 category: "Conference",
                 eventType: EventType.conference.rawValue,
-                notes: "Runs from 9:00am-4:00pm",
+                notes: "Runs from 9:00am-4:00pm. Requires a ticket.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
             ),
             
             Event(
@@ -35,7 +36,7 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
                 category: "Social",
                 eventType: EventType.run.rawValue,
-                notes: "Runs from 10:00am-12:00pm",
+                notes: "Runs from 10:00am-12:00pm. Registration suggested.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
@@ -59,12 +60,12 @@ class EventService {
             Event(
                 title: "Apple Park Happy Hour",
                 eventDescription: "Social event at Apple Park",
-                location: "Apple Park, Cupertino, California",
+                location: "1 Apple Park Way, Cupertino, CA 95014",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 18, minute: 30),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 22, minute: 0),
                 category: "Social",
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 6:30pm-10:00pm",
+                notes: "Runs from 6:30pm-10:00pm. RSVP requested.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
@@ -80,17 +81,18 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 16, minute: 0),
                 category: "Conference",
                 eventType: EventType.conference.rawValue,
-                notes: "Runs from 9:30am-4:00pm",
+                notes: "Runs from 9:30am-4:00pm. Requires a ticket.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
             ),
             
             Event(
-                title: "WWDC Check-in",
-                eventDescription: "Official WWDC check-in with refreshments and games",
-                location: "Infinite Loop, Cupertino, California",
+                title: "WWDC Check-in, refreshments, and games",
+                eventDescription: "Official WWDC check-in with refreshments and games at Infinite Loop",
+                location: "1 Infinite Loop, Cupertino, CA 95014",
                 startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 15, minute: 0),
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 19, minute: 0),
                 category: "Official",
@@ -110,7 +112,7 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 23, minute: 0),
                 category: "Social",
                 eventType: EventType.party.rawValue,
-                notes: "Runs from 6:30pm-11:00pm",
+                notes: "Runs from 6:30pm-11:00pm. Requires a ticket.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
@@ -118,8 +120,8 @@ class EventService {
             ),
             
             Event(
-                title: "A Vision Pro Spatial Art Experience",
-                eventDescription: "Flatland: Mixed Reality Dreams",
+                title: "A Vision Pro Spatial Art Experience — Flatland: Mixed Reality Dreams",
+                eventDescription: "Vision Pro spatial art experience",
                 location: "Cupertino, California",
                 startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 9, minute: 0),
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 18, minute: 0),
@@ -135,7 +137,7 @@ class EventService {
             Event(
                 title: "Special Event at Apple Park",
                 eventDescription: "Official Apple WWDC Special Event",
-                location: "Apple Park, Cupertino, California",
+                location: "1 Apple Park Way, Cupertino, CA 95014",
                 startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 9, minute: 0),
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
                 category: "Official",
@@ -144,21 +146,67 @@ class EventService {
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresTicket: true,
+                url: "https://developer.apple.com/wwdc25/"
             ),
             
             Event(
                 title: "WWDC25 Keynote & SOTU Watch Party",
                 eventDescription: "Watch party hosted by iOSDevHappyHour at CommunityKit",
-                location: "CommunityKit, Cupertino, California",
+                location: "10380 Perimeter Rd, Cupertino, CA 95014 (Hyatt House San Jose Cupertino)",
                 startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 7, minute: 45),
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
                 category: "Watch Party",
                 eventType: EventType.watchParty.rawValue,
-                notes: "Runs from 7:45am-4:00pm",
+                notes: "Runs from 7:45am-4:00pm. Hosted by iOSDevHappyHour at CommunityKit.",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸",
+                url: "https://communitykit.social/"
+            ),
+            
+            Event(
+                title: "WWDC25 Keynote & SOTU Watch Party by One More Thing",
+                eventDescription: "Watch party hosted by One More Thing",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 17, minute: 30),
+                category: "Watch Party",
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 8:00am-5:30pm",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸",
+                url: "https://omt-conf.com/"
+            ),
+            
+            Event(
+                title: "Students, Swift, St★rs",
+                eventDescription: "Event for students and Swift developers",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
+                category: "Social",
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 7:00pm-10:00pm",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸"
+            ),
+            
+            Event(
+                title: "🇫🇷🇨🇦🇱🇺🇧🇪 The French Dinner",
+                eventDescription: "French-speaking community dinner",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 30),
+                category: "Social",
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00pm-10:30pm. Requires registration.",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸",
+                requiresRegistration: true
             ),
             
             // International Watch Parties
@@ -177,7 +225,7 @@ class EventService {
             ),
             
             Event(
-                title: "WWDC'25 TLV Watch Party",
+                title: "WWDC'25 TLV Watch Party @ monday.com",
                 eventDescription: "Watch party at monday.com",
                 location: "Tel Aviv, Israel",
                 startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
@@ -191,7 +239,7 @@ class EventService {
             ),
             
             Event(
-                title: "NSLondon WWDC25 keynote viewing party",
+                title: "NSLondon WWDC25 keynote viewing party at Ford",
                 eventDescription: "Watch party at Ford",
                 location: "London, United Kingdom",
                 startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 17, minute: 30),
@@ -218,31 +266,61 @@ class EventService {
                 countryFlag: "🇺🇸"
             ),
             
+            // TUESDAY, June 10th
             Event(
-                title: "WWDC25 After Party",
-                eventDescription: "Official WWDC after party celebration",
-                location: "Apple Park, Cupertino, California",
-                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
-                category: "Social",
-                eventType: EventType.party.rawValue,
-                notes: "Runs from 6:00pm-10:00pm. Requires WWDC ticket.",
+                title: "Apple Developer Center Sessions",
+                eventDescription: "Morning, Afternoon, Evening sessions",
+                location: "1 Apple Park Way, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                category: "Official",
+                eventType: EventType.conference.rawValue,
+                notes: "Runs from 10:00am-6:00pm. Requires WWDC ticket.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresTicket: true,
+                url: "https://developer.apple.com/wwdc25/"
             ),
             
-            // TUESDAY, June 10th
             Event(
-                title: "SwiftUI Workshop",
-                eventDescription: "Hands-on SwiftUI workshop with Apple engineers",
-                location: "Apple Developer Academy, Cupertino",
+                title: "CommunityKit",
+                eventDescription: "Community meetups, workshops, hackathons, and more",
+                location: "10380 Perimeter Rd, Cupertino, CA 95014 (Hyatt House San Jose Cupertino)",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 0),
-                category: "Workshop",
-                eventType: EventType.conference.rawValue,
-                notes: "Limited capacity. Bring your MacBook.",
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 17, minute: 0),
+                category: "Community",
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 9:00am-5:00pm. Free entry.",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸",
+                url: "https://communitykit.social/"
+            ),
+            
+            Event(
+                title: "#WWDCScholars meetup at WWDC25",
+                eventDescription: "Meetup for WWDC Scholarship and Swift Student Challenge winners",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
+                category: "Social",
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 7:00pm-10:00pm. For WWDC Scholarship and Swift Student Challenge winners.",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸"
+            ),
+            
+            Event(
+                title: "Beer with Swift @WWDC25 by createwithswift.com",
+                eventDescription: "Social event for Swift developers",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 21, minute: 0),
+                category: "Social",
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00pm-9:00pm. Requires registration.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
@@ -250,43 +328,45 @@ class EventService {
             ),
             
             Event(
-                title: "Vision Pro Dev Meetup",
-                eventDescription: "Meetup for Vision Pro developers to share experiences",
-                location: "Infinite Loop, Cupertino",
+                title: "iOSDevHappyHour @ WWDC25 IRL",
+                eventDescription: "In-person meetup by iOSDevHappyHour",
+                location: "Fuego Sports Bar and Club, Sunnyvale, CA",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
+                category: "Social",
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00pm-10:00pm. Requires registration.",
+                isWWDCEvent: true,
+                countryCode: "US",
+                countryFlag: "🇺🇸",
+                requiresRegistration: true
+            ),
+            
+            Event(
+                title: "RocketSim Meetup at CommunityKit",
+                eventDescription: "RocketSim developer meetup",
+                location: "10380 Perimeter Rd, Cupertino, CA 95014 (Hyatt House San Jose Cupertino)",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
                 category: "Meetup",
                 eventType: EventType.meetup.rawValue,
-                notes: "Informal gathering for Vision Pro developers",
-                isWWDCEvent: true,
-                countryCode: "US",
-                countryFlag: "🇺🇸"
-            ),
-            
-            Event(
-                title: "Swift Concurrency Deep Dive",
-                eventDescription: "Technical session on Swift Concurrency advancements",
-                location: "Apple Park, Cupertino",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 30),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 0),
-                category: "Session",
-                eventType: EventType.conference.rawValue,
-                notes: "Technical session for advanced Swift developers",
+                notes: "Runs from 2:00pm-4:00pm. Requires registration.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresRegistration: true,
+                url: "https://communitykit.social/"
             ),
             
             Event(
-                title: "Women in Tech Networking",
-                eventDescription: "Networking event for women in technology",
+                title: "The Interface: WWDC25",
+                eventDescription: "Design-focused event",
                 location: "Cupertino, California",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 17, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 30),
-                category: "Networking",
-                eventType: EventType.social.rawValue,
-                notes: "Empowering event with guest speakers and networking",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                category: "Design",
+                eventType: EventType.conference.rawValue,
+                notes: "Runs from 2:00pm-6:00pm. Requires registration.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
@@ -295,181 +375,79 @@ class EventService {
             
             // WEDNESDAY, June 11th
             Event(
-                title: "Accessibility in iOS Apps",
-                eventDescription: "Workshop on building more accessible iOS applications",
-                location: "Apple Developer Academy, Cupertino",
+                title: "CommunityKit",
+                eventDescription: "Community meetups, workshops, hackathons, and more",
+                location: "10380 Perimeter Rd, Cupertino, CA 95014 (Hyatt House San Jose Cupertino)",
                 startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 9, minute: 0),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 11, minute: 30),
-                category: "Workshop",
-                eventType: EventType.conference.rawValue,
-                notes: "Practical workshop on implementing accessibility features",
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 17, minute: 0),
+                category: "Community",
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 9:00am-5:00pm. Free entry.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                url: "https://communitykit.social/"
             ),
             
             Event(
-                title: "Independent Developer Lunch",
-                eventDescription: "Casual lunch meetup for indie developers",
-                location: "Caffè Macs, Apple Park",
+                title: "Annual WWDC Women's Lunch (unofficial)",
+                eventDescription: "Unofficial women's networking lunch",
+                location: "Cupertino, California",
                 startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 12, minute: 0),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 13, minute: 30),
                 category: "Social",
-                eventType: EventType.informal.rawValue,
-                notes: "No registration required, just show up!",
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 12:00pm-1:30pm. Free.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸"
             ),
             
             Event(
-                title: "WWDC Berlin Remote Viewing",
-                eventDescription: "Remote session viewing with Berlin Swift community",
-                location: "Berlin, Germany",
-                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 16, minute: 0),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 20, minute: 0),
-                category: "Watch Party",
-                eventType: EventType.watchParty.rawValue,
-                notes: "Join fellow developers to watch session recordings",
-                isWWDCEvent: true,
-                countryCode: "DE",
-                countryFlag: "🇩🇪"
-            ),
-            
-            Event(
-                title: "Apple Gaming Night",
-                eventDescription: "Gaming tournament and networking for game developers",
-                location: "Apple Park, Cupertino",
-                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 19, minute: 0),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 23, minute: 0),
-                category: "Social",
-                eventType: EventType.party.rawValue,
-                notes: "Fun gaming event with prizes and refreshments",
+                title: "AiOS Meetup",
+                eventDescription: "AI and iOS development meetup",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 16, minute: 30),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
+                category: "Meetup",
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 4:30pm-6:00pm. Free.",
                 isWWDCEvent: true,
                 countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresRegistration: true
+                countryFlag: "🇺🇸"
             ),
             
             // THURSDAY, June 12th
             Event(
-                title: "WWDC Lab: SwiftUI Performance",
-                eventDescription: "One-on-one lab with Apple engineers about SwiftUI performance",
-                location: "Apple Park, Cupertino",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 9, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 0),
-                category: "Lab",
-                eventType: EventType.conference.rawValue,
-                notes: "Bring your projects for optimization advice",
-                isWWDCEvent: true,
-                countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresTicket: true
-            ),
-            
-            Event(
-                title: "Swift for Good Hackathon",
-                eventDescription: "Collaborative coding for charitable projects",
+                title: "One More Thing 2025 - Final Day",
+                eventDescription: "Final day of the One More Thing conference",
                 location: "Cupertino, California",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 10, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
-                category: "Hackathon",
-                eventType: EventType.event.rawValue,
-                notes: "Full-day hackathon focused on social impact projects",
-                isWWDCEvent: true,
-                countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresRegistration: true
-            ),
-            
-            Event(
-                title: "Machine Learning in iOS Apps",
-                eventDescription: "Technical deep dive into CoreML and on-device ML",
-                location: "Apple Developer Academy, Cupertino",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 14, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 16, minute: 30),
-                category: "Workshop",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 8, minute: 30),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 19, minute: 0),
+                category: "Conference",
                 eventType: EventType.conference.rawValue,
-                notes: "Advanced session on implementing ML in iOS applications",
+                notes: "Runs from 8:30am-7:00pm",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresTicket: true
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
             ),
             
+            // Continue with Vision Pro Spatial Art Experience
             Event(
-                title: "Tokyo Swift Meetup: WWDC Special",
-                eventDescription: "Special meetup to discuss WWDC announcements",
-                location: "Tokyo, Japan",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 19, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 21, minute: 30),
-                category: "Meetup",
-                eventType: EventType.meetup.rawValue,
-                notes: "Presentations and discussions in Japanese and English",
-                isWWDCEvent: true,
-                countryCode: "JP",
-                countryFlag: "🇯🇵"
-            ),
-            
-            // FRIDAY, June 13th
-            Event(
-                title: "SwiftUI Challenge Finals",
-                eventDescription: "Final presentation of the week-long SwiftUI Challenge",
-                location: "Apple Park, Cupertino",
-                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 10, minute: 0),
-                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 13, minute: 0),
-                category: "Contest",
-                eventType: EventType.event.rawValue,
-                notes: "Winners announcement and demo of top projects",
-                isWWDCEvent: true,
-                countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresTicket: true
-            ),
-            
-            Event(
-                title: "WWDC25 Farewell Lunch",
-                eventDescription: "Casual farewell lunch for WWDC attendees",
-                location: "Infinite Loop, Cupertino",
-                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 12, minute: 30),
-                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 14, minute: 30),
-                category: "Social",
-                eventType: EventType.social.rawValue,
-                notes: "Last chance to connect with fellow developers",
+                title: "A Vision Pro Spatial Art Experience — Flatland: Mixed Reality Dreams",
+                eventDescription: "Vision Pro spatial art experience - Final days",
+                location: "Cupertino, California",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
+                category: "Experience",
+                eventType: EventType.art.rawValue,
+                notes: "Runs from 9:00am-6:00pm daily (June 9-12). Free admission.",
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸"
-            ),
-            
-            Event(
-                title: "Swift Community Awards",
-                eventDescription: "Annual recognition of outstanding Swift community contributions",
-                location: "San Jose Convention Center, California",
-                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 17, minute: 0),
-                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 20, minute: 0),
-                category: "Awards",
-                eventType: EventType.party.rawValue,
-                notes: "Semi-formal event with dinner and awards ceremony",
-                isWWDCEvent: true,
-                countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresTicket: true
-            ),
-            
-            Event(
-                title: "Sydney WWDC Wrap-up",
-                eventDescription: "Community discussion of WWDC announcements",
-                location: "Sydney, Australia",
-                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 21, minute: 0),
-                category: "Meetup",
-                eventType: EventType.meetup.rawValue,
-                notes: "Casual meetup with presentations and networking",
-                isWWDCEvent: true,
-                countryCode: "AU",
-                countryFlag: "🇦🇺"
-            ),
+            )
         ]
         
         for event in events {
