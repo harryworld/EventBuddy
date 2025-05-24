@@ -159,7 +159,12 @@ struct EventListView: View {
             .padding(.bottom, 10)
         }
     }
-    
+
+    // Flag to determine if we're in preview mode
+    private var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
     private var eventListByDate: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 25) {
@@ -169,10 +174,13 @@ struct EventListView: View {
                     } description: {
                         Text("There are no events matching your criteria.")
                     } actions: {
-                        Button("Add Sample Events") {
-                            addSampleEvents()
+                        // Preview only
+                        if isPreview {
+                            Button("Add Sample Events") {
+                                addSampleEvents()
+                            }
+                            .buttonStyle(.borderedProminent)
                         }
-                        .buttonStyle(.borderedProminent)
                     }
                     .padding(.top, 50)
                 } else {

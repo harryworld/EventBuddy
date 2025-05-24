@@ -153,23 +153,7 @@ struct FriendListView: View {
                 .listStyle(.plain)
                 .overlay {
                     if filteredFriends.isEmpty {
-                        ContentUnavailableView {
-                            Label(emptyStateLabel, systemImage: emptyStateIcon)
-                        } description: {
-                            Text(emptyStateDescription)
-                        } actions: {
-                            if selectedFilter == .all {
-                                Button("Add Sample Friends") {
-                                    addSampleFriends()
-                                }
-                                .buttonStyle(.borderedProminent)
-                            } else {
-                                Button("View All Friends") {
-                                    selectedFilter = .all
-                                }
-                                .buttonStyle(.borderedProminent)
-                            }
-                        }
+                        noFriends
                     }
                 }
             }
@@ -179,7 +163,34 @@ struct FriendListView: View {
             }
         }
     }
-    
+
+    // Flag to determine if we're in preview mode
+    private var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
+    private var noFriends: some View {
+        ContentUnavailableView {
+            Label(emptyStateLabel, systemImage: emptyStateIcon)
+        } description: {
+            Text(emptyStateDescription)
+        } actions: {
+            if selectedFilter == .all {
+                if isPreview {
+                    Button("Add Sample Friends") {
+                        addSampleFriends()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            } else {
+                Button("View All Friends") {
+                    selectedFilter = .all
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+
     private var filteredFriends: [Friend] {
         let searchFiltered = friends.filter { friend in
             if searchText.isEmpty {
