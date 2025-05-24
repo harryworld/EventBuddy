@@ -2,8 +2,7 @@ import SwiftUI
 import SwiftData
 import MapKit
 import CoreLocation
-import MapKit
-import CoreLocation
+import EventKit
 
 struct EventDetailView: View {
     @Bindable var event: Event
@@ -14,7 +13,8 @@ struct EventDetailView: View {
     @State private var selectedFriendForDetailEdit: Friend? = nil
     @Environment(\.modelContext) private var modelContext
     @FocusState private var isAddFriendFieldFocused: Bool
-    
+    @State private var isAddedToCalendar = false
+
     @Query private var allFriends: [Friend]
     
     private var filteredFriends: [Friend] {
@@ -75,16 +75,33 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: {
-                            addToCalendar()
-                        }) {
-                            Text("Add")
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
+                        if isAddedToCalendar {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Added")
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.green)
+                            }
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 8)
+                            .background(Color.green.opacity(0.1))
+                            .cornerRadius(20)
+                        } else {
+                            Button(action: {
+                                addToCalendar()
+                                event.toggleAttending()
+                                try? modelContext.save()
+                                isAddedToCalendar = true
+                            }) {
+                                Text("Add")
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 8)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(20)
+                            }
                         }
                     }
                 }
@@ -425,7 +442,37 @@ struct EventDetailView: View {
     }
     
     private func addToCalendar() {
-        // Logic to add to calendar would go here
+        let eventStore = EKEventStore()
+        
+        Task {
+            do {
+                // Request calendar access
+                let granted = try await eventStore.requestWriteOnlyAccessToEvents()
+                if granted {
+                    // Create calendar event
+                    let calendarEvent = EKEvent(eventStore: eventStore)
+                    calendarEvent.title = event.title
+                    calendarEvent.notes = event.eventDescription
+                    calendarEvent.location = event.location
+                    calendarEvent.startDate = event.startDate
+                    calendarEvent.endDate = event.endDate
+                    
+                    // Set calendar to default
+                    calendarEvent.calendar = eventStore.defaultCalendarForNewEvents
+                    
+                    // Save event
+                    try eventStore.save(calendarEvent, span: .thisEvent)
+                    // Show success feedback
+                    await MainActor.run {
+                        // You might want to add a success alert or haptic feedback here
+                    }
+                } else {
+                    print("Calendar access denied")
+                }
+            } catch {
+                print("Error saving event to calendar: \(error)")
+            }
+        }
     }
     
     private func openMap() {

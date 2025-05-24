@@ -196,6 +196,8 @@ struct EventListView: View {
                     .padding(.bottom, 20)
                 }
             }
+            .animation(.spring(duration: 0.2), value: showOnlyAttending)
+            .animation(.spring(duration: 0.2), value: selectedEventFilter)
         }
     }
     
