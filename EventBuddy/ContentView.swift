@@ -11,6 +11,9 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 0
+    @State private var eventSyncService: EventSyncService?
+    @State private var showingSyncError = false
+    
     private let userStore = UserStore()
     private let settingsStore = SettingsStore()
     
@@ -20,46 +23,87 @@ struct ContentView: View {
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            EventListView()
-                .tabItem {
-                    Label("Events", systemImage: "calendar")
-                }
-                .tag(0)
+        Group {
+            if let eventSyncService = eventSyncService {
+                TabView(selection: $selectedTab) {
+                    EventListView()
+                        .tabItem {
+                            Label("Events", systemImage: "calendar")
+                        }
+                        .tag(0)
 
-            FriendListView()
-                .tabItem {
-                    Label("Friends", systemImage: "person.2")
-                }
-                .tag(1)
+                    FriendListView()
+                        .tabItem {
+                            Label("Friends", systemImage: "person.2")
+                        }
+                        .tag(1)
 
-            ProfileView(userStore: userStore)
-                .tabItem {
-                    Label("Profile", systemImage: "person.circle")
-                }
-                .tag(2)
+                    ProfileView(userStore: userStore)
+                        .tabItem {
+                            Label("Profile", systemImage: "person.circle")
+                        }
+                        .tag(2)
 
-            SettingsView(settingsStore: settingsStore)
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    SettingsView(settingsStore: settingsStore)
+                        .tabItem {
+                            Label("Settings", systemImage: "gear")
+                        }
+                        .tag(3)
                 }
-                .tag(3)
+                .environment(eventSyncService)
+                .alert("Sync Error", isPresented: $showingSyncError) {
+                    Button("OK") { }
+                    Button("Retry") {
+                        Task {
+                            await eventSyncService.syncEvents()
+                        }
+                    }
+                } message: {
+                    Text(eventSyncService.syncError ?? "Unknown error occurred")
+                }
+            } else {
+                ProgressView("Loading...")
+                    .onAppear {
+                        setupServices()
+                    }
+            }
         }
         .onAppear {
-            // Only load sample data when not in preview
-            if !isPreview {
-                loadSampleData()
+            if eventSyncService != nil {
+                loadInitialData()
             }
         }
     }
     
-    private func loadSampleData() {
-        // For demonstration purposes, always load sample data
+    private func setupServices() {
+        eventSyncService = EventSyncService(modelContext: modelContext)
+        loadInitialData()
+    }
+    
+    private func loadInitialData() {
+        guard let eventSyncService = eventSyncService else { return }
+        
         Task {
+            // Load friends sample data
             await MainActor.run {
-                EventService.addSampleWWDCEvents(modelContext: modelContext)
                 FriendService.addSampleFriends(modelContext: modelContext)
-                // Note: UserStore already has sample data, no need to load from ProfileService
+            }
+            
+            // Sync events from JSON file
+            if !isPreview {
+                await eventSyncService.syncEvents()
+                
+                // Show error alert if sync failed
+                if let syncError = eventSyncService.syncError, !syncError.isEmpty {
+                    await MainActor.run {
+                        showingSyncError = true
+                    }
+                }
+            } else {
+                // In preview mode, use the old sample data
+                await MainActor.run {
+                    EventService.addSampleWWDCEvents(modelContext: modelContext)
+                }
             }
         }
     }
@@ -69,3 +113,4 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: [Event.self, Friend.self], inMemory: true)
 }
+

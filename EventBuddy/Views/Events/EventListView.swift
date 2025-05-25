@@ -3,13 +3,13 @@ import SwiftData
 
 struct EventListView: View {
     @Environment(\.modelContext) private var modelContext
-    
+    @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
+
     @Query(filter: #Predicate<Event> { event in event.isWWDCEvent == true },
            sort: \Event.startDate) private var events: [Event]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
-    @State private var isLoading = false
     @State private var searchText = ""
     @State private var showOnlyAttending = false
     
@@ -38,6 +38,25 @@ struct EventListView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        Task {
+                            await eventSyncService?.syncEvents()
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.title3)
+                            if eventSyncService?.isLoading == true {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                        .foregroundColor(.blue)
+                    }
+                    .disabled(eventSyncService?.isLoading == true)
+                }
+                
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingAddEventSheet = true
@@ -52,8 +71,8 @@ struct EventListView: View {
                 AddEventView()
             }
             .overlay {
-                if isLoading {
-                    ProgressView("Loading events...")
+                if eventSyncService?.isLoading == true {
+                    ProgressView("Syncing events...")
                         .padding()
                         .background(.ultraThinMaterial)
                         .cornerRadius(10)
@@ -101,6 +120,29 @@ struct EventListView: View {
             Text("June 7-13, 2025 • Cupertino")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+            
+            // Sync status
+            if let lastSyncDate = eventSyncService?.lastSyncDate {
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.caption)
+                    Text("Last synced: \(formatSyncDate(lastSyncDate))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 2)
+            } else if let syncError = eventSyncService?.syncError, !syncError.isEmpty {
+                HStack(spacing: 4) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("Sync failed")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 2)
+            }
         }
         .padding(.horizontal)
         .padding(.bottom, 15)
@@ -255,24 +297,23 @@ struct EventListView: View {
     }
     
     private func addSampleEvents() {
-        isLoading = true
-        
-        // Simulate network delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        Task {
             EventService.addSampleWWDCEvents(modelContext: modelContext)
-            isLoading = false
         }
     }
     
     private func refreshEvents() async {
-        isLoading = true
-        // Simulate network fetch
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        isLoading = false
+        await eventSyncService?.syncEvents()
+    }
+    
+    private func formatSyncDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
 
 #Preview {
     EventListView()
         .modelContainer(for: Event.self, inMemory: true)
-} 
+}

@@ -15,6 +15,90 @@ enum EventType: String, Codable, CaseIterable {
     case run = "Run"
 }
 
+// MARK: - JSON Data Transfer Objects
+
+struct EventsResponse: Codable {
+    let events: [EventDTO]
+    let lastUpdated: String
+    let version: String
+}
+
+// MARK: - Date Parsing Helper
+
+private func parseISO8601Date(_ dateString: String) -> Date? {
+    let formatter = ISO8601DateFormatter()
+    
+    // Try with timezone information first
+    formatter.formatOptions = [.withInternetDateTime]
+    if let date = formatter.date(from: dateString) {
+        return date
+    }
+    
+    // Fallback: try with different format options
+    formatter.formatOptions = [.withInternetDateTime, .withTimeZone]
+    if let date = formatter.date(from: dateString) {
+        return date
+    }
+    
+    // Last resort: try with full format options
+    formatter.formatOptions = [.withFullDate, .withFullTime, .withTimeZone]
+    return formatter.date(from: dateString)
+}
+
+struct EventDTO: Codable, Identifiable {
+    let id: String
+    let title: String
+    let eventDescription: String
+    let location: String
+    let startDate: String
+    let endDate: String
+    let category: String
+    let eventType: String
+    let notes: String?
+    let isWWDCEvent: Bool
+    let countryCode: String?
+    let countryFlag: String?
+    let requiresTicket: Bool
+    let requiresRegistration: Bool
+    let url: String?
+    let createdAt: String
+    let updatedAt: String
+    
+    // Convert to Event model
+    func toEvent() -> Event? {
+        guard let uuid = UUID(uuidString: id),
+              let startDate = parseISO8601Date(startDate),
+              let endDate = parseISO8601Date(endDate),
+              let createdAt = parseISO8601Date(createdAt),
+              let updatedAt = parseISO8601Date(updatedAt) else {
+            return nil
+        }
+        
+        let event = Event(
+            id: uuid,
+            title: title,
+            eventDescription: eventDescription,
+            location: location,
+            startDate: startDate,
+            endDate: endDate,
+            category: category,
+            eventType: eventType,
+            notes: notes,
+            isWWDCEvent: isWWDCEvent,
+            countryCode: countryCode,
+            countryFlag: countryFlag,
+            requiresTicket: requiresTicket,
+            requiresRegistration: requiresRegistration,
+            url: url
+        )
+        
+        event.createdAt = createdAt
+        event.updatedAt = updatedAt
+        
+        return event
+    }
+}
+
 @Model
 final class Event {
     var id: UUID
@@ -92,6 +176,78 @@ final class Event {
     func toggleAttending() {
         isAttending.toggle()
         updatedAt = Date()
+    }
+    
+    // Convert to DTO for JSON serialization
+    func toDTO() -> EventDTO {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        
+        return EventDTO(
+            id: id.uuidString,
+            title: title,
+            eventDescription: eventDescription,
+            location: location,
+            startDate: formatter.string(from: startDate),
+            endDate: formatter.string(from: endDate),
+            category: category,
+            eventType: eventType,
+            notes: notes,
+            isWWDCEvent: isWWDCEvent,
+            countryCode: countryCode,
+            countryFlag: countryFlag,
+            requiresTicket: requiresTicket,
+            requiresRegistration: requiresRegistration,
+            url: url,
+            createdAt: formatter.string(from: createdAt),
+            updatedAt: formatter.string(from: updatedAt)
+        )
+    }
+    
+    // Check if this event needs updating based on a DTO
+    func needsUpdate(from dto: EventDTO) -> Bool {
+        guard let dtoUpdatedAt = parseISO8601Date(dto.updatedAt) else {
+            return false
+        }
+        
+        return dtoUpdatedAt > updatedAt ||
+               title != dto.title ||
+               eventDescription != dto.eventDescription ||
+               location != dto.location ||
+               category != dto.category ||
+               eventType != dto.eventType ||
+               notes != dto.notes ||
+               isWWDCEvent != dto.isWWDCEvent ||
+               countryCode != dto.countryCode ||
+               countryFlag != dto.countryFlag ||
+               requiresTicket != dto.requiresTicket ||
+               requiresRegistration != dto.requiresRegistration ||
+               url != dto.url
+    }
+    
+    // Update this event from a DTO
+    func update(from dto: EventDTO) {
+        guard let startDate = parseISO8601Date(dto.startDate),
+              let endDate = parseISO8601Date(dto.endDate),
+              let updatedAt = parseISO8601Date(dto.updatedAt) else {
+            return
+        }
+        
+        self.title = dto.title
+        self.eventDescription = dto.eventDescription
+        self.location = dto.location
+        self.startDate = startDate
+        self.endDate = endDate
+        self.category = dto.category
+        self.eventType = dto.eventType
+        self.notes = dto.notes
+        self.isWWDCEvent = dto.isWWDCEvent
+        self.countryCode = dto.countryCode
+        self.countryFlag = dto.countryFlag
+        self.requiresTicket = dto.requiresTicket
+        self.requiresRegistration = dto.requiresRegistration
+        self.url = dto.url
+        self.updatedAt = updatedAt
     }
 }
 
