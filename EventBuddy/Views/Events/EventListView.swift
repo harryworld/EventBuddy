@@ -5,8 +5,7 @@ struct EventListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
 
-    @Query(filter: #Predicate<Event> { event in event.isWWDCEvent == true },
-           sort: \Event.startDate) private var events: [Event]
+    @Query(sort: \Event.startDate) private var events: [Event]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all

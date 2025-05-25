@@ -8,6 +8,7 @@ struct AddEventView: View {
     @State private var title = ""
     @State private var eventDescription = ""
     @State private var location = ""
+    @State private var address = ""
     @State private var countryCode = "US"
     @State private var countryFlag = "🇺🇸"
     @State private var startDate = Date()
@@ -62,6 +63,9 @@ struct AddEventView: View {
                 
                 Section("Location") {
                     TextField("Location", text: $location)
+                        .textInputAutocapitalization(.words)
+                    
+                    TextField("Address", text: $address)
                         .textInputAutocapitalization(.words)
                     
                     Picker("Country", selection: $countryCode) {
@@ -158,12 +162,11 @@ struct AddEventView: View {
             title: title,
             eventDescription: eventDescription,
             location: location,
+            address: address.isEmpty ? nil : address,
             startDate: startDate,
             endDate: endDate,
-            category: "WWDC",
             eventType: eventType,
             notes: notes.isEmpty ? nil : notes,
-            isWWDCEvent: true,
             countryCode: countryCode,
             countryFlag: countryFlag,
             requiresTicket: requiresTicket,

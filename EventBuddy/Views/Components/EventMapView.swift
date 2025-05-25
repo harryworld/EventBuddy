@@ -81,7 +81,8 @@ struct EventMapView: View {
     
     private func geocodeLocation() {
         let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(event.location) { placemarks, error in
+        let addressToGeocode = event.address ?? event.location
+        geocoder.geocodeAddressString(addressToGeocode) { placemarks, error in
             DispatchQueue.main.async {
                 isLoading = false
                 
@@ -114,7 +115,8 @@ struct EventMapView: View {
         } else {
             // Fallback to search by location name
             let geocoder = CLGeocoder()
-            geocoder.geocodeAddressString(event.location) { placemarks, error in
+            let addressToGeocode = event.address ?? event.location
+            geocoder.geocodeAddressString(addressToGeocode) { placemarks, error in
                 if let placemark = placemarks?.first,
                    let _ = placemark.location {
                     let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
@@ -140,7 +142,7 @@ struct EventMapView: View {
             location: "Unknown Location",
             startDate: Date(),
             endDate: Date(),
-            category: "Test"
+            eventType: EventType.social.rawValue
         ))
     }
     .padding()

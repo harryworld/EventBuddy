@@ -6,13 +6,7 @@ enum EventType: String, Codable, CaseIterable {
     case keynote = "Keynote"
     case watchParty = "Watch Party"
     case social = "Social"
-    case event = "Event"
     case meetup = "Meetup"
-    case conference = "Conference"
-    case informal = "Informal Gathering"
-    case party = "Party"
-    case art = "Art Experience"
-    case run = "Run"
 }
 
 // MARK: - JSON Data Transfer Objects
@@ -50,12 +44,11 @@ struct EventDTO: Codable, Identifiable {
     let title: String
     let eventDescription: String
     let location: String
+    let address: String?
     let startDate: String
     let endDate: String
-    let category: String
     let eventType: String
     let notes: String?
-    let isWWDCEvent: Bool
     let countryCode: String?
     let countryFlag: String?
     let requiresTicket: Bool
@@ -82,12 +75,11 @@ struct EventDTO: Codable, Identifiable {
             title: title,
             eventDescription: eventDescription,
             location: location,
+            address: address,
             startDate: startDate,
             endDate: endDate,
-            category: category,
             eventType: eventType,
             notes: notes,
-            isWWDCEvent: isWWDCEvent,
             countryCode: countryCode,
             countryFlag: countryFlag,
             requiresTicket: requiresTicket,
@@ -147,12 +139,11 @@ final class Event {
     var title: String
     var eventDescription: String
     var location: String
+    var address: String?
     var startDate: Date
     var endDate: Date
-    var category: String
     var eventType: String
     var notes: String?
-    var isWWDCEvent: Bool
     var countryCode: String?
     var countryFlag: String?
     var requiresTicket: Bool
@@ -170,12 +161,11 @@ final class Event {
          title: String, 
          eventDescription: String, 
          location: String,
+         address: String? = nil,
          startDate: Date, 
          endDate: Date, 
-         category: String,
-         eventType: String = EventType.event.rawValue,
+         eventType: String = EventType.social.rawValue,
          notes: String? = nil,
-         isWWDCEvent: Bool = false,
          countryCode: String? = nil,
          countryFlag: String? = nil,
          requiresTicket: Bool = false,
@@ -187,12 +177,11 @@ final class Event {
         self.title = title
         self.eventDescription = eventDescription
         self.location = location
+        self.address = address
         self.startDate = startDate
         self.endDate = endDate
-        self.category = category
         self.eventType = eventType
         self.notes = notes
-        self.isWWDCEvent = isWWDCEvent
         self.countryCode = countryCode
         self.countryFlag = countryFlag
         self.requiresTicket = requiresTicket
@@ -233,12 +222,11 @@ final class Event {
             title: title,
             eventDescription: eventDescription,
             location: location,
+            address: address,
             startDate: formatter.string(from: startDate),
             endDate: formatter.string(from: endDate),
-            category: category,
             eventType: eventType,
             notes: notes,
-            isWWDCEvent: isWWDCEvent,
             countryCode: countryCode,
             countryFlag: countryFlag,
             requiresTicket: requiresTicket,
@@ -261,10 +249,9 @@ final class Event {
                title != dto.title ||
                eventDescription != dto.eventDescription ||
                location != dto.location ||
-               category != dto.category ||
+               address != dto.address ||
                eventType != dto.eventType ||
                notes != dto.notes ||
-               isWWDCEvent != dto.isWWDCEvent ||
                countryCode != dto.countryCode ||
                countryFlag != dto.countryFlag ||
                requiresTicket != dto.requiresTicket ||
@@ -286,12 +273,11 @@ final class Event {
         self.title = dto.title
         self.eventDescription = dto.eventDescription
         self.location = dto.location
+        self.address = dto.address
         self.startDate = startDate
         self.endDate = endDate
-        self.category = dto.category
         self.eventType = dto.eventType
         self.notes = dto.notes
-        self.isWWDCEvent = dto.isWWDCEvent
         self.countryCode = dto.countryCode
         self.countryFlag = dto.countryFlag
         self.requiresTicket = dto.requiresTicket
@@ -309,13 +295,12 @@ extension Event {
         Event(
             title: "WWDC 2025",
             eventDescription: "Apple's Worldwide Developers Conference",
-            location: "1 Apple Park Way, Cupertino, CA",
+            location: "Apple Park",
+            address: "1 Apple Park Way, Cupertino, CA",
             startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10, hour: 1))!,
             endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10, hour: 9))!,
-            category: "Conference",
-            eventType: EventType.conference.rawValue,
+            eventType: EventType.keynote.rawValue,
             notes: "Don't forget to bring MacBook and business cards",
-            isWWDCEvent: true,
             countryCode: "US",
             countryFlag: "🇺🇸",
             requiresTicket: true,
@@ -329,11 +314,10 @@ extension Event {
             title: "WWDC'25 Watch Party @ London",
             eventDescription: "NSLondon WWDC25 keynote viewing party at Ford",
             location: "London, United Kingdom",
+            address: "Ford, London",
             startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 17, minute: 30))!,
             endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 20, minute: 30))!,
-            category: "Watch Party",
             eventType: EventType.watchParty.rawValue,
-            isWWDCEvent: true,
             countryCode: "GB",
             countryFlag: "🇬🇧",
             originalTimezoneIdentifier: "Europe/London"

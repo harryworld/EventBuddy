@@ -110,9 +110,17 @@ struct EventDetailView: View {
                 SectionContainer(title: "Location", icon: "mappin.circle.fill") {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text(event.location)
-                                .font(.headline)
-                            
+                            VStack(alignment: .leading) {
+                                Text(event.location)
+                                    .font(.headline)
+
+                                if let address = event.address, !address.isEmpty {
+                                    Text(address)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
                             Spacer()
                             
                             Button(action: {
