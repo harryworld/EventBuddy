@@ -74,6 +74,9 @@ struct EventDTO: Codable, Identifiable {
             return nil
         }
         
+        // Extract timezone from the original date string
+        let originalTimezone = extractTimezoneFromISO8601(self.startDate)
+        
         let event = Event(
             id: uuid,
             title: title,
@@ -89,7 +92,8 @@ struct EventDTO: Codable, Identifiable {
             countryFlag: countryFlag,
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
-            url: url
+            url: url,
+            originalTimezoneIdentifier: originalTimezone
         )
         
         event.createdAt = createdAt
@@ -97,6 +101,44 @@ struct EventDTO: Codable, Identifiable {
         
         return event
     }
+}
+
+// Helper function to extract timezone from ISO8601 string
+private func extractTimezoneFromISO8601(_ dateString: String) -> String? {
+    // Try to extract timezone from formats like "2025-06-09T17:30:00+01:00" or "2025-06-09T17:30:00-07:00"
+    if let range = dateString.range(of: #"[+-]\d{2}:\d{2}$"#, options: .regularExpression) {
+        let offsetString = String(dateString[range])
+        
+        // Convert offset to timezone identifier
+        switch offsetString {
+        case "+01:00":
+            return "Europe/London" // BST
+        case "+03:00":
+            return "Asia/Jerusalem" // IDT
+        case "-07:00":
+            return "America/Los_Angeles" // PDT
+        case "-05:00":
+            return "America/New_York" // EDT
+        case "-06:00":
+            return "America/Chicago" // CDT
+        case "+05:30":
+            return "Asia/Kolkata" // IST
+        case "+09:00":
+            return "Asia/Tokyo" // JST
+        case "+10:00":
+            return "Australia/Sydney" // AEST
+        default:
+            // For other offsets, try to determine a reasonable timezone
+            if offsetString.hasPrefix("+") {
+                return "Europe/London" // Default to London for positive offsets
+            } else {
+                return "America/Los_Angeles" // Default to LA for negative offsets
+            }
+        }
+    }
+    
+    // If no timezone info found, default to Pacific Time (WWDC location)
+    return "America/Los_Angeles"
 }
 
 @Model
@@ -119,6 +161,7 @@ final class Event {
     var createdAt: Date
     var updatedAt: Date
     var isAttending: Bool
+    var originalTimezoneIdentifier: String?
     
     @Relationship(deleteRule: .cascade)
     var attendees: [Friend] = []
@@ -138,7 +181,8 @@ final class Event {
          requiresTicket: Bool = false,
          requiresRegistration: Bool = false,
          url: String? = nil,
-         isAttending: Bool = false) {
+         isAttending: Bool = false,
+         originalTimezoneIdentifier: String? = nil) {
         self.id = id
         self.title = title
         self.eventDescription = eventDescription
@@ -157,6 +201,7 @@ final class Event {
         self.createdAt = Date()
         self.updatedAt = Date()
         self.isAttending = isAttending
+        self.originalTimezoneIdentifier = originalTimezoneIdentifier ?? "America/Los_Angeles"
     }
     
     func addFriend(_ friend: Friend) {
@@ -210,6 +255,8 @@ final class Event {
             return false
         }
         
+        let dtoOriginalTimezone = extractTimezoneFromISO8601(dto.startDate)
+        
         return dtoUpdatedAt > updatedAt ||
                title != dto.title ||
                eventDescription != dto.eventDescription ||
@@ -222,7 +269,8 @@ final class Event {
                countryFlag != dto.countryFlag ||
                requiresTicket != dto.requiresTicket ||
                requiresRegistration != dto.requiresRegistration ||
-               url != dto.url
+               url != dto.url ||
+               originalTimezoneIdentifier != dtoOriginalTimezone
     }
     
     // Update this event from a DTO
@@ -232,6 +280,8 @@ final class Event {
               let updatedAt = parseISO8601Date(dto.updatedAt) else {
             return
         }
+        
+        let dtoOriginalTimezone = extractTimezoneFromISO8601(dto.startDate)
         
         self.title = dto.title
         self.eventDescription = dto.eventDescription
@@ -248,6 +298,7 @@ final class Event {
         self.requiresRegistration = dto.requiresRegistration
         self.url = dto.url
         self.updatedAt = updatedAt
+        self.originalTimezoneIdentifier = dtoOriginalTimezone ?? "America/Los_Angeles"
     }
 }
 
@@ -259,8 +310,8 @@ extension Event {
             title: "WWDC 2025",
             eventDescription: "Apple's Worldwide Developers Conference",
             location: "1 Apple Park Way, Cupertino, CA",
-            startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 2, hour: 10))!,
-            endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 6, hour: 18))!,
+            startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10, hour: 1))!,
+            endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10, hour: 9))!,
             category: "Conference",
             eventType: EventType.conference.rawValue,
             notes: "Don't forget to bring MacBook and business cards",
@@ -268,7 +319,8 @@ extension Event {
             countryCode: "US",
             countryFlag: "🇺🇸",
             requiresTicket: true,
-            url: "https://developer.apple.com/wwdc/"
+            url: "https://developer.apple.com/wwdc/",
+            originalTimezoneIdentifier: "America/Los_Angeles"
         )
     }
     
@@ -283,7 +335,8 @@ extension Event {
             eventType: EventType.watchParty.rawValue,
             isWWDCEvent: true,
             countryCode: "GB",
-            countryFlag: "🇬🇧"
+            countryFlag: "🇬🇧",
+            originalTimezoneIdentifier: "Europe/London"
         )
     }
 } 

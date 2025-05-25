@@ -168,7 +168,8 @@ struct AddEventView: View {
             countryFlag: countryFlag,
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
-            url: url.isEmpty ? nil : url
+            url: url.isEmpty ? nil : url,
+            originalTimezoneIdentifier: TimeZone.current.identifier
         )
         
         modelContext.insert(newEvent)

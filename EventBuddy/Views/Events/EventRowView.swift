@@ -11,7 +11,13 @@ struct EventRowView: View {
                 Text(formattedTime)
                     .font(.headline)
                     .fontWeight(.semibold)
-                
+
+                if shouldShowDualTimezone {
+                    Text(formattedTimeOriginalTimezone)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
                 eventTypeTag
             }
             .frame(width: 80)
@@ -79,11 +85,58 @@ struct EventRowView: View {
     private var formattedTime: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mma"
-        formatter.amSymbol = "am"
-        formatter.pmSymbol = "pm"
-        return formatter.string(from: event.startDate).lowercased()
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        return formatter.string(from: event.startDate)
+    }
+
+    private var shouldShowDualTimezone: Bool {
+        guard let originalTimezone = event.originalTimezoneIdentifier,
+              let eventTimezone = TimeZone(identifier: originalTimezone) else {
+            return false
+        }
+        
+        let currentTimezone = TimeZone.current
+        return eventTimezone.identifier != currentTimezone.identifier
     }
     
+    private var formattedTimeOriginalTimezone: String {
+        guard let originalTimezone = event.originalTimezoneIdentifier,
+              let eventTimezone = TimeZone(identifier: originalTimezone) else {
+            return formattedTimeWithTimezone
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma zzz"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        formatter.timeZone = eventTimezone
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: event.startDate)
+    }
+    
+    private var formattedTimeWithTimezone: String {
+        guard let originalTimezone = event.originalTimezoneIdentifier,
+              let eventTimezone = TimeZone(identifier: originalTimezone) else {
+            // Fallback to current timezone
+            let formatter = DateFormatter()
+            formatter.dateFormat = "h:mma zzz"
+            formatter.amSymbol = "AM"
+            formatter.pmSymbol = "PM"
+            formatter.timeZone = TimeZone.current
+            formatter.locale = Locale(identifier: "en_US")
+            return formatter.string(from: event.startDate)
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma zzz"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        formatter.timeZone = eventTimezone
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: event.startDate)
+    }
+
     private var eventTypeTag: some View {
         Text(getEventTypeLabel())
             .font(.caption2)

@@ -68,7 +68,7 @@ struct EventDetailView: View {
                             Text(formattedDate)
                                 .font(.headline)
                             
-                            Text(formattedTime)
+                            Text(formattedTimeTimeZone)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -416,6 +416,14 @@ struct EventDetailView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE, MMMM d"
         
+        // Use the event's original timezone if available, otherwise current timezone
+        if let originalTimezone = event.originalTimezoneIdentifier,
+           let eventTimezone = TimeZone(identifier: originalTimezone) {
+            dateFormatter.timeZone = eventTimezone
+        } else {
+            dateFormatter.timeZone = TimeZone.current
+        }
+
         // Get the day number
         let day = Calendar.current.component(.day, from: event.startDate)
         
@@ -433,15 +441,58 @@ struct EventDetailView: View {
     }
     
     private var formattedTime: String {
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "h:mma"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
         
-        let startTime = timeFormatter.string(from: event.startDate).lowercased()
-        let endTime = timeFormatter.string(from: event.endDate).lowercased()
+        // Use the event's original timezone if available
+        if let originalTimezone = event.originalTimezoneIdentifier,
+           let eventTimezone = TimeZone(identifier: originalTimezone) {
+            formatter.timeZone = eventTimezone
+        }
+
+        let startTime = formatter.string(from: event.startDate)
+        let endTime = formatter.string(from: event.endDate)
         
         return "\(startTime)-\(endTime)"
     }
-    
+
+    private var formattedTimeTimeZone: String {
+        guard let originalTimezone = event.originalTimezoneIdentifier,
+              let eventTimezone = TimeZone(identifier: originalTimezone) else {
+            // Fallback to current timezone
+            let formatter = DateFormatter()
+            formatter.dateFormat = "h:mma"
+            formatter.amSymbol = "AM"
+            formatter.pmSymbol = "PM"
+            formatter.timeZone = TimeZone.current
+            
+            let startTime = formatter.string(from: event.startDate)
+            
+            formatter.dateFormat = "h:mma zzz"
+            formatter.locale = Locale(identifier: "en_US")
+            let endTime = formatter.string(from: event.endDate)
+            
+            return "\(startTime)-\(endTime)"
+        }
+        
+        // Always show only the original timezone
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        formatter.timeZone = eventTimezone
+        
+        let startTime = formatter.string(from: event.startDate)
+        
+        formatter.dateFormat = "h:mma zzz"
+        formatter.locale = Locale(identifier: "en_US")
+        let endTime = formatter.string(from: event.endDate)
+        
+        return "\(startTime)-\(endTime)"
+    }
+
     private func addToCalendar() {
         let eventStore = EKEventStore()
         

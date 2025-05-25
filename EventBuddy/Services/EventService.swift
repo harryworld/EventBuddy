@@ -15,7 +15,7 @@ class EventService {
             Event(
                 title: "One More Thing 2025",
                 eventDescription: "Conference event for iOS developers",
-                location: "Cupertino, California", // Location not specified on official site
+                location: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States", // Location not specified on official site
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 9, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 16, minute: 0),
                 category: "Conference",
@@ -29,7 +29,7 @@ class EventService {
             ),
             
             Event(
-                title: "WWDC Run",
+                title: "WWDC 2025 Run !",
                 eventDescription: "Group run for conference attendees",
                 location: "Cupertino, California",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
@@ -40,7 +40,8 @@ class EventService {
                 isWWDCEvent: true,
                 countryCode: "US",
                 countryFlag: "🇺🇸",
-                requiresRegistration: true
+                requiresRegistration: true,
+                url: "https://lu.ma/uob9fld4?tk=cZxQwY"
             ),
             
             Event(
@@ -221,7 +222,8 @@ class EventService {
                 notes: "Runs from 7:30pm-12:30am IST",
                 isWWDCEvent: true,
                 countryCode: "IN",
-                countryFlag: "🇮🇳"
+                countryFlag: "🇮🇳",
+                originalTimezoneIdentifier: "Asia/Kolkata"
             ),
             
             Event(
@@ -235,7 +237,8 @@ class EventService {
                 notes: "Runs from 7:00pm-11:00pm IDT",
                 isWWDCEvent: true,
                 countryCode: "IL",
-                countryFlag: "🇮🇱"
+                countryFlag: "🇮🇱",
+                originalTimezoneIdentifier: "Asia/Jerusalem"
             ),
             
             Event(
@@ -249,7 +252,8 @@ class EventService {
                 notes: "Runs from 5:30pm-8:30pm BST",
                 isWWDCEvent: true,
                 countryCode: "GB",
-                countryFlag: "🇬🇧"
+                countryFlag: "🇬🇧",
+                originalTimezoneIdentifier: "Europe/London"
             ),
             
             Event(
@@ -263,7 +267,8 @@ class EventService {
                 notes: "Runs from 11:00am-2:00pm CDT",
                 isWWDCEvent: true,
                 countryCode: "US",
-                countryFlag: "🇺🇸"
+                countryFlag: "🇺🇸",
+                originalTimezoneIdentifier: "America/Chicago"
             ),
             
             // TUESDAY, June 10th
