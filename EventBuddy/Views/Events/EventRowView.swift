@@ -153,21 +153,13 @@ struct EventRowView: View {
     private func getEventTypeLabel() -> String {
         switch event.eventType {
         case EventType.keynote.rawValue:
-            return "Event"
+            return "Keynote"
         case EventType.watchParty.rawValue:
             return "Watch Party"
-        case EventType.conference.rawValue:
-            return "Event"
         case EventType.social.rawValue:
             return "Social"
-        case EventType.party.rawValue:
-            return "Party"
-        case EventType.informal.rawValue:
-            return "Social"
-        case EventType.art.rawValue:
-            return "Art"
-        case EventType.run.rawValue:
-            return "Social"
+        case EventType.meetup.rawValue:
+            return "Meetup"
         default:
             return "Event"
         }
@@ -179,34 +171,22 @@ struct EventRowView: View {
             return .orange
         case EventType.watchParty.rawValue:
             return .blue
-        case EventType.conference.rawValue:
-            return .orange
         case EventType.social.rawValue:
             return .blue
-        case EventType.party.rawValue:
-            return .pink
-        case EventType.informal.rawValue:
-            return .blue
-        case EventType.art.rawValue:
+        case EventType.meetup.rawValue:
             return .purple
-        case EventType.run.rawValue:
-            return .blue
         default:
             return .gray
         }
     }
 }
 
-struct EventRowView_Previews: PreviewProvider {
-    static var previews: some View {
-        List {
-            EventRowView(event: Event.preview)
-            
-            let watchParty = Event.wwdcKeynoteWatchParty
-            watchParty.isAttending = true
-            return EventRowView(event: watchParty)
-        }
-        .listStyle(.insetGrouped)
-        .modelContainer(for: Event.self, inMemory: true)
+#Preview {
+    List {
+        EventRowView(event: Event.preview)
+
+        EventRowView(event: Event.wwdcKeynoteWatchParty)
     }
-} 
+    .listStyle(.insetGrouped)
+    .modelContainer(for: Event.self, inMemory: true)
+}

@@ -13,7 +13,7 @@ struct AddEventView: View {
     @State private var countryFlag = "🇺🇸"
     @State private var startDate = Date()
     @State private var endDate = Date().addingTimeInterval(3600) // 1 hour later
-    @State private var eventType = EventType.event.rawValue
+    @State private var eventType = EventType.meetup.rawValue
     @State private var notes = ""
     @State private var requiresTicket = false
     @State private var requiresRegistration = false

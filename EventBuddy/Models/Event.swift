@@ -320,6 +320,8 @@ extension Event {
             eventType: EventType.watchParty.rawValue,
             countryCode: "GB",
             countryFlag: "🇬🇧",
+            requiresTicket: true,
+            isAttending: true,
             originalTimezoneIdentifier: "Europe/London"
         )
     }
