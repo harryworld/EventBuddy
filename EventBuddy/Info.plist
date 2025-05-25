@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-	<string>EventBuddy would like to add event to your Calendar </string>
+	<string>EventBuddy would like to add events to your Calendar</string>
 </dict>
 </plist>
