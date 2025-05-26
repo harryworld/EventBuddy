@@ -269,7 +269,6 @@ EventBuddy/
 - Quick/Nimble (testing)
 
 ## Deployment Strategy
-
 1. Internal alpha testing
 2. TestFlight beta with limited users
 3. App Store submission

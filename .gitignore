@@ -89,3 +89,6 @@ iOSInjectionProject/
 
 # macOS system files
 .DS_Store 
+
+# SweetPad
+buildServer.json

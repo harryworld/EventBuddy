@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct EventBuddyApp: App {
@@ -13,5 +14,6 @@ struct EventBuddyApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(setupSwiftDataContainer())
     }
 }
