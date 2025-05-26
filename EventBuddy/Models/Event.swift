@@ -49,8 +49,6 @@ struct EventDTO: Codable, Identifiable {
     let endDate: String
     let eventType: String
     let notes: String?
-    let countryCode: String?
-    let countryFlag: String?
     let requiresTicket: Bool
     let requiresRegistration: Bool
     let url: String?
@@ -80,12 +78,11 @@ struct EventDTO: Codable, Identifiable {
             endDate: endDate,
             eventType: eventType,
             notes: notes,
-            countryCode: countryCode,
-            countryFlag: countryFlag,
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
             url: url,
-            originalTimezoneIdentifier: originalTimezone
+            originalTimezoneIdentifier: originalTimezone,
+            isCustomEvent: false
         )
         
         event.createdAt = createdAt
@@ -144,8 +141,6 @@ final class Event {
     var endDate: Date
     var eventType: String
     var notes: String?
-    var countryCode: String?
-    var countryFlag: String?
     var requiresTicket: Bool
     var requiresRegistration: Bool
     var url: String?
@@ -153,6 +148,7 @@ final class Event {
     var updatedAt: Date
     var isAttending: Bool
     var originalTimezoneIdentifier: String?
+    var isCustomEvent: Bool = true
     
     @Relationship(deleteRule: .cascade)
     var attendees: [Friend] = []
@@ -166,13 +162,12 @@ final class Event {
          endDate: Date, 
          eventType: String = EventType.social.rawValue,
          notes: String? = nil,
-         countryCode: String? = nil,
-         countryFlag: String? = nil,
          requiresTicket: Bool = false,
          requiresRegistration: Bool = false,
          url: String? = nil,
          isAttending: Bool = false,
-         originalTimezoneIdentifier: String? = nil) {
+         originalTimezoneIdentifier: String? = nil,
+         isCustomEvent: Bool = true) {
         self.id = id
         self.title = title
         self.eventDescription = eventDescription
@@ -182,8 +177,6 @@ final class Event {
         self.endDate = endDate
         self.eventType = eventType
         self.notes = notes
-        self.countryCode = countryCode
-        self.countryFlag = countryFlag
         self.requiresTicket = requiresTicket
         self.requiresRegistration = requiresRegistration
         self.url = url
@@ -191,6 +184,7 @@ final class Event {
         self.updatedAt = Date()
         self.isAttending = isAttending
         self.originalTimezoneIdentifier = originalTimezoneIdentifier ?? "America/Los_Angeles"
+        self.isCustomEvent = isCustomEvent
     }
     
     func addFriend(_ friend: Friend) {
@@ -227,8 +221,6 @@ final class Event {
             endDate: formatter.string(from: endDate),
             eventType: eventType,
             notes: notes,
-            countryCode: countryCode,
-            countryFlag: countryFlag,
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
             url: url,
@@ -252,8 +244,6 @@ final class Event {
                address != dto.address ||
                eventType != dto.eventType ||
                notes != dto.notes ||
-               countryCode != dto.countryCode ||
-               countryFlag != dto.countryFlag ||
                requiresTicket != dto.requiresTicket ||
                requiresRegistration != dto.requiresRegistration ||
                url != dto.url ||
@@ -278,8 +268,6 @@ final class Event {
         self.endDate = endDate
         self.eventType = dto.eventType
         self.notes = dto.notes
-        self.countryCode = dto.countryCode
-        self.countryFlag = dto.countryFlag
         self.requiresTicket = dto.requiresTicket
         self.requiresRegistration = dto.requiresRegistration
         self.url = dto.url
@@ -301,11 +289,10 @@ extension Event {
             endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10, hour: 9))!,
             eventType: EventType.keynote.rawValue,
             notes: "Don't forget to bring MacBook and business cards",
-            countryCode: "US",
-            countryFlag: "🇺🇸",
             requiresTicket: true,
             url: "https://developer.apple.com/wwdc/",
-            originalTimezoneIdentifier: "America/Los_Angeles"
+            originalTimezoneIdentifier: "America/Los_Angeles",
+            isCustomEvent: false
         )
     }
     
@@ -318,11 +305,10 @@ extension Event {
             startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 17, minute: 30))!,
             endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 20, minute: 30))!,
             eventType: EventType.watchParty.rawValue,
-            countryCode: "GB",
-            countryFlag: "🇬🇧",
             requiresTicket: true,
             isAttending: true,
-            originalTimezoneIdentifier: "Europe/London"
+            originalTimezoneIdentifier: "Europe/London",
+            isCustomEvent: false
         )
     }
 } 

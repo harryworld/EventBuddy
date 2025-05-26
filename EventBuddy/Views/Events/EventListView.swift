@@ -248,8 +248,7 @@ struct EventListView: View {
             result = result.filter { event in
                 event.title.localizedCaseInsensitiveContains(searchText) ||
                 event.location.localizedCaseInsensitiveContains(searchText) ||
-                event.eventDescription.localizedCaseInsensitiveContains(searchText) ||
-                (event.countryFlag?.localizedCaseInsensitiveContains(searchText) ?? false)
+                event.eventDescription.localizedCaseInsensitiveContains(searchText)
             }
         }
         

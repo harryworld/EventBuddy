@@ -12,8 +12,11 @@ struct EventDetailView: View {
     @State private var isAddingQuickFriend = false
     @State private var selectedFriendForDetailEdit: Friend? = nil
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @FocusState private var isAddFriendFieldFocused: Bool
     @State private var isAddedToCalendar = false
+    @State private var showingEditSheet = false
+    @State private var showingDeleteAlert = false
 
     @Query private var allFriends: [Friend]
     
@@ -374,17 +377,50 @@ struct EventDetailView: View {
         .navigationTitle("Event Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    openEventWebsite()
-                } label: {
-                    Image(systemName: "globe")
+            if event.isCustomEvent {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button {
+                            showingEditSheet = true
+                        } label: {
+                            Label("Edit Event", systemImage: "pencil")
+                        }
+                        
+                        Divider()
+                        
+                        Button(role: .destructive) {
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete Event", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
-                .disabled(event.url == nil)
+            } else {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        openEventWebsite()
+                    } label: {
+                        Image(systemName: "globe")
+                    }
+                    .disabled(event.url == nil)
+                }
             }
         }
         .sheet(item: $selectedFriendForDetailEdit) { friend in
             EditFriendView(friend: friend)
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            EditEventView(event: event)
+        }
+        .alert("Delete Event", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteEvent()
+            }
+        } message: {
+            Text("Are you sure you want to delete this event? This action cannot be undone.")
         }
     }
     
@@ -557,6 +593,12 @@ struct EventDetailView: View {
         }
         
         UIApplication.shared.open(url)
+    }
+    
+    private func deleteEvent() {
+        modelContext.delete(event)
+        try? modelContext.save()
+        dismiss()
     }
 }
 

@@ -1,27 +1,44 @@
 import SwiftUI
 import SwiftData
 
-struct AddEventView: View {
+struct EditEventView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
-    @State private var title = ""
-    @State private var eventDescription = ""
-    @State private var location = ""
-    @State private var address = ""
-    @State private var startDate = Date()
-    @State private var endDate = Date().addingTimeInterval(3600) // 1 hour later
-    @State private var eventType = EventType.meetup.rawValue
-    @State private var notes = ""
-    @State private var requiresTicket = false
-    @State private var requiresRegistration = false
-    @State private var url = ""
+    @Bindable var event: Event
+    
+    @State private var title: String
+    @State private var eventDescription: String
+    @State private var location: String
+    @State private var address: String
+    @State private var startDate: Date
+    @State private var endDate: Date
+    @State private var eventType: String
+    @State private var notes: String
+    @State private var requiresTicket: Bool
+    @State private var requiresRegistration: Bool
+    @State private var url: String
     
     // Validation states
     @State private var isFormValid = false
     @State private var showValidationAlert = false
     
 
+    
+    init(event: Event) {
+        self.event = event
+        self._title = State(initialValue: event.title)
+        self._eventDescription = State(initialValue: event.eventDescription)
+        self._location = State(initialValue: event.location)
+        self._address = State(initialValue: event.address ?? "")
+        self._startDate = State(initialValue: event.startDate)
+        self._endDate = State(initialValue: event.endDate)
+        self._eventType = State(initialValue: event.eventType)
+        self._notes = State(initialValue: event.notes ?? "")
+        self._requiresTicket = State(initialValue: event.requiresTicket)
+        self._requiresRegistration = State(initialValue: event.requiresRegistration)
+        self._url = State(initialValue: event.url ?? "")
+    }
     
     var body: some View {
         NavigationStack {
@@ -74,7 +91,7 @@ struct AddEventView: View {
                         .toggleStyle(.switch)
                 }
             }
-            .navigationTitle("Add Event")
+            .navigationTitle("Edit Event")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -86,7 +103,7 @@ struct AddEventView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         if validateForm() {
-                            saveEvent()
+                            saveChanges()
                             dismiss()
                         } else {
                             showValidationAlert = true
@@ -121,27 +138,28 @@ struct AddEventView: View {
         return true
     }
     
-    private func saveEvent() {
-        let newEvent = Event(
-            title: title,
-            eventDescription: eventDescription,
-            location: location,
-            address: address.isEmpty ? nil : address,
-            startDate: startDate,
-            endDate: endDate,
-            eventType: eventType,
-            notes: notes.isEmpty ? nil : notes,
-            requiresTicket: requiresTicket,
-            requiresRegistration: requiresRegistration,
-            url: url.isEmpty ? nil : url,
-            originalTimezoneIdentifier: TimeZone.current.identifier
-        )
+    private func saveChanges() {
+        event.title = title
+        event.eventDescription = eventDescription
+        event.location = location
+        event.address = address.isEmpty ? nil : address
+        event.startDate = startDate
+        event.endDate = endDate
+        event.eventType = eventType
+        event.notes = notes.isEmpty ? nil : notes
+        event.requiresTicket = requiresTicket
+        event.requiresRegistration = requiresRegistration
+        event.url = url.isEmpty ? nil : url
+        event.updatedAt = Date()
         
-        modelContext.insert(newEvent)
+        try? modelContext.save()
     }
 }
 
 #Preview {
-    AddEventView()
+    let event = Event.preview
+    event.isCustomEvent = true
+    
+    return EditEventView(event: event)
         .modelContainer(for: Event.self, inMemory: true)
 } 

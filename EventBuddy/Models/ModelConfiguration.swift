@@ -3,23 +3,9 @@ import SwiftData
 import SwiftUI
 
 struct EventBuddySchema {
-    static let schema = Schema([
-        Event.self,
-        Friend.self,
-        Profile.self
-    ])
-    
     static let sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Event.self,
-            Friend.self,
-            Profile.self
-        ])
-        
-        let modelConfiguration = ModelConfiguration(schema: schema)
-        
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: Event.self, Friend.self, Profile.self)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
