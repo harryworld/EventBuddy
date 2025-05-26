@@ -85,7 +85,8 @@ struct EventDTO: Codable, Identifiable {
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
             url: url,
-            originalTimezoneIdentifier: originalTimezone
+            originalTimezoneIdentifier: originalTimezone,
+            isCustomEvent: false
         )
         
         event.createdAt = createdAt
@@ -153,6 +154,7 @@ final class Event {
     var updatedAt: Date
     var isAttending: Bool
     var originalTimezoneIdentifier: String?
+    var isCustomEvent: Bool = true
     
     @Relationship(deleteRule: .cascade)
     var attendees: [Friend] = []
@@ -172,7 +174,8 @@ final class Event {
          requiresRegistration: Bool = false,
          url: String? = nil,
          isAttending: Bool = false,
-         originalTimezoneIdentifier: String? = nil) {
+         originalTimezoneIdentifier: String? = nil,
+         isCustomEvent: Bool = true) {
         self.id = id
         self.title = title
         self.eventDescription = eventDescription
@@ -191,6 +194,7 @@ final class Event {
         self.updatedAt = Date()
         self.isAttending = isAttending
         self.originalTimezoneIdentifier = originalTimezoneIdentifier ?? "America/Los_Angeles"
+        self.isCustomEvent = isCustomEvent
     }
     
     func addFriend(_ friend: Friend) {
@@ -305,7 +309,8 @@ extension Event {
             countryFlag: "🇺🇸",
             requiresTicket: true,
             url: "https://developer.apple.com/wwdc/",
-            originalTimezoneIdentifier: "America/Los_Angeles"
+            originalTimezoneIdentifier: "America/Los_Angeles",
+            isCustomEvent: false
         )
     }
     
@@ -322,7 +327,8 @@ extension Event {
             countryFlag: "🇬🇧",
             requiresTicket: true,
             isAttending: true,
-            originalTimezoneIdentifier: "Europe/London"
+            originalTimezoneIdentifier: "Europe/London",
+            isCustomEvent: false
         )
     }
 } 
