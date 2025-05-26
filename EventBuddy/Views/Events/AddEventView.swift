@@ -9,8 +9,6 @@ struct AddEventView: View {
     @State private var eventDescription = ""
     @State private var location = ""
     @State private var address = ""
-    @State private var countryCode = "US"
-    @State private var countryFlag = "🇺🇸"
     @State private var startDate = Date()
     @State private var endDate = Date().addingTimeInterval(3600) // 1 hour later
     @State private var eventType = EventType.meetup.rawValue
@@ -23,26 +21,7 @@ struct AddEventView: View {
     @State private var isFormValid = false
     @State private var showValidationAlert = false
     
-    // Country selection
-    let countries = [
-        ("US", "🇺🇸", "United States"),
-        ("CA", "🇨🇦", "Canada"),
-        ("GB", "🇬🇧", "United Kingdom"),
-        ("DE", "🇩🇪", "Germany"),
-        ("FR", "🇫🇷", "France"),
-        ("JP", "🇯🇵", "Japan"),
-        ("IN", "🇮🇳", "India"),
-        ("IL", "🇮🇱", "Israel"),
-        ("AU", "🇦🇺", "Australia"),
-        ("BR", "🇧🇷", "Brazil"),
-        ("CN", "🇨🇳", "China"),
-        ("KR", "🇰🇷", "South Korea"),
-        ("IT", "🇮🇹", "Italy"),
-        ("ES", "🇪🇸", "Spain"),
-        ("NL", "🇳🇱", "Netherlands"),
-        ("SG", "🇸🇬", "Singapore"),
-        ("SE", "🇸🇪", "Sweden")
-    ]
+
     
     var body: some View {
         NavigationStack {
@@ -67,21 +46,6 @@ struct AddEventView: View {
                     
                     TextField("Address", text: $address)
                         .textInputAutocapitalization(.words)
-                    
-                    Picker("Country", selection: $countryCode) {
-                        ForEach(countries, id: \.0) { code, flag, name in
-                            HStack {
-                                Text(flag)
-                                Text(name)
-                            }
-                            .tag(code)
-                        }
-                    }
-                    .onChange(of: countryCode) { oldValue, newValue in
-                        if let countryData = countries.first(where: { $0.0 == newValue }) {
-                            countryFlag = countryData.1
-                        }
-                    }
                 }
                 
                 Section("Date & Time") {
@@ -167,8 +131,6 @@ struct AddEventView: View {
             endDate: endDate,
             eventType: eventType,
             notes: notes.isEmpty ? nil : notes,
-            countryCode: countryCode,
-            countryFlag: countryFlag,
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
             url: url.isEmpty ? nil : url,

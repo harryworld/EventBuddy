@@ -21,8 +21,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 16, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 9:00am-4:00pm. Requires a ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://omt-conf.com/"
             ),
@@ -36,8 +34,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 10:00am-12:00pm. Registration suggested.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/uob9fld4"
             ),
@@ -51,8 +47,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 20, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 5:00pm-8:00pm",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://pre-wwdc25.splashthat.com/"
             ),
@@ -66,8 +60,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 6:30pm-10:00pm. RSVP requested.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://www.eventbrite.com/e/apple-park-happy-hour-tickets-1335249620559"
             ),
@@ -82,8 +74,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 8, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 7:00am-8:00am. Registration suggested.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/5zhaoikv"
             ),
@@ -97,8 +87,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 8:00am-10:00am. Registration suggested.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/713c95jq"
             ),
@@ -112,8 +100,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 16, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 9:30am-4:00pm. Requires a ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://omt-conf.com/"
             ),
@@ -127,8 +113,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 19, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 3:00pm-7:00pm at Infinite Loop. Requires WWDC ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true
             ),
             
@@ -141,8 +125,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 23, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 6:30pm-11:00pm. Requires a ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://lu.ma/94pquugz"
             ),
@@ -156,8 +138,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 18, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 9:00am-6:00pm. Free admission.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 url: "https://story.app/wwdc"
             ),
             
@@ -171,8 +151,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
                 eventType: EventType.keynote.rawValue,
                 notes: "Runs from 9:00am-4:00pm. Requires WWDC ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
@@ -186,8 +164,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 7:45am-4:00pm. Hosted by iOSDevHappyHour at CommunityKit.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 url: "https://communitykit.social/"
             ),
             
@@ -200,8 +176,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 17, minute: 30),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 8:00am-5:30pm",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 url: "https://omt-conf.com/"
             ),
             
@@ -214,8 +188,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 7:00pm-10:00pm",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://ti.to/ios-conf-sg/students-swift-stars-2025"
             ),
@@ -229,8 +201,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 30),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 7:00pm-10:30pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/9vs7dmot"
             ),
@@ -245,8 +215,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 23, minute: 0),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 7:00pm-11:00pm IDT",
-                countryCode: "IL",
-                countryFlag: "🇮🇱",
                 originalTimezoneIdentifier: "Asia/Jerusalem"
             ),
             
@@ -259,8 +227,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 20, minute: 30),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 5:30pm-8:30pm BST",
-                countryCode: "GB",
-                countryFlag: "🇬🇧",
                 originalTimezoneIdentifier: "Europe/London"
             ),
             
@@ -273,8 +239,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 2, minute: 30),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 10:30pm-2:30am IST",
-                countryCode: "IN",
-                countryFlag: "🇮🇳",
                 originalTimezoneIdentifier: "Asia/Kolkata"
             ),
             
@@ -287,8 +251,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 6, minute: 0),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 2:00am-6:00am JST",
-                countryCode: "JP",
-                countryFlag: "🇯🇵",
                 originalTimezoneIdentifier: "Asia/Tokyo"
             ),
             
@@ -301,8 +263,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 7, minute: 0),
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 3:00am-7:00am AEST",
-                countryCode: "AU",
-                countryFlag: "🇦🇺",
                 originalTimezoneIdentifier: "Australia/Sydney"
             ),
             
@@ -316,8 +276,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 30),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
@@ -331,12 +289,10 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 30),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
-
+            
             Event(
                 title: "Apple Developer Activities - Evening",
                 eventDescription: "Official Apple Developer Acitvities",
@@ -346,12 +302,10 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 20, minute: 30),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
-
+            
             Event(
                 title: "CommunityKit - Day 2",
                 eventDescription: "Community event for developers",
@@ -361,8 +315,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 12:00pm-10:00pm",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://communitykit.social/"
             ),
@@ -376,8 +328,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 21, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 7:00pm-9:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://www.icloud.com/invites/0fffU92Mu3cnJVlXnUpyZq82A"
             ),
@@ -391,8 +341,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 7:00pm-10:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://idhhwwdc25irl.eventbrite.com/"
             ),
@@ -406,8 +354,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 2:00pm-4:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/g4m3q37q"
             ),
@@ -421,8 +367,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 2:00pm-6:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://theinterface.design/"
             ),
@@ -437,8 +381,6 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
                 eventType: EventType.meetup.rawValue,
                 notes: "Runs from 9:00am-6:00pm",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 url: "https://communitykit.social/"
             ),
             
@@ -451,62 +393,80 @@ class EventService {
                 endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 4:30pm-6:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
                 requiresRegistration: true,
                 url: "https://lu.ma/aios-omt"
             ),
             
             Event(
-                title: "Vibe Code & Chill: WWDC25 Edition",
-                eventDescription: "Join us for a laid-back coding session",
-                location: "Residence Inn, Cupertino",
-                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
-                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 30),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 21, minute: 0),
+                title: "WWDC25 Closing Party",
+                eventDescription: "Closing party for WWDC 2025",
+                location: "Apple Park",
+                address: "1 Apple Park Way, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 6:30pm-9:00pm. Requires registration.",
-                countryCode: "US",
-                countryFlag: "🇺🇸",
-                requiresRegistration: true,
-                url: "https://lu.ma/vibe-code-omt"
+                notes: "Runs from 6:00pm-10:00pm. Requires WWDC ticket.",
+                requiresTicket: true,
+                url: "https://developer.apple.com/wwdc25/"
             ),
-
+            
             // THURSDAY, June 12th
-
-            // FRIDAY, June 13th
+            Event(
+                title: "WWDC25 Labs - Final Day",
+                eventDescription: "Final day of WWDC labs and sessions",
+                location: "Apple Developer Center Cupertino",
+                address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 17, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Final day of WWDC labs and sessions. Requires WWDC ticket.",
+                requiresTicket: true,
+                url: "https://developer.apple.com/wwdc25/"
+            ),
+            
+            Event(
+                title: "Post-WWDC Networking",
+                eventDescription: "Final networking event after WWDC",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 6:00pm-9:00pm. Open to all.",
+                requiresRegistration: true
+            )
         ]
         
+        // Insert all events
         for event in events {
             modelContext.insert(event)
         }
         
+        // Save the context
         do {
             try modelContext.save()
         } catch {
-            print("Error saving events: \(error)")
+            print("Failed to save events: \(error)")
         }
     }
     
-    // Helper function to create dates more easily
-    private static func dateFrom(month: Int, day: Int, year: Int, hour: Int, minute: Int) -> Date {
-        var dateComponents = DateComponents()
-        dateComponents.year = year
-        dateComponents.month = month
-        dateComponents.day = day
-        dateComponents.hour = hour
-        dateComponents.minute = minute
-        dateComponents.timeZone = TimeZone(identifier: "America/Los_Angeles")
-
-        return Calendar.current.date(from: dateComponents) ?? Date()
-    }
-    
-    // Clear existing events
     private static func clearExistingEvents(modelContext: ModelContext) {
         do {
-            try modelContext.delete(model: Event.self)
+            let descriptor = FetchDescriptor<Event>()
+            let existingEvents = try modelContext.fetch(descriptor)
+            for event in existingEvents {
+                modelContext.delete(event)
+            }
+            try modelContext.save()
         } catch {
-            print("Error clearing existing events: \(error)")
+            print("Failed to clear existing events: \(error)")
         }
     }
+    
+    private static func dateFrom(month: Int, day: Int, year: Int, hour: Int, minute: Int) -> Date {
+        let calendar = Calendar.current
+        let components = DateComponents(year: year, month: month, day: day, hour: hour, minute: minute)
+        return calendar.date(from: components) ?? Date()
+    }
 }
+

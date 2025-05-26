@@ -11,8 +11,6 @@ struct EditEventView: View {
     @State private var eventDescription: String
     @State private var location: String
     @State private var address: String
-    @State private var countryCode: String
-    @State private var countryFlag: String
     @State private var startDate: Date
     @State private var endDate: Date
     @State private var eventType: String
@@ -25,26 +23,7 @@ struct EditEventView: View {
     @State private var isFormValid = false
     @State private var showValidationAlert = false
     
-    // Country selection
-    let countries = [
-        ("US", "🇺🇸", "United States"),
-        ("CA", "🇨🇦", "Canada"),
-        ("GB", "🇬🇧", "United Kingdom"),
-        ("DE", "🇩🇪", "Germany"),
-        ("FR", "🇫🇷", "France"),
-        ("JP", "🇯🇵", "Japan"),
-        ("IN", "🇮🇳", "India"),
-        ("IL", "🇮🇱", "Israel"),
-        ("AU", "🇦🇺", "Australia"),
-        ("BR", "🇧🇷", "Brazil"),
-        ("CN", "🇨🇳", "China"),
-        ("KR", "🇰🇷", "South Korea"),
-        ("IT", "🇮🇹", "Italy"),
-        ("ES", "🇪🇸", "Spain"),
-        ("NL", "🇳🇱", "Netherlands"),
-        ("SG", "🇸🇬", "Singapore"),
-        ("SE", "🇸🇪", "Sweden")
-    ]
+
     
     init(event: Event) {
         self.event = event
@@ -52,8 +31,6 @@ struct EditEventView: View {
         self._eventDescription = State(initialValue: event.eventDescription)
         self._location = State(initialValue: event.location)
         self._address = State(initialValue: event.address ?? "")
-        self._countryCode = State(initialValue: event.countryCode ?? "US")
-        self._countryFlag = State(initialValue: event.countryFlag ?? "🇺🇸")
         self._startDate = State(initialValue: event.startDate)
         self._endDate = State(initialValue: event.endDate)
         self._eventType = State(initialValue: event.eventType)
@@ -86,21 +63,6 @@ struct EditEventView: View {
                     
                     TextField("Address", text: $address)
                         .textInputAutocapitalization(.words)
-                    
-                    Picker("Country", selection: $countryCode) {
-                        ForEach(countries, id: \.0) { code, flag, name in
-                            HStack {
-                                Text(flag)
-                                Text(name)
-                            }
-                            .tag(code)
-                        }
-                    }
-                    .onChange(of: countryCode) { oldValue, newValue in
-                        if let countryData = countries.first(where: { $0.0 == newValue }) {
-                            countryFlag = countryData.1
-                        }
-                    }
                 }
                 
                 Section("Date & Time") {
@@ -185,8 +147,6 @@ struct EditEventView: View {
         event.endDate = endDate
         event.eventType = eventType
         event.notes = notes.isEmpty ? nil : notes
-        event.countryCode = countryCode
-        event.countryFlag = countryFlag
         event.requiresTicket = requiresTicket
         event.requiresRegistration = requiresRegistration
         event.url = url.isEmpty ? nil : url
