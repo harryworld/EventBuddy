@@ -7,18 +7,64 @@ class EventSyncService {
     private let modelContext: ModelContext
     private let eventsURL = "https://eventbuddy.buildwithharry.com/events.json"
     
+    // Sync frequency control
+    private let automaticSyncThreshold: TimeInterval = 3600 // 1 hour in seconds
+    private let minimumSyncInterval: TimeInterval = 300 // 5 minutes minimum between any syncs
+    
+    // UserDefaults key for persisting last sync date
+    private let lastSyncDateKey = "EventSyncService.lastSyncDate"
+    
     var isLoading = false
-    var lastSyncDate: Date?
+    var lastSyncDate: Date? {
+        didSet {
+            // Persist the last sync date to UserDefaults
+            if let date = lastSyncDate {
+                UserDefaults.standard.set(date, forKey: lastSyncDateKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: lastSyncDateKey)
+            }
+        }
+    }
     var syncError: String?
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        // Restore last sync date from UserDefaults
+        self.lastSyncDate = UserDefaults.standard.object(forKey: lastSyncDateKey) as? Date
+        print("Restored last sync date: \(lastSyncDate?.description ?? "None")")
     }
     
     // MARK: - Public Methods
     
     /// Fetches events from the remote JSON file and synchronizes with local storage
+    /// This method respects the automatic sync threshold
     func syncEvents() async {
+        await syncEvents(forceSync: false)
+    }
+    
+    /// Manually triggered sync that bypasses the automatic threshold but respects minimum interval
+    func manualSync() async {
+        await syncEvents(forceSync: true)
+    }
+    
+    /// Internal sync method with force option
+    private func syncEvents(forceSync: Bool) async {
+        print("🔄 Sync requested - Force: \(forceSync), Last sync: \(formatLastSyncTime())")
+        
+        // Check if we should skip this sync
+        if !forceSync && !shouldPerformAutomaticSync() {
+            print("⏭️ Skipping automatic sync - threshold not met. Last sync: \(formatLastSyncTime())")
+            return
+        }
+        
+        // Check minimum interval for all syncs (including manual)
+        if !shouldRespectMinimumInterval() {
+            print("⏭️ Skipping sync - minimum interval not met. Last sync: \(formatLastSyncTime())")
+            return
+        }
+        
+        print("✅ Proceeding with sync...")
+        
         isLoading = true
         syncError = nil
         
@@ -26,6 +72,7 @@ class EventSyncService {
             let eventsResponse = try await fetchEventsFromJSON()
             try await synchronizeEvents(from: eventsResponse.events)
             lastSyncDate = Date()
+            print("Sync completed successfully at \(formatCurrentTime())")
         } catch {
             syncError = "Failed to sync events: \(error.localizedDescription)"
             print("Error syncing events: \(error)")
@@ -64,6 +111,45 @@ class EventSyncService {
         print("Testing connection to: \(eventsURL)")
         let isConnected = await testConnection()
         print("Connection test completed: \(isConnected ? "✅ SUCCESS" : "❌ FAILED")")
+    }
+    
+    /// Test method to verify sync frequency functionality
+    func testSyncFrequency() async {
+        print("🧪 Testing sync frequency functionality...")
+        
+        // Test 1: First sync should always work
+        print("Test 1: First sync (should work)")
+        await syncEvents(forceSync: false)
+        
+        // Test 2: Immediate second sync should be skipped due to threshold
+        print("Test 2: Immediate second sync (should be skipped)")
+        await syncEvents(forceSync: false)
+        
+        // Test 3: Manual sync should work despite threshold
+        print("Test 3: Manual sync (should work)")
+        await manualSync()
+        
+        // Test 4: Another manual sync should be blocked by minimum interval
+        print("Test 4: Another manual sync (should be blocked by minimum interval)")
+        await manualSync()
+        
+        print("🧪 Sync frequency test completed!")
+    }
+    
+    /// Debug method to check persistence
+    func debugPersistence() {
+        let storedDate = UserDefaults.standard.object(forKey: lastSyncDateKey) as? Date
+        print("🔍 Debug Persistence:")
+        print("  - Current lastSyncDate: \(lastSyncDate?.description ?? "nil")")
+        print("  - Stored in UserDefaults: \(storedDate?.description ?? "nil")")
+        print("  - Should perform automatic sync: \(shouldPerformAutomaticSync())")
+        
+        if let lastSync = lastSyncDate {
+            let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+            print("  - Time since last sync: \(Int(timeSinceLastSync)) seconds")
+            print("  - Automatic threshold: \(Int(automaticSyncThreshold)) seconds")
+            print("  - Threshold met: \(timeSinceLastSync >= automaticSyncThreshold)")
+        }
     }
     
     /// Forces a complete refresh by clearing local events and re-fetching from remote
@@ -196,6 +282,106 @@ class EventSyncService {
             print("Loaded \(eventsResponse.events.count) fallback events from bundle")
         } catch {
             print("Failed to load fallback events: \(error)")
+        }
+    }
+    
+    /// Checks if automatic sync should be performed based on threshold
+    private func shouldPerformAutomaticSync() -> Bool {
+        guard let lastSync = lastSyncDate else {
+            // No previous sync, allow it
+            print("📅 No previous sync found - allowing automatic sync")
+            return true
+        }
+        
+        let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+        let thresholdMet = timeSinceLastSync >= automaticSyncThreshold
+        
+        print("📊 Threshold check: \(Int(timeSinceLastSync))s since last sync, threshold: \(Int(automaticSyncThreshold))s, met: \(thresholdMet)")
+        
+        return thresholdMet
+    }
+    
+    /// Checks if minimum interval has passed since last sync
+    private func shouldRespectMinimumInterval() -> Bool {
+        guard let lastSync = lastSyncDate else {
+            // No previous sync, allow it
+            return true
+        }
+        
+        let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+        return timeSinceLastSync >= minimumSyncInterval
+    }
+    
+    /// Formats the last sync time for logging
+    private func formatLastSyncTime() -> String {
+        guard let lastSync = lastSyncDate else {
+            return "Never"
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter.string(from: lastSync)
+    }
+    
+    /// Formats the current time for logging
+    private func formatCurrentTime() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter.string(from: Date())
+    }
+    
+    /// Gets time until next automatic sync is allowed
+    func timeUntilNextAutomaticSync() -> TimeInterval? {
+        guard let lastSync = lastSyncDate else {
+            return nil // Can sync immediately
+        }
+        
+        let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+        let timeRemaining = automaticSyncThreshold - timeSinceLastSync
+        
+        return timeRemaining > 0 ? timeRemaining : nil
+    }
+    
+    /// Gets formatted string for time until next sync
+    func formattedTimeUntilNextSync() -> String? {
+        guard let timeRemaining = timeUntilNextAutomaticSync() else {
+            return nil
+        }
+        
+        let minutes = Int(timeRemaining / 60)
+        let seconds = Int(timeRemaining.truncatingRemainder(dividingBy: 60))
+        
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
+        }
+    }
+    
+    /// Gets a user-friendly sync status message
+    var syncStatusMessage: String {
+        if isLoading {
+            return "Syncing events..."
+        }
+        
+        if let syncError = syncError, !syncError.isEmpty {
+            return "Sync failed - tap refresh to retry"
+        }
+        
+        guard let lastSync = lastSyncDate else {
+            return "Events not synced yet"
+        }
+        
+        let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        
+        if timeSinceLastSync < automaticSyncThreshold {
+            return "Events up to date"
+        } else {
+            return "Events may be outdated - tap refresh"
         }
     }
 }

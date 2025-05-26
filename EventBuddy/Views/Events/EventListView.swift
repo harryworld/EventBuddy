@@ -40,7 +40,7 @@ struct EventListView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         Task {
-                            await eventSyncService?.syncEvents()
+                            await eventSyncService?.manualSync()
                         }
                     } label: {
                         HStack(spacing: 4) {
@@ -126,9 +126,12 @@ struct EventListView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                         .font(.caption)
-                    Text("Last synced: \(formatSyncDate(lastSyncDate))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    
+                    TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+                        Text("Last synced: \(formatSyncDate(lastSyncDate, relativeTo: context.date))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .padding(.top, 2)
             } else if let syncError = eventSyncService?.syncError, !syncError.isEmpty {
@@ -301,13 +304,13 @@ struct EventListView: View {
     }
     
     private func refreshEvents() async {
-        await eventSyncService?.syncEvents()
+        await eventSyncService?.manualSync()
     }
     
-    private func formatSyncDate(_ date: Date) -> String {
+    private func formatSyncDate(_ date: Date, relativeTo: Date = Date()) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
+        return formatter.localizedString(for: date, relativeTo: relativeTo)
     }
 }
 

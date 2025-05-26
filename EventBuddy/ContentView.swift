@@ -55,7 +55,7 @@ struct ContentView: View {
                     Button("OK") { }
                     Button("Retry") {
                         Task {
-                            await eventSyncService.syncEvents()
+                            await eventSyncService.manualSync()
                         }
                     }
                 } message: {
@@ -91,7 +91,13 @@ struct ContentView: View {
             
             // Sync events from remote JSON file
             if !isPreview {
+                // Debug persistence before sync
+                eventSyncService.debugPersistence()
+                
                 await eventSyncService.syncEvents()
+                
+                // Debug persistence after sync
+                eventSyncService.debugPersistence()
                 
                 // Show error alert if sync failed
                 if let syncError = eventSyncService.syncError, !syncError.isEmpty {
