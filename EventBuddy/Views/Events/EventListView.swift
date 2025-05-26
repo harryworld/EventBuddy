@@ -77,6 +77,36 @@ struct EventListView: View {
                         .cornerRadius(10)
                 }
             }
+            .overlay(alignment: .top) {
+                // Toast notification for blocked manual sync
+                if eventSyncService?.isManualSyncBlocked == true {
+                    VStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                            
+                            Text("Please wait a moment before refreshing again")
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                        }
+                        
+                        if let timeRemaining = eventSyncService?.formattedTimeUntilNextManualSync() {
+                            Text("Try again in \(timeRemaining)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(8)
+                    .shadow(radius: 2)
+                    .padding(.top, 28)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.spring(duration: 0.3), value: eventSyncService?.isManualSyncBlocked)
+                }
+            }
         }
     }
     

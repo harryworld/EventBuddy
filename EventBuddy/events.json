@@ -97,6 +97,22 @@
       "updatedAt": "2025-01-01T00:00:00Z"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440033",
+      "title": "Core Coffee - WWDC Edition",
+      "eventDescription": "Coffee chat about last-minute WWDC predictions, development, tech, and everything in-between 🍏",
+      "location": "Voyager Craft Coffee (San Pedro Square)",
+      "address": "111 W St John St, San Jose, CA 95113, USA",
+      "startDate": "2025-06-07T10:00:00-07:00",
+      "endDate": "2025-06-07T12:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Runs from 10:00am-12:00am. Registration suggested.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://lu.ma/tvpvts9a",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
       "id": "550e8400-e29b-41d4-a716-446655440007",
       "title": "One More Thing 2025 - Day 2",
       "eventDescription": "Conference event for iOS developers - Day 2",

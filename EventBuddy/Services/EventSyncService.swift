@@ -26,6 +26,7 @@ class EventSyncService {
         }
     }
     var syncError: String?
+    var isManualSyncBlocked = false // New property to track when manual sync is blocked
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -44,6 +45,22 @@ class EventSyncService {
     
     /// Manually triggered sync that bypasses the automatic threshold but respects minimum interval
     func manualSync() async {
+        // Clear any previous blocked state
+        isManualSyncBlocked = false
+        
+        // Check minimum interval for manual syncs
+        if !shouldRespectMinimumInterval() {
+            print("⏭️ Manual sync blocked - minimum interval not met. Last sync: \(formatLastSyncTime())")
+            isManualSyncBlocked = true
+            
+            // Clear the blocked state after a short delay to show the indicator briefly
+            Task {
+                try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+                isManualSyncBlocked = false
+            }
+            return
+        }
+        
         await syncEvents(forceSync: true)
     }
     
@@ -344,9 +361,37 @@ class EventSyncService {
         return timeRemaining > 0 ? timeRemaining : nil
     }
     
+    /// Gets time until next manual sync is allowed
+    func timeUntilNextManualSync() -> TimeInterval? {
+        guard let lastSync = lastSyncDate else {
+            return nil // Can sync immediately
+        }
+        
+        let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+        let timeRemaining = minimumSyncInterval - timeSinceLastSync
+        
+        return timeRemaining > 0 ? timeRemaining : nil
+    }
+    
     /// Gets formatted string for time until next sync
     func formattedTimeUntilNextSync() -> String? {
         guard let timeRemaining = timeUntilNextAutomaticSync() else {
+            return nil
+        }
+        
+        let minutes = Int(timeRemaining / 60)
+        let seconds = Int(timeRemaining.truncatingRemainder(dividingBy: 60))
+        
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
+        }
+    }
+    
+    /// Gets formatted string for time until next manual sync is allowed
+    func formattedTimeUntilNextManualSync() -> String? {
+        guard let timeRemaining = timeUntilNextManualSync() else {
             return nil
         }
         
