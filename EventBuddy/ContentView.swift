@@ -89,7 +89,7 @@ struct ContentView: View {
                 FriendService.addSampleFriends(modelContext: modelContext)
             }
             
-            // Sync events from JSON file
+            // Sync events from remote JSON file
             if !isPreview {
                 await eventSyncService.syncEvents()
                 
