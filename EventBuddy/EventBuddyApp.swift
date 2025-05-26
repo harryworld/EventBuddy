@@ -14,6 +14,6 @@ struct EventBuddyApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Event.self, Friend.self, Profile.self])
+        .modelContainer(setupSwiftDataContainer())
     }
 }
