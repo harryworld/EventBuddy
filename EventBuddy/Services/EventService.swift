@@ -92,6 +92,19 @@ class EventService {
             ),
 
             Event(
+                title: "Core Coffee - WWDC Edition",
+                eventDescription: "Coffee chat about last-minute WWDC predictions, development, tech, and everything in-between 🍏",
+                location: "Voyager Craft Coffee (San Pedro Square)",
+                address: "111 W St John St, San Jose, CA 95113, USA",
+                startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
+                endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 10:00am-12:00am. Registration suggested.",
+                requiresRegistration: true,
+                url: "https://lu.ma/tvpvts9a"
+            ),
+
+            Event(
                 title: "One More Thing 2025 - Day 2",
                 eventDescription: "Conference event for iOS developers - Day 2",
                 location: "Residence Inn, Cupertino",
@@ -397,44 +410,7 @@ class EventService {
                 url: "https://lu.ma/aios-omt"
             ),
             
-            Event(
-                title: "WWDC25 Closing Party",
-                eventDescription: "Closing party for WWDC 2025",
-                location: "Apple Park",
-                address: "1 Apple Park Way, Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 22, minute: 0),
-                eventType: EventType.social.rawValue,
-                notes: "Runs from 6:00pm-10:00pm. Requires WWDC ticket.",
-                requiresTicket: true,
-                url: "https://developer.apple.com/wwdc25/"
-            ),
-            
             // THURSDAY, June 12th
-            Event(
-                title: "WWDC25 Labs - Final Day",
-                eventDescription: "Final day of WWDC labs and sessions",
-                location: "Apple Developer Center Cupertino",
-                address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 9, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 17, minute: 0),
-                eventType: EventType.keynote.rawValue,
-                notes: "Final day of WWDC labs and sessions. Requires WWDC ticket.",
-                requiresTicket: true,
-                url: "https://developer.apple.com/wwdc25/"
-            ),
-            
-            Event(
-                title: "Post-WWDC Networking",
-                eventDescription: "Final networking event after WWDC",
-                location: "Cupertino, California",
-                address: "Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 21, minute: 0),
-                eventType: EventType.social.rawValue,
-                notes: "Runs from 6:00pm-9:00pm. Open to all.",
-                requiresRegistration: true
-            )
         ]
         
         // Insert all events

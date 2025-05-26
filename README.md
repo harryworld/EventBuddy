@@ -6,6 +6,7 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 
 ### Events
 - [x] Load WWDC25 events
+- [x] Load WWDC25 events from server
 - [x] Add custom event
 - [x] Mark which one I will be going
 - [x] Show event detail

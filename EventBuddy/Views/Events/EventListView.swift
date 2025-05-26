@@ -40,7 +40,7 @@ struct EventListView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         Task {
-                            await eventSyncService?.syncEvents()
+                            await eventSyncService?.manualSync()
                         }
                     } label: {
                         HStack(spacing: 4) {
@@ -75,6 +75,36 @@ struct EventListView: View {
                         .padding()
                         .background(.ultraThinMaterial)
                         .cornerRadius(10)
+                }
+            }
+            .overlay(alignment: .top) {
+                // Toast notification for blocked manual sync
+                if eventSyncService?.isManualSyncBlocked == true {
+                    VStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                            
+                            Text("Please wait a moment before refreshing again")
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                        }
+                        
+                        if let timeRemaining = eventSyncService?.formattedTimeUntilNextManualSync() {
+                            Text("Try again in \(timeRemaining)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(8)
+                    .shadow(radius: 2)
+                    .padding(.top, 28)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.spring(duration: 0.3), value: eventSyncService?.isManualSyncBlocked)
                 }
             }
         }
@@ -126,9 +156,12 @@ struct EventListView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                         .font(.caption)
-                    Text("Last synced: \(formatSyncDate(lastSyncDate))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    
+                    TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+                        Text("Last synced: \(formatSyncDate(lastSyncDate, relativeTo: context.date))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .padding(.top, 2)
             } else if let syncError = eventSyncService?.syncError, !syncError.isEmpty {
@@ -301,13 +334,13 @@ struct EventListView: View {
     }
     
     private func refreshEvents() async {
-        await eventSyncService?.syncEvents()
+        await eventSyncService?.manualSync()
     }
     
-    private func formatSyncDate(_ date: Date) -> String {
+    private func formatSyncDate(_ date: Date, relativeTo: Date = Date()) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
+        return formatter.localizedString(for: date, relativeTo: relativeTo)
     }
 }
 
