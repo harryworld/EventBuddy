@@ -28,6 +28,7 @@ struct EventRowView: View {
                     Text(event.title)
                         .font(.headline)
                         .foregroundColor(.primary)
+                        .strikethrough(event.hasEnded)
                     
                     if event.isAttending {
                         Image(systemName: "checkmark.circle.fill")
@@ -80,6 +81,7 @@ struct EventRowView: View {
         .padding(.horizontal)
         .background(Color(.systemBackground))
         .cornerRadius(8)
+        .opacity(event.hasEnded ? 0.4 : 1.0)
     }
     
     private var formattedTime: String {

@@ -206,6 +206,11 @@ final class Event {
         updatedAt = Date()
     }
     
+    // Check if the event has ended
+    var hasEnded: Bool {
+        return Date() > endDate
+    }
+    
     // Convert to DTO for JSON serialization
     func toDTO() -> EventDTO {
         let formatter = ISO8601DateFormatter()
@@ -302,8 +307,8 @@ extension Event {
             eventDescription: "NSLondon WWDC25 keynote viewing party at Ford",
             location: "London, United Kingdom",
             address: "Ford, London",
-            startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 17, minute: 30))!,
-            endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 9, hour: 20, minute: 30))!,
+            startDate: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 9, hour: 17, minute: 30))!,
+            endDate: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 9, hour: 20, minute: 30))!,
             eventType: EventType.watchParty.rawValue,
             requiresTicket: true,
             isAttending: true,
