@@ -34,113 +34,70 @@ struct EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                // Title and event type tag
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(event.title)
-                        .font(.largeTitle)
-                        .bold()
+                // Title with attending button
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(event.title)
+                            .font(.largeTitle)
+                            .bold()
+                        
+                        Text(event.eventType)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                     
-                    Text(event.eventType)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Spacer()
+                    
+                    Button(action: {
+                        event.toggleAttending()
+                        try? modelContext.save()
+                    }) {
+                        Image(systemName: event.isAttending ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(event.isAttending ? .green : .gray)
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.bottom, 8)
                 
-                // Attendance Toggle Button
-                Button(action: {
-                    event.toggleAttending()
-                    try? modelContext.save()
-                }) {
-                    HStack {
-                        Image(systemName: event.isAttending ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(event.isAttending ? .green : .gray)
-                        Text(event.isAttending ? "I'm attending" : "Mark as attending")
-                            .fontWeight(event.isAttending ? .bold : .medium)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-                
-                // Date & Time Section
-                SectionContainer(title: "Date & Time", icon: "calendar") {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(formattedDate)
-                                .font(.headline)
-                            
-                            Text(formattedTimeTimeZone)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        if isAddedToCalendar {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                Text("Added")
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.green)
-                            }
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 8)
-                            .background(Color.green.opacity(0.1))
-                            .cornerRadius(20)
-                        } else {
-                            Button(action: {
-                                addToCalendar()
-                                event.toggleAttending()
-                                try? modelContext.save()
-                                isAddedToCalendar = true
-                            }) {
-                                Text("Add")
-                                    .fontWeight(.semibold)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 8)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(20)
-                            }
+                // Date & Time in one line
+                HStack {
+                    Image(systemName: "calendar")
+
+                    Text("\(formattedDate) • \(formattedTimeTimeZone)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    if isAddedToCalendar {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Added")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.green)
                         }
                     }
                 }
+                .padding(.bottom, 8)
                 
                 // Location Section
-                SectionContainer(title: "Location", icon: "mappin.circle.fill") {
+                SectionContainer(title: event.location, icon: "mappin.circle.fill") {
                     VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(event.location)
-                                    .font(.headline)
-
-                                if let address = event.address, !address.isEmpty {
-                                    Text(address)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-
-                            Spacer()
-                            
-                            Button(action: {
-                                openMap()
-                            }) {
-                                Text("Directions")
-                                    .fontWeight(.semibold)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 8)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(20)
+                        VStack(alignment: .leading) {
+                            if let address = event.address, !address.isEmpty {
+                                Text(address)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         
-                        // Embedded Map
+                        // Embedded Map with reduced height
                         EventMapView(event: event)
+                            .frame(height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
                 
@@ -377,34 +334,47 @@ struct EventDetailView: View {
         .navigationTitle("Event Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if event.isCustomEvent {
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
+            ToolbarItem(placement: .primaryAction) {
+                HStack {
+                    // Add to Calendar button
+                    if !isAddedToCalendar {
+                        Button(action: {
+                            addToCalendar()
+                            event.toggleAttending()
+                            try? modelContext.save()
+                            isAddedToCalendar = true
+                        }) {
+                            Image(systemName: "calendar.badge.plus")
+                        }
+                    }
+                    
+                    // Event menu or website button
+                    if event.isCustomEvent {
+                        Menu {
+                            Button {
+                                showingEditSheet = true
+                            } label: {
+                                Label("Edit Event", systemImage: "pencil")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete Event", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                    } else {
                         Button {
-                            showingEditSheet = true
+                            openEventWebsite()
                         } label: {
-                            Label("Edit Event", systemImage: "pencil")
+                            Image(systemName: "globe")
                         }
-                        
-                        Divider()
-                        
-                        Button(role: .destructive) {
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete Event", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
+                        .disabled(event.url == nil)
                     }
-                }
-            } else {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        openEventWebsite()
-                    } label: {
-                        Image(systemName: "globe")
-                    }
-                    .disabled(event.url == nil)
                 }
             }
         }

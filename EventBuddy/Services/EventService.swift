@@ -28,7 +28,7 @@ class EventService {
             Event(
                 title: "WWDC 2025 Run !",
                 eventDescription: "Group run for conference attendees",
-                location: "Apple Park Visitor Centeř",
+                location: "Apple Park Visitor Center",
                 address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
@@ -81,7 +81,7 @@ class EventService {
             Event(
                 title: "Run & Walk with Ctrl+Alt+Run",
                 eventDescription: "Group run for conference attendees",
-                location: "Apple Park Visitor Centeř",
+                location: "Apple Park Visitor Center",
                 address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 8, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
