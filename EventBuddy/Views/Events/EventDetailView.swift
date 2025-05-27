@@ -17,6 +17,8 @@ struct EventDetailView: View {
     @State private var isAddedToCalendar = false
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
+    @State private var showingDescriptionPopover = false
+    @State private var showingCalendarAlert = false
 
     @Query private var allFriends: [Friend]
     
@@ -41,9 +43,32 @@ struct EventDetailView: View {
                             .font(.largeTitle)
                             .bold()
                         
-                        Text(event.eventType)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                        HStack {
+                            Text(event.eventType)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            
+                            Button {
+                                showingDescriptionPopover = true
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .font(.subheadline)
+                                    .foregroundColor(.blue)
+                            }
+                            .buttonStyle(.plain)
+                            .popover(isPresented: $showingDescriptionPopover, arrowEdge: .top) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Description")
+                                        .font(.headline)
+                                    
+                                    Text(event.eventDescription)
+                                        .font(.body)
+                                }
+                                .padding()
+                                .frame(maxWidth: 300)
+                                .presentationCompactAdaptation(.none)
+                            }
+                        }
                     }
                     
                     Spacer()
@@ -99,12 +124,6 @@ struct EventDetailView: View {
                             .frame(height: 120)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-                }
-                
-                // Description Section
-                SectionContainer(title: "Description", icon: "doc.text") {
-                    Text(event.eventDescription)
-                        .font(.body)
                 }
                 
                 // Attendees Section
@@ -339,10 +358,7 @@ struct EventDetailView: View {
                     // Add to Calendar button
                     if !isAddedToCalendar {
                         Button(action: {
-                            addToCalendar()
-                            event.toggleAttending()
-                            try? modelContext.save()
-                            isAddedToCalendar = true
+                            showingCalendarAlert = true
                         }) {
                             Image(systemName: "calendar.badge.plus")
                         }
@@ -391,6 +407,17 @@ struct EventDetailView: View {
             }
         } message: {
             Text("Are you sure you want to delete this event? This action cannot be undone.")
+        }
+        .alert("Add to Calendar", isPresented: $showingCalendarAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Add") {
+                addToCalendar()
+                event.toggleAttending()
+                try? modelContext.save()
+                isAddedToCalendar = true
+            }
+        } message: {
+            Text("This will add \"\(event.title)\" to your calendar and mark you as attending.")
         }
     }
     
