@@ -8,8 +8,7 @@ struct EventDetailView: View {
     @Bindable var event: Event
     @State private var searchText = ""
     @State private var showingAddFriendSheet = false
-    @State private var newFriendName = ""
-    @State private var isAddingQuickFriend = false
+    @State private var manualFriendName = ""
     @State private var selectedFriendForDetailEdit: Friend? = nil
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -134,16 +133,16 @@ struct EventDetailView: View {
                             Image(systemName: "person.fill.badge.plus")
                                 .foregroundColor(.blue)
                             
-                            TextField("Friend name", text: $newFriendName)
+                            TextField("Friend name", text: $manualFriendName)
                                 .font(.body)
                                 .submitLabel(.done)
                                 .focused($isAddFriendFieldFocused)
                                 .onSubmit {
-                                    addQuickFriend()
+                                    createManualFriend()
                                 }
                             
                             Button {
-                                addQuickFriend()
+                                createManualFriend()
                             } label: {
                                 Text("Save")
                                     .fontWeight(.medium)
@@ -151,13 +150,13 @@ struct EventDetailView: View {
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(newFriendName.isEmpty ? Color.gray : Color.blue)
+                            .background(manualFriendName.isEmpty ? Color.gray : Color.blue)
                             .cornerRadius(8)
-                            .disabled(newFriendName.isEmpty)
+                            .disabled(manualFriendName.isEmpty)
                             
                             Button {
                                 showingAddFriendSheet = false
-                                newFriendName = ""
+                                manualFriendName = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(.gray)
@@ -192,6 +191,7 @@ struct EventDetailView: View {
                                 RoundedRectangle(cornerRadius: 8)
                                     .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
                             )
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -205,12 +205,6 @@ struct EventDetailView: View {
                             TextField("Search or create new friend", text: $searchText)
                                 .font(.body)
                                 .submitLabel(.search)
-                                .onChange(of: searchText) { _, newValue in
-                                    // Reset quick add state if search changes
-                                    if isAddingQuickFriend && newValue != newFriendName {
-                                        isAddingQuickFriend = false
-                                    }
-                                }
                         }
                         .padding(12)
                         .background(Color(.systemGray6))
@@ -219,10 +213,10 @@ struct EventDetailView: View {
                         // Search results
                         if !searchText.isEmpty {
                             VStack(alignment: .leading, spacing: 0) {
-                                if filteredFriends.isEmpty && !isAddingQuickFriend {
+                                if filteredFriends.isEmpty {
                                     Button {
-                                        isAddingQuickFriend = true
-                                        newFriendName = searchText
+                                        // Create friend immediately with search text
+                                        createQuickFriend(name: searchText)
                                     } label: {
                                         HStack {
                                             Image(systemName: "plus.circle")
@@ -231,31 +225,9 @@ struct EventDetailView: View {
                                         }
                                         .padding(.vertical, 12)
                                         .padding(.horizontal, 8)
+                                        .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
-                                    .background(Color(.systemGray6).opacity(0.5))
-                                }
-                                
-                                if isAddingQuickFriend {
-                                    HStack {
-                                        Image(systemName: "person.fill.badge.plus")
-                                        TextField("Confirm name", text: $newFriendName)
-                                            .submitLabel(.done)
-                                            .onSubmit {
-                                                addQuickFriend()
-                                            }
-                                        
-                                        Button("Save") {
-                                            addQuickFriend()
-                                        }
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(12)
-                                    }
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 8)
                                     .background(Color(.systemGray6).opacity(0.5))
                                 }
                                 
@@ -278,6 +250,7 @@ struct EventDetailView: View {
                                         }
                                         .padding(.vertical, 12)
                                         .padding(.horizontal, 8)
+                                        .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
                                     .background(Color(.systemGray6).opacity(0.3))
@@ -432,11 +405,9 @@ struct EventDetailView: View {
         try? modelContext.save()
     }
     
-    private func addQuickFriend() {
-        guard !newFriendName.isEmpty else { return }
-        
+    private func createQuickFriend(name: String) {
         // Create new friend with trimmed name
-        let trimmedName = newFriendName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return }
         
         let friend = Friend(name: trimmedName)
@@ -447,9 +418,26 @@ struct EventDetailView: View {
         try? modelContext.save()
         
         // Reset UI state
-        newFriendName = ""
+        searchText = ""
         showingAddFriendSheet = false
-        isAddingQuickFriend = false
+        isAddFriendFieldFocused = false
+    }
+    
+    private func createManualFriend() {
+        // Create new friend with trimmed name
+        let trimmedName = manualFriendName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        
+        let friend = Friend(name: trimmedName)
+        modelContext.insert(friend)
+        
+        // Add to event
+        event.addFriend(friend)
+        try? modelContext.save()
+        
+        // Reset UI state
+        manualFriendName = ""
+        showingAddFriendSheet = false
         isAddFriendFieldFocused = false
     }
     
