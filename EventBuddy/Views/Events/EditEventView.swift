@@ -66,11 +66,7 @@ struct EditEventView: View {
                 }
                 
                 Section("Date & Time") {
-                    DatePicker("Start Date", selection: $startDate)
-                        .datePickerStyle(.compact)
-                    
-                    DatePicker("End Date", selection: $endDate)
-                        .datePickerStyle(.compact)
+                    SmartTimePicker(startDate: $startDate, endDate: $endDate)
                 }
                 
                 Section("Additional Information") {
@@ -116,11 +112,11 @@ struct EditEventView: View {
             } message: {
                 Text("Please fill out all required fields and ensure end date is after start date.")
             }
-            .onChange(of: title) { validateForm() }
-            .onChange(of: eventDescription) { validateForm() }
-            .onChange(of: location) { validateForm() }
-            .onChange(of: startDate) { validateForm() }
-            .onChange(of: endDate) { validateForm() }
+            .onChange(of: title) { _ = validateForm() }
+            .onChange(of: eventDescription) { _ = validateForm() }
+            .onChange(of: location) { _ = validateForm() }
+            .onChange(of: startDate) { _ = validateForm() }
+            .onChange(of: endDate) { _ = validateForm() }
         }
     }
     

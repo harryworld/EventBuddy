@@ -9,8 +9,8 @@ struct AddEventView: View {
     @State private var eventDescription = ""
     @State private var location = ""
     @State private var address = ""
-    @State private var startDate = Date()
-    @State private var endDate = Date().addingTimeInterval(3600) // 1 hour later
+    @State private var startDate = Date.nextHour()
+    @State private var endDate = Date.nextHourPlusOne()
     @State private var eventType = EventType.meetup.rawValue
     @State private var notes = ""
     @State private var requiresTicket = false
@@ -49,11 +49,7 @@ struct AddEventView: View {
                 }
                 
                 Section("Date & Time") {
-                    DatePicker("Start Date", selection: $startDate)
-                        .datePickerStyle(.compact)
-                    
-                    DatePicker("End Date", selection: $endDate)
-                        .datePickerStyle(.compact)
+                    SmartTimePicker(startDate: $startDate, endDate: $endDate)
                 }
                 
                 Section("Additional Information") {
@@ -99,11 +95,11 @@ struct AddEventView: View {
             } message: {
                 Text("Please fill out all required fields and ensure end date is after start date.")
             }
-            .onChange(of: title) { validateForm() }
-            .onChange(of: eventDescription) { validateForm() }
-            .onChange(of: location) { validateForm() }
-            .onChange(of: startDate) { validateForm() }
-            .onChange(of: endDate) { validateForm() }
+            .onChange(of: title) { _ = validateForm() }
+            .onChange(of: eventDescription) { _ = validateForm() }
+            .onChange(of: location) { _ = validateForm() }
+            .onChange(of: startDate) { _ = validateForm() }
+            .onChange(of: endDate) { _ = validateForm() }
         }
     }
     
