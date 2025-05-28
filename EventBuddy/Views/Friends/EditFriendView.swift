@@ -10,9 +10,7 @@ struct EditFriendView: View {
     @State private var email: String
     @State private var phone: String
     @State private var notes: String
-    @State private var twitter: String
-    @State private var linkedin: String
-    @State private var github: String
+    @State private var socialMediaHandles: [String: String]
     
     init(friend: Friend) {
         self.friend = friend
@@ -24,9 +22,7 @@ struct EditFriendView: View {
         _notes = State(initialValue: friend.notes ?? "")
         
         // Extract social media handles
-        _twitter = State(initialValue: friend.socialMediaHandles["twitter"] ?? "")
-        _linkedin = State(initialValue: friend.socialMediaHandles["linkedin"] ?? "")
-        _github = State(initialValue: friend.socialMediaHandles["github"] ?? "")
+        _socialMediaHandles = State(initialValue: friend.socialMediaHandles)
     }
     
     var body: some View {
@@ -46,31 +42,26 @@ struct EditFriendView: View {
                 }
                 
                 Section("Social Media") {
-                    HStack {
-                        Image(systemName: "bubble.left")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("Twitter/X", text: $twitter)
+                    ForEach(Array(socialMediaHandles.keys.sorted()), id: \.self) { platform in
+                        HStack {
+                            Image(systemName: socialMediaIcon(for: platform))
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            
+                            TextField(platform.capitalized, text: Binding(
+                                get: { socialMediaHandles[platform] ?? "" },
+                                set: { socialMediaHandles[platform] = $0.isEmpty ? nil : $0 }
+                            ))
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
-                    }
-                    
-                    HStack {
-                        Image(systemName: "network")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("LinkedIn", text: $linkedin)
-                            .autocapitalization(.none)
-                            .autocorrectionDisabled()
-                    }
-                    
-                    HStack {
-                        Image(systemName: "terminal")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("GitHub", text: $github)
-                            .autocapitalization(.none)
-                            .autocorrectionDisabled()
+                            
+                            Button {
+                                socialMediaHandles.removeValue(forKey: platform)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundColor(.red)
+                            }
+                        }
                     }
                 }
                 
@@ -107,22 +98,22 @@ struct EditFriendView: View {
         friend.notes = notes.isEmpty ? nil : notes
         friend.updatedAt = Date()
         
-        // Update social media handles
-        var updatedHandles: [String: String] = [:]
-        
-        if !twitter.isEmpty {
-            updatedHandles["twitter"] = twitter
+        // Update social media handles - filter out empty values
+        friend.socialMediaHandles = socialMediaHandles.compactMapValues { value in
+            value.isEmpty ? nil : value
         }
-        
-        if !linkedin.isEmpty {
-            updatedHandles["linkedin"] = linkedin
+    }
+    
+    private func socialMediaIcon(for platform: String) -> String {
+        switch platform.lowercased() {
+        case "twitter": return "bird"
+        case "github": return "terminal"
+        case "linkedin": return "network"
+        case "instagram": return "camera"
+        case "facebook": return "person.2"
+        case "threads": return "at.badge.plus"
+        default: return "link"
         }
-        
-        if !github.isEmpty {
-            updatedHandles["github"] = github
-        }
-        
-        friend.socialMediaHandles = updatedHandles
     }
 }
 
