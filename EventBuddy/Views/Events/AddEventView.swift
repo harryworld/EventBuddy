@@ -16,6 +16,7 @@ struct AddEventView: View {
     @State private var requiresTicket = false
     @State private var requiresRegistration = false
     @State private var url = ""
+    @State private var selectedTimezone = TimeZone.current.identifier
     
     // Validation states
     @State private var isFormValid = false
@@ -49,7 +50,13 @@ struct AddEventView: View {
                 }
                 
                 Section("Date & Time") {
-                    SmartTimePicker(startDate: $startDate, endDate: $endDate)
+                    SmartTimePicker(
+                        startDate: $startDate, 
+                        endDate: $endDate,
+                        timezone: TimeZone(identifier: selectedTimezone) ?? TimeZone.current
+                    )
+                    
+                    TimezonePicker(selectedTimezone: $selectedTimezone)
                 }
                 
                 Section("Additional Information") {
@@ -130,7 +137,7 @@ struct AddEventView: View {
             requiresTicket: requiresTicket,
             requiresRegistration: requiresRegistration,
             url: url.isEmpty ? nil : url,
-            originalTimezoneIdentifier: TimeZone.current.identifier
+            originalTimezoneIdentifier: selectedTimezone
         )
         
         modelContext.insert(newEvent)

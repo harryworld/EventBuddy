@@ -3,6 +3,7 @@ import SwiftUI
 struct SmartTimePicker: View {
     @Binding var startDate: Date
     @Binding var endDate: Date
+    var timezone: TimeZone = TimeZone.current
     
     var body: some View {
         VStack(spacing: 16) {
@@ -15,6 +16,7 @@ struct SmartTimePicker: View {
                     }
                 ), displayedComponents: [.date, .hourAndMinute])
                 .datePickerStyle(.compact)
+                .environment(\.timeZone, timezone)
             }
             
             // End Date & Time
@@ -26,6 +28,7 @@ struct SmartTimePicker: View {
                     }
                 ), displayedComponents: [.date, .hourAndMinute])
                 .datePickerStyle(.compact)
+                .environment(\.timeZone, timezone)
             }
             
             // Duration display
@@ -83,7 +86,8 @@ struct SmartTimePicker: View {
     }
     
     private func roundToNearestFiveMinutes(_ date: Date) -> Date {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.timeZone = timezone
         let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         
         guard let minute = components.minute else { return date }
@@ -102,8 +106,9 @@ struct SmartTimePicker: View {
 
 // Helper functions for creating smart default times
 extension Date {
-    static func nextHour() -> Date {
-        let calendar = Calendar.current
+    static func nextHour(in timezone: TimeZone = TimeZone.current) -> Date {
+        var calendar = Calendar.current
+        calendar.timeZone = timezone
         let now = Date()
         let components = calendar.dateComponents([.year, .month, .day, .hour], from: now)
         
@@ -116,8 +121,8 @@ extension Date {
         return calendar.date(from: newComponents) ?? now.addingTimeInterval(3600)
     }
     
-    static func nextHourPlusOne() -> Date {
-        return nextHour().addingTimeInterval(3600)
+    static func nextHourPlusOne(in timezone: TimeZone = TimeZone.current) -> Date {
+        return nextHour(in: timezone).addingTimeInterval(3600)
     }
 }
 
