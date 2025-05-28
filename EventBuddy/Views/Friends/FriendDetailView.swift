@@ -11,10 +11,6 @@ struct FriendDetailView: View {
     @State private var showDeleteConfirmation = false
     @State private var showEditSheet = false
     
-    private var isFavorite: Bool {
-        friend.name == "John Appleseed" || friend.name == "Miguel Rodriguez"
-    }
-    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -137,33 +133,6 @@ struct FriendDetailView: View {
                     
                     Divider()
                 }
-                
-                // Meeting Information section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Meeting Information")
-                        .font(.headline)
-                    
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "mappin.circle.fill")
-                            .foregroundColor(.blue)
-                            .frame(width: 24)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Location")
-                                .foregroundColor(.secondary)
-                                .font(.subheadline)
-                            
-                            Text(meetingLocation)
-                                .font(.body)
-                        }
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        openMapForLocation(meetingLocation)
-                    }
-                }
-                
-                Divider()
                 
                 // Attended Events section
                 VStack(alignment: .leading, spacing: 16) {
@@ -288,6 +257,8 @@ struct FriendDetailView: View {
             urlString = "https://instagram.com/\(cleanUsername)"
         case "facebook":
             urlString = "https://facebook.com/\(cleanUsername)"
+        case "threads":
+            urlString = "https://threads.net/@\(cleanUsername)"
         default:
             if username.contains("://") {
                 urlString = username
@@ -301,21 +272,6 @@ struct FriendDetailView: View {
         }
     }
     
-    private func openMapForLocation(_ location: String) {
-        // Open Maps app with the location
-        let encodedLocation = location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        if let url = URL(string: "maps://?q=\(encodedLocation)") {
-            openURL(url)
-        }
-    }
-    
-    private var meetingLocation: String {
-        if friend.name == "John Appleseed" {
-            return "Apple Park"
-        }
-        return "Not specified"
-    }
-    
     private func socialMediaIcon(for platform: String) -> String {
         switch platform.lowercased() {
         case "twitter": return "bird"
@@ -323,6 +279,7 @@ struct FriendDetailView: View {
         case "linkedin": return "network"
         case "instagram": return "camera"
         case "facebook": return "person.2"
+        case "threads": return "at.badge.plus"
         default: return "link"
         }
     }
