@@ -9,6 +9,8 @@ struct EditFriendView: View {
     @State private var name: String
     @State private var email: String
     @State private var phone: String
+    @State private var jobTitle: String
+    @State private var company: String
     @State private var notes: String
     @State private var socialMediaHandles: [String: String]
     
@@ -19,6 +21,8 @@ struct EditFriendView: View {
         _name = State(initialValue: friend.name)
         _email = State(initialValue: friend.email ?? "")
         _phone = State(initialValue: friend.phone ?? "")
+        _jobTitle = State(initialValue: friend.jobTitle ?? "")
+        _company = State(initialValue: friend.company ?? "")
         _notes = State(initialValue: friend.notes ?? "")
         
         // Extract social media handles
@@ -39,6 +43,14 @@ struct EditFriendView: View {
                     
                     TextField("Phone", text: $phone)
                         .keyboardType(.phonePad)
+                }
+                
+                Section("Professional Info") {
+                    TextField("Job Title", text: $jobTitle)
+                        .autocorrectionDisabled()
+                    
+                    TextField("Company", text: $company)
+                        .autocorrectionDisabled()
                 }
                 
                 Section("Social Media") {
@@ -95,6 +107,8 @@ struct EditFriendView: View {
         friend.name = name
         friend.email = email.isEmpty ? nil : email
         friend.phone = phone.isEmpty ? nil : phone
+        friend.jobTitle = jobTitle.isEmpty ? nil : jobTitle
+        friend.company = company.isEmpty ? nil : company
         friend.notes = notes.isEmpty ? nil : notes
         friend.updatedAt = Date()
         

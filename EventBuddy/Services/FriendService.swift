@@ -39,6 +39,8 @@ class FriendService {
             name: "John Appleseed",
             email: "john@apple.com",
             phone: "+1 (555) 234-5678",
+            jobTitle: "Senior Software Engineer",
+            company: "Apple Inc.",
             socialMediaHandles: [
                 "twitter": "johnapple",
                 "linkedin": "johnapple",

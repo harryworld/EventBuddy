@@ -45,6 +45,50 @@ struct FriendDetailView: View {
                 
                 Divider()
                 
+                // Professional Information section
+                if friend.jobTitle != nil || friend.company != nil {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Professional Information")
+                            .font(.headline)
+                        
+                        if let jobTitle = friend.jobTitle, !jobTitle.isEmpty {
+                            HStack(alignment: .top, spacing: 12) {
+                                Image(systemName: "briefcase.fill")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Job Title")
+                                        .foregroundColor(.secondary)
+                                        .font(.subheadline)
+                                    
+                                    Text(jobTitle)
+                                        .font(.body)
+                                }
+                            }
+                        }
+                        
+                        if let company = friend.company, !company.isEmpty {
+                            HStack(alignment: .top, spacing: 12) {
+                                Image(systemName: "building.2.fill")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Company")
+                                        .foregroundColor(.secondary)
+                                        .font(.subheadline)
+                                    
+                                    Text(company)
+                                        .font(.body)
+                                }
+                            }
+                        }
+                    }
+                    
+                    Divider()
+                }
+                
                 // Contact Information section
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Contact Information")
@@ -312,14 +356,17 @@ struct FriendDetailView: View {
     }
     
     private var friendCompanyInfo: String? {
-        if let notes = friend.notes {
-            if notes.hasPrefix("Works at ") {
-                return String(notes.dropFirst("Works at ".count))
-            } else if notes.contains("Developer") || notes.contains("Dev") {
-                return notes
-            }
+        var components: [String] = []
+        
+        if let jobTitle = friend.jobTitle, !jobTitle.isEmpty {
+            components.append(jobTitle)
         }
-        return nil
+        
+        if let company = friend.company, !company.isEmpty {
+            components.append("at \(company)")
+        }
+        
+        return components.isEmpty ? nil : components.joined(separator: " ")
     }
     
     private func deleteFriend() {

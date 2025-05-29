@@ -24,9 +24,11 @@ struct FriendRowView: View {
                     }
                 }
                 
-                Text(friendCompanyInfo)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                if !friendProfessionalInfo.isEmpty {
+                    Text(friendProfessionalInfo)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
             
             Spacer()
@@ -57,16 +59,20 @@ struct FriendRowView: View {
         .padding(.vertical, 4)
     }
     
-    // Extract company info from notes
-    private var friendCompanyInfo: String {
-        if let notes = friend.notes, notes.hasPrefix("Works at ") {
-            return String(notes.dropFirst("Works at ".count))
-        } else if let notes = friend.notes, notes.contains("Developer") {
-            return notes
-        } else if let notes = friend.notes, notes.contains("Dev") {
-            return notes
+    // Build professional info from job title and company
+    private var friendProfessionalInfo: String {
+        let hasJobTitle = friend.jobTitle != nil && !friend.jobTitle!.isEmpty
+        let hasCompany = friend.company != nil && !friend.company!.isEmpty
+        
+        if hasJobTitle && hasCompany {
+            return "\(friend.jobTitle!) at \(friend.company!)"
+        } else if hasJobTitle {
+            return friend.jobTitle!
+        } else if hasCompany {
+            return friend.company!
+        } else {
+            return ""
         }
-        return ""
     }
 }
 

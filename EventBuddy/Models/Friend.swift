@@ -8,6 +8,8 @@ final class Friend {
     var name: String
     var email: String?
     var phone: String?
+    var jobTitle: String?
+    var company: String?
     var socialMediaHandles: [String: String] = [:]
     var notes: String?
     var createdAt: Date
@@ -21,6 +23,8 @@ final class Friend {
          name: String, 
          email: String? = nil, 
          phone: String? = nil, 
+         jobTitle: String? = nil,
+         company: String? = nil,
          socialMediaHandles: [String: String] = [:], 
          notes: String? = nil,
          isFavorite: Bool = false) {
@@ -28,6 +32,8 @@ final class Friend {
         self.name = name
         self.email = email
         self.phone = phone
+        self.jobTitle = jobTitle
+        self.company = company
         self.socialMediaHandles = socialMediaHandles
         self.notes = notes
         self.createdAt = Date()
@@ -49,6 +55,8 @@ extension Friend {
             name: "John Appleseed",
             email: "john@example.com",
             phone: "+1 (555) 123-4567",
+            jobTitle: "iOS Developer",
+            company: "Apple Inc.",
             socialMediaHandles: [
                 "twitter": "johnappleseed",
                 "github": "johnappleseed"
