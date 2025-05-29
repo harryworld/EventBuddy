@@ -53,13 +53,13 @@ class EventService {
             
             Event(
                 title: "WWDC 2025 Run !",
-                eventDescription: "Group run for conference attendees",
+                eventDescription: "Let's kick off WWDC 2025 with some fresh air, great vibes, and an energizing 5-mile (7.5 km) run! Group run for conference attendees.",
                 location: "Apple Park Visitor Center",
                 address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 10:00am-12:00pm. Registration suggested.",
+                notes: "Runs from 10:00am-12:00pm. 5-mile energizing run. 3 people going as of last update. Registration suggested.",
                 requiresRegistration: true,
                 url: "https://lu.ma/uob9fld4"
             ),
@@ -145,13 +145,13 @@ class EventService {
 
             Event(
                 title: "Core Coffee - WWDC Edition",
-                eventDescription: "Coffee chat about last-minute WWDC predictions, development, tech, and everything in-between 🍏",
+                eventDescription: "Coffee chat about last-minute WWDC predictions, development, tech, and everything in-between 🍏 Hosted by Kai Dombrowski.",
                 location: "Voyager Craft Coffee (San Pedro Square)",
                 address: "111 W St John St, San Jose, CA 95113, USA",
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 10:00am-12:00pm. Registration suggested.",
+                notes: "Runs from 10:00am-12:00pm PDT (GMT-7). Registration suggested. Hosted by Kai Dombrowski (@kaidombrowski). 71+ on waitlist.",
                 requiresRegistration: true,
                 url: "https://lu.ma/tvpvts9a"
             ),
@@ -272,13 +272,13 @@ class EventService {
             
             Event(
                 title: "🇫🇷🇨🇦🇱🇺🇧🇪 The French Dinner",
-                eventDescription: "French-speaking community dinner",
-                location: "Cupertino, California",
-                address: "Cupertino, CA 95014",
+                eventDescription: "🇫🇷🇧🇪🇨🇦🇨🇭 French-speaking community dinner. Note to WWDC community members: This gathering is intended for French-speaking attendees.",
+                location: "Restaurant in Cupertino",
+                address: "10088 Wolfe Road, Cupertino",
                 startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
                 endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 30),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 7:00pm-10:30pm. Requires registration.",
+                notes: "Runs from 7:00pm-10:30pm. 4 going, 2 interested as of last update. Requires registration.",
                 requiresRegistration: true,
                 url: "https://lu.ma/9vs7dmot"
             ),
@@ -450,7 +450,7 @@ class EventService {
             ),
             
             Event(
-                title: "Hacking with Swift",
+                title: "Hacking with Swift IRL",
                 eventDescription: "Hacking with Swift community session",
                 location: "Hyatt House San Jose Cupertino - Rooms 1-4",
                 address: "10380 Perimeter Rd, Cupertino, CA 95014",
@@ -904,6 +904,73 @@ class EventService {
                 requiresRegistration: false,
                 url: "https://livenearwwdc.com/"
             ),
+            
+            // ADDITIONAL EVENTS FROM DUBDUB.COMMUNITY AND LU.MA
+            Event(
+                title: "Cloud x Voice x Beers @ WWDC Social",
+                eventDescription: "Calling all mobile developers in town for WWDC 2025! Join us for an evening of networking, insights, and great conversations.",
+                location: "Stevens Creek Boulevard Area",
+                address: "Stevens Creek Boulevard, Cupertino",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Networking event for mobile developers. 3 going, 1 interested as of last update.",
+                requiresRegistration: true,
+                url: "https://dubdub.community/"
+            ),
+            
+            // VIBE CODE & CHILL EVENT FROM LU.MA
+            Event(
+                title: "Vibe Code & Chill: WWDC 2025 Edition",
+                eventDescription: "Join us for a laid-back coding session where we will vibe code and create apps using the latest Apple APIs, frameworks, and features revealed at WWDC 2025. We will hopefully use Apple's latest AI integration with Xcode or whatever AI tool you prefer. All skill levels are welcome, so grab your Mac, sip some drinks, and vibe to the WWDC energy!",
+                location: "Residence Inn San Jose Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, USA",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 30),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Laid-back coding session with latest Apple APIs. All skill levels welcome. Hosted by One More Thing 2025 & Rudrank Riyam. 44 people going as of last update.",
+                requiresRegistration: true,
+                url: "https://lu.ma/vibe-code-omt"
+            ),
+            
+            Event(
+                title: "Core Coffee – WWDC Edition pt. 2 ☕️",
+                eventDescription: "Morning(-ish) meetup for people to catch up to talk about iOS, macOS, watchOS, tvOS and everything in between. Part 2 of the WWDC Core Coffee series.",
+                location: "Voyager Craft Coffee - Cupertino",
+                address: "Voyager Craft Coffee, Cupertino, CA",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 13, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 11:00am-1:00pm PDT (GMT-7). Hosted by Malin & Kai. 20+ on waitlist.",
+                requiresRegistration: true,
+                url: "https://lu.ma/83g359qs"
+            ),
+            
+            Event(
+                title: "Core Coffee ✗ LookUp Anniversary – WWDC Edition",
+                eventDescription: "Special Core Coffee collaboration with LookUp Anniversary during WWDC. Morning meetup for Apple platform developers and enthusiasts.",
+                location: "Caffè Macs - Apple Park Visitor Center",
+                address: "Apple Park Visitor Center, 10600 N Tantau Ave, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 13, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 11:00am-1:00pm PDT (GMT-7). Special LookUp Anniversary collaboration. Hosted by Kai & Malin. 20+ on waitlist.",
+                requiresRegistration: true,
+                url: "https://lu.ma/zrz0r147"
+            ),
+            
+            Event(
+                title: "Core Coffee – Post-WWDC In-Person Edition ☕️",
+                eventDescription: "Post-WWDC Core Coffee meetup to debrief and discuss all the announcements from the week. Morning meetup for developers to catch up.",
+                location: "Prototype Coffee",
+                address: "Prototype Coffee, Cupertino, CA",
+                startDate: dateFrom(month: 6, day: 15, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 15, year: 2025, hour: 13, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 11:00am-1:00pm PDT (GMT-7). Post-WWDC debrief session. Hosted by Kai.",
+                requiresRegistration: true,
+                url: "https://lu.ma/wbcs4l69"
+            )
         ]
         
         // Insert all events
