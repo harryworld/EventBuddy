@@ -7,8 +7,6 @@ struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [Profile]
     
-    @State private var showingShareSheet = false
-    @State private var contactData: Data?
     @State private var showingEditSheet = false
     @State private var qrCodeContact: CNContact?
     @State private var qrCodeRefreshTrigger = UUID()
@@ -46,32 +44,11 @@ struct ProfileView: View {
             .navigationTitle("Profile")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            showingEditSheet = true
-                        } label: {
-                            Label("Edit Profile", systemImage: "pencil")
-                        }
-                        
-                        Button {
-                            shareContact()
-                        } label: {
-                            Label("Share Contact", systemImage: "square.and.arrow.up")
-                        }
-                        
-                        Button {
-                            startNameDrop()
-                        } label: {
-                            Label("Share via NameDrop", systemImage: "wave.3.right")
-                        }
+                    Button {
+                        showingEditSheet = true
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: "pencil")
                     }
-                }
-            }
-            .sheet(isPresented: $showingShareSheet) {
-                if let data = contactData {
-                    ShareSheet(items: [data])
                 }
             }
             .sheet(isPresented: $showingEditSheet) {
@@ -196,6 +173,26 @@ struct ProfileView: View {
                 .cornerRadius(12)
             }
             .padding(.top, 8)
+            
+            // Share Contact link
+            if let contact = qrCodeContact,
+               let contactData = try? CNContactVCardSerialization.data(with: [contact]) {
+                ShareLink(item: contactData, preview: SharePreview("Contact Card", image: Image(systemName: "person.crop.rectangle"))) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.callout)
+                        Text("Share Contact")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(Color.gray.opacity(0.1))
+                    .foregroundColor(.primary)
+                    .cornerRadius(8)
+                }
+                .padding(.top, 4)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical)
@@ -264,17 +261,6 @@ struct ProfileView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical)
-                
-                Button {
-                    showingEditSheet = true
-                } label: {
-                    Label("Add Social Links", systemImage: "plus")
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundColor(.blue)
-                        .cornerRadius(8)
-                }
             } else {
                 ForEach(currentProfile.socialLinks) { link in
                     socialLinkRow(link: link)
@@ -325,15 +311,6 @@ struct ProfileView: View {
         }
     }
     
-    private func shareContact() {
-        let contact = currentProfile.createContact()
-        contactData = try? CNContactVCardSerialization.data(with: [contact])
-        
-        if contactData != nil {
-            showingShareSheet = true
-        }
-    }
-    
     private func startNameDrop() {
         // Show the NameDrop sheet which will handle the interaction
         isShowingNameDrop = true
@@ -367,16 +344,6 @@ struct ProfileView: View {
         
         return defaultProfile
     }
-}
-
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {
