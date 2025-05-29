@@ -8,6 +8,8 @@ struct AddFriendView: View {
     @State private var name = ""
     @State private var email = ""
     @State private var phone = ""
+    @State private var jobTitle = ""
+    @State private var company = ""
     @State private var notes = ""
     @State private var twitter = ""
     @State private var linkedin = ""
@@ -27,6 +29,14 @@ struct AddFriendView: View {
                     
                     TextField("Phone", text: $phone)
                         .keyboardType(.phonePad)
+                }
+                
+                Section("Professional Info") {
+                    TextField("Job Title", text: $jobTitle)
+                        .autocorrectionDisabled()
+                    
+                    TextField("Company", text: $company)
+                        .autocorrectionDisabled()
                 }
                 
                 Section("Social Media") {
@@ -104,6 +114,8 @@ struct AddFriendView: View {
             name: name,
             email: email.isEmpty ? nil : email,
             phone: phone.isEmpty ? nil : phone,
+            jobTitle: jobTitle.isEmpty ? nil : jobTitle,
+            company: company.isEmpty ? nil : company,
             socialMediaHandles: socialMediaHandles,
             notes: notes.isEmpty ? nil : notes
         )
