@@ -68,6 +68,7 @@ struct ContentView: View {
                     }
             }
         }
+        .preferredColorScheme(settingsStore.settings.appTheme.colorScheme)
         .onAppear {
             if eventSyncService != nil {
                 loadInitialData()

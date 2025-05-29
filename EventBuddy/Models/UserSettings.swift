@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum AppTheme: String, CaseIterable, Identifiable {
     case system
@@ -20,6 +21,14 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .system: return "gear"
         case .light: return "sun.max"
         case .dark: return "moon"
+        }
+    }
+    
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
         }
     }
 }
