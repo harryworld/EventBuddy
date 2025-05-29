@@ -208,6 +208,19 @@ class EventService {
             
             // MONDAY, June 9th (Keynote Day)
             Event(
+                title: "CommunityKit Hackathon Space - Day 1",
+                eventDescription: "Continuous hackathon and coding space",
+                location: "Hyatt House San Jose Cupertino - Board Room",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "All-day hackathon space at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
+            ),
+            
+            Event(
                 title: "WWDC 2025 Keynote",
                 eventDescription: "Official Apple WWDC Special Event",
                 location: "Apple Park",
@@ -331,7 +344,59 @@ class EventService {
                 originalTimezoneIdentifier: "Australia/Sydney"
             ),
             
+            Event(
+                title: "Vision Pro Developers Meetup",
+                eventDescription: "Meetup for Vision Pro developers",
+                location: "Hyatt House San Jose Cupertino - Room 1",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Vision Pro developers meetup at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/jz8wgmls"
+            ),
+            
+            Event(
+                title: "EmpowerApps.Show LIVE with Leo Dion",
+                eventDescription: "Live recording of EmpowerApps.Show podcast",
+                location: "Hyatt House San Jose Cupertino - Room 2",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Live podcast recording at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/snplx9gn"
+            ),
+            
             // TUESDAY, June 10th
+            Event(
+                title: "CommunityKit Hackathon Space - Day 2",
+                eventDescription: "Continuous hackathon and coding space",
+                location: "Hyatt House San Jose Cupertino - Board Room",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "All-day hackathon space at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
+            ),
+            
+            Event(
+                title: "Lightning Talks",
+                eventDescription: "Quick presentation sessions",
+                location: "Hyatt House San Jose Cupertino - Room 1",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 11, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Lightning talks at CommunityKit. Registration to present available.",
+                requiresRegistration: true,
+                url: "https://docs.google.com/forms/d/e/1FAIpQLScA0IWK6m64fLAv97-Oqj5Fr8JtOXQ7SVtBqKN0xOuOF596Lg/viewform"
+            ),
+            
             Event(
                 title: "What's New in visionOS at WWDC 25",
                 eventDescription: "Speaker session by John Forester",
@@ -343,6 +408,71 @@ class EventService {
                 notes: "Part of One More Thing conference.",
                 requiresTicket: true,
                 url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "Apple Intelligence Automators Meetup",
+                eventDescription: "Meetup focused on Apple Intelligence and automation",
+                location: "Hyatt House San Jose Cupertino - Room 1",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Apple Intelligence and automation meetup at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/ai6mx0lr"
+            ),
+            
+            Event(
+                title: "try! Swift",
+                eventDescription: "try! Swift community meetup",
+                location: "Hyatt House San Jose Cupertino - Room 2",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "try! Swift community meetup at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/v554k2fj"
+            ),
+            
+            Event(
+                title: "RocketSim Meetup at CommunityKit",
+                eventDescription: "RocketSim developer meetup",
+                location: "Hyatt House San Jose Cupertino - Room 3",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "RocketSim developer meetup at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://t.co/WFWWzNlMMJ"
+            ),
+            
+            Event(
+                title: "Hacking with Swift",
+                eventDescription: "Hacking with Swift community session",
+                location: "Hyatt House San Jose Cupertino - Rooms 1-4",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Hacking with Swift session at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/4mk22om8"
+            ),
+            
+            Event(
+                title: "Swift Over Coffee LIVE",
+                eventDescription: "Live Swift Over Coffee session",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Live Swift Over Coffee session at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
             ),
             
             Event(
@@ -387,51 +517,51 @@ class EventService {
             Event(
                 title: "WWDC Women's Get-Together Breakfast",
                 eventDescription: "Breakfast meetup for women in tech",
-                location: "Cupertino, California",
-                address: "Cupertino, CA 95014",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 7, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 7:00am-9:00am. RSVP Required.",
+                notes: "Runs from 7:00am-9:00am. RSVP Required. Part of CommunityKit.",
                 requiresRegistration: true,
-                url: "https://www.meetup.com/swift-language/events/307194649/"
+                url: "https://lu.ma/lcaz5v0q"
             ),
             
             Event(
                 title: "Apple Developer Activities - Morning",
-                eventDescription: "Official Apple Developer Acitvities",
+                eventDescription: "Official Apple Developer Activities",
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 30),
                 eventType: EventType.keynote.rawValue,
-                notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
+                notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
             
             Event(
                 title: "Apple Developer Activities - Afternoon",
-                eventDescription: "Official Apple Developer Acitvities",
+                eventDescription: "Official Apple Developer Activities",
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 30),
                 eventType: EventType.keynote.rawValue,
-                notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
+                notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
             
             Event(
                 title: "Apple Developer Activities - Evening",
-                eventDescription: "Official Apple Developer Acitvities",
+                eventDescription: "Official Apple Developer Activities",
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 20, minute: 30),
                 eventType: EventType.keynote.rawValue,
-                notes: "Official Apple Developer Acitvities. Requires WWDC ticket.",
+                notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
                 url: "https://developer.apple.com/wwdc25/"
             ),
@@ -476,42 +606,16 @@ class EventService {
             ),
             
             Event(
-                title: "RocketSim Meetup at CommunityKit",
-                eventDescription: "RocketSim developer meetup",
-                location: "Hyatt House San Jose Cupertino",
-                address: "10380 Perimeter Rd, Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
-                eventType: EventType.meetup.rawValue,
-                notes: "Runs from 2:00pm-4:00pm. Requires registration.",
-                requiresRegistration: true,
-                url: "https://lu.ma/g4m3q37q"
-            ),
-            
-            Event(
-                title: "The Interface: WWDC25",
-                eventDescription: "Design-focused event",
-                location: "Homestead Bowl & The X Bar",
-                address: "20990 Homestead Rd, Cupertino, CA 95014, USA",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
-                eventType: EventType.meetup.rawValue,
-                notes: "Runs from 2:00pm-6:00pm. Requires registration.",
-                requiresRegistration: true,
-                url: "https://theinterface.design/"
-            ),
-            
-            Event(
                 title: "#WWDCScholars meetup at WWDC25",
                 eventDescription: "Meetup for WWDC Scholarship and Swift Student Challenge winners",
-                location: "Cupertino, California",
-                address: "Cupertino, CA 95014",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
                 endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
                 eventType: EventType.meetup.rawValue,
-                notes: "Runs from 7:00pm-10:00pm. For WWDC Scholarship and Swift Student Challenge winners.",
+                notes: "Runs from 7:00pm-10:00pm. For WWDC Scholarship and Swift Student Challenge winners. Part of CommunityKit.",
                 requiresRegistration: true,
-                url: "https://forms.gle/uqf3gVhqQQG5PvSy7"
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSeVb_GYJE5twJYzbg-iaTFi29_1ouKHfPb88A6KGeUZ0uz4fhg/viewform"
             ),
             
             Event(
@@ -540,7 +644,46 @@ class EventService {
                 originalTimezoneIdentifier: "Asia/Kolkata"
             ),
             
+            Event(
+                title: "The Interface: WWDC25",
+                eventDescription: "Design-focused event",
+                location: "Homestead Bowl & The X Bar",
+                address: "20990 Homestead Rd, Cupertino, CA 95014, USA",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 2:00pm-6:00pm. Requires registration.",
+                requiresRegistration: true,
+                url: "https://theinterface.design/"
+            ),
+            
             // WEDNESDAY, June 11th
+            Event(
+                title: "CommunityKit Hackathon Space - Day 3",
+                eventDescription: "Continuous hackathon and coding space",
+                location: "Hyatt House San Jose Cupertino - Board Room",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "All-day hackathon space at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
+            ),
+            
+            Event(
+                title: "Trivia Game with Matt Heaney and Tyler Hillsman",
+                eventDescription: "Interactive trivia game session",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Trivia game at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/1eldc9q3"
+            ),
+            
             Event(
                 title: "What's New in AI/ML",
                 eventDescription: "Speaker session by Rudrank Riyam",
@@ -565,6 +708,45 @@ class EventService {
                 notes: "Part of One More Thing conference.",
                 requiresTicket: true,
                 url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "Launched LIVE with Charlie Chapman",
+                eventDescription: "Live recording of Launched podcast",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Live podcast recording at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/htlbbu10"
+            ),
+            
+            Event(
+                title: "Indie Fair",
+                eventDescription: "Showcase for indie developers and apps",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Indie developer showcase at CommunityKit. Registration to present available.",
+                requiresRegistration: true,
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSeMwmzORBNswW8qrzjJXwelaAJPb9o92l3uSUS-LBNVg1Ggqg/viewform"
+            ),
+            
+            Event(
+                title: "Vapor@WWDC",
+                eventDescription: "Vapor framework community meetup",
+                location: "Hyatt House San Jose Cupertino - Rooms 1-2",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Vapor framework community meetup at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/zihfxdqz"
             ),
             
             Event(
@@ -618,6 +800,19 @@ class EventService {
                 url: "https://lu.ma/aios-omt"
             ),
             
+            Event(
+                title: "CommunityKit Closer",
+                eventDescription: "Closing session for CommunityKit",
+                location: "Hyatt House San Jose Cupertino - Room 1",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 19, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Closing session for CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
+            ),
+            
             // THURSDAY, June 12th
             Event(
                 title: "What's New in Testing at WWDC 25",
@@ -655,7 +850,7 @@ class EventService {
                 eventType: EventType.keynote.rawValue,
                 notes: "RSVP required. Part of One More Thing conference.",
                 requiresRegistration: true,
-                url: "https://omt-conf.com/#OMTSchedule"
+                url: "https://lu.ma/wwdc-week-in-review-with-james-dempsey-2025"
             ),
             
             Event(
@@ -695,19 +890,6 @@ class EventService {
                 notes: "Free admission. Unofficial women's lunch meetup.",
                 requiresRegistration: false,
                 url: "https://www.meetup.com/swift-language/events/307194649"
-            ),
-            
-            Event(
-                title: "Vapor@WWDC",
-                eventDescription: "Vapor framework community meetup",
-                location: "Cupertino, California",
-                address: "Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 21, minute: 0),
-                eventType: EventType.meetup.rawValue,
-                notes: "Free admission. Vapor framework community event.",
-                requiresRegistration: false,
-                url: "https://lu.ma/zihfxdqz"
             ),
             
             Event(
