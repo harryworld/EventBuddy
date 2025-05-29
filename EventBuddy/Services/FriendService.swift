@@ -13,11 +13,27 @@ class FriendService {
     
     // Add sample friends for demonstration purposes
     static func addSampleFriends(modelContext: ModelContext) {
-        // Check if sample friends were already added using UserDefaults
-        if UserDefaults.standard.bool(forKey: sampleFriendsAddedKey) {
-            return // Sample friends already added, skip
-        }
+        let sampleWasAdded = UserDefaults.standard.bool(forKey: sampleFriendsAddedKey)
         
+        if !sampleWasAdded {
+            // Rule 1: If sample was not added, insert it
+            insertSampleFriend(modelContext: modelContext)
+            UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
+        } else {
+            // Rule 2: If sample was added before, check if it still exists
+            if sampleFriendExists(modelContext: modelContext) {
+                // Rule 3: If exists, overwrite the sample
+                removeSampleFriendIfExists(modelContext: modelContext)
+                insertSampleFriend(modelContext: modelContext)
+            } else {
+                // Rule 4: If not exists, ignore it
+                return
+            }
+        }
+    }
+    
+    // Insert the sample friend
+    private static func insertSampleFriend(modelContext: ModelContext) {
         let sampleFriend = Friend(
             id: sampleFriendId,
             name: "John Appleseed",
@@ -33,9 +49,23 @@ class FriendService {
         )
         
         modelContext.insert(sampleFriend)
+    }
+    
+    // Check if sample friend exists in database
+    private static func sampleFriendExists(modelContext: ModelContext) -> Bool {
+        let descriptor = FetchDescriptor<Friend>(
+            predicate: #Predicate<Friend> { friend in
+                friend.id == sampleFriendId
+            }
+        )
         
-        // Mark sample friends as added in UserDefaults
-        UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
+        do {
+            let existingFriends = try modelContext.fetch(descriptor)
+            return !existingFriends.isEmpty
+        } catch {
+            print("Error checking if sample friend exists: \(error)")
+            return false
+        }
     }
     
     // Remove sample friend if it exists (to replace with updated data)
