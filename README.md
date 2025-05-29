@@ -32,9 +32,9 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [ ] Use NameDrop or fallback to AirDrop to exchange contact
 
 ### Settings
-- [ ] List out my social profiles
+- [x] List out my social profiles
 - [ ] Credits to anyone who helps out building the app
-- [ ] Export data
+- [x] Export data
 
 ### Widget
 - [ ] Show QR Code of my profile

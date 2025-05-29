@@ -122,20 +122,19 @@ struct SettingsView: View {
             .disabled(true)
 
             NavigationLink {
-                VStack {
-                    Text("Export Data")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
-                    Button("Export All Data") {
-                        // Data export action would go here
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
-                }
+                DataExportView()
             } label: {
                 Label("Export Data", systemImage: "square.and.arrow.up")
             }
+            
+            #if DEBUG
+            NavigationLink {
+                DataExportTestView()
+            } label: {
+                Label("Create Test Data", systemImage: "testtube.2")
+                    .foregroundStyle(.orange)
+            }
+            #endif
         } header: {
             Text("Data")
         } footer: {
