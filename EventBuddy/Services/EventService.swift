@@ -970,6 +970,218 @@ class EventService {
                 notes: "Runs from 11:00am-1:00pm PDT (GMT-7). Post-WWDC debrief session. Hosted by Kai.",
                 requiresRegistration: true,
                 url: "https://lu.ma/wbcs4l69"
+            ),
+            
+            // FRIDAY, June 13th
+            Event(
+                title: "Group Labs: Apple Intelligence",
+                eventDescription: "Join Apple engineers online for a live deep dive into Apple Intelligence announcements from WWDC25. Discuss the latest AI features and get guidance on implementation.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: SwiftUI",
+                eventDescription: "Deep dive into the latest SwiftUI announcements and frameworks with Apple designers and engineers. Learn about new features and best practices.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Design and User Experience",
+                eventDescription: "Explore the latest design principles and user experience guidelines with Apple's design team. Discuss the week's design-related announcements.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 15, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple designers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Developer Tools",
+                eventDescription: "Learn about the latest developer tools and Xcode updates announced at WWDC25. Get hands-on guidance from Apple's developer tools team.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            // WEDNESDAY, June 11th - Group Labs Day 2
+            Event(
+                title: "Group Labs: Graphics and Games",
+                eventDescription: "Dive into the latest graphics technologies and game development frameworks announced at WWDC25 with Apple's graphics and games teams.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Machine Learning",
+                eventDescription: "Explore the latest machine learning frameworks and Core ML updates with Apple's ML team. Learn about on-device AI capabilities.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 12, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Swift Programming Language",
+                eventDescription: "Learn about the latest Swift language updates and improvements announced at WWDC25 with the Swift team at Apple.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 15, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Privacy and Security",
+                eventDescription: "Discuss privacy and security best practices and new features announced at WWDC25 with Apple's privacy and security teams.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            // THURSDAY, June 12th - Group Labs Day 3
+            Event(
+                title: "Group Labs: visionOS",
+                eventDescription: "Explore the latest visionOS updates and spatial computing features with Apple's Vision Pro team. Learn about developing for Apple Vision Pro.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: watchOS and HealthKit",
+                eventDescription: "Learn about the latest watchOS and HealthKit updates announced at WWDC25 with Apple's health and fitness teams.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: tvOS and HomeKit",
+                eventDescription: "Explore tvOS and HomeKit updates announced at WWDC25 with Apple's home and entertainment teams.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 15, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: App Store and Distribution",
+                eventDescription: "Learn about App Store updates, new distribution methods, and monetization features announced at WWDC25.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            // FRIDAY, June 13th - Group Labs Day 4
+            Event(
+                title: "Group Labs: Accessibility",
+                eventDescription: "Learn about the latest accessibility features and APIs announced at WWDC25 with Apple's accessibility team.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: CloudKit and Web Technologies",
+                eventDescription: "Explore CloudKit updates and web technologies announced at WWDC25 with Apple's cloud services team.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 12, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Performance and Optimization",
+                eventDescription: "Learn about performance optimization techniques and new profiling tools announced at WWDC25.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 14, minute: 0),
+                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 15, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            Event(
+                title: "Group Labs: Wrap-up and Q&A",
+                eventDescription: "Final group lab session with wrap-up of WWDC25 announcements and open Q&A with Apple engineers across all teams.",
+                location: "Online",
+                address: "Online Event",
+                startDate: dateFrom(month: 6, day: 13, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 13, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
+                requiresRegistration: true,
+                url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
             )
         ]
         
