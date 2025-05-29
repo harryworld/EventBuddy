@@ -13,6 +13,32 @@ class EventService {
         let events = [
             // SATURDAY, June 7th
             Event(
+                title: "Fundamentals of 3D Graphics Programming with Metal",
+                eventDescription: "Half-day workshop led by Warren Moore",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Premium workshop. Requires workshop ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "MLX – A Practical Introduction",
+                eventDescription: "Half-day workshop led by Vatsal Manot",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 13, minute: 0),
+                endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Premium workshop. Requires workshop ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
                 title: "One More Thing 2025",
                 eventDescription: "Conference event for iOS developers",
                 location: "Residence Inn, Cupertino",
@@ -65,6 +91,32 @@ class EventService {
             ),
             
             // SUNDAY, June 8th
+            Event(
+                title: "Level up your Swift",
+                eventDescription: "Workshop led by Paul Hudson",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 9, minute: 30),
+                endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Premium workshop. Requires workshop ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+
+            Event(
+                title: "Concurrency Fundamentals with Swift 6.2",
+                eventDescription: "Half-day workshop led by Matt Massicotte",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 13, minute: 0),
+                endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Premium workshop. Requires workshop ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+
             Event(
                 title: "WW Run",
                 eventDescription: "Group run for conference attendees",
@@ -281,6 +333,45 @@ class EventService {
             
             // TUESDAY, June 10th
             Event(
+                title: "What's New in visionOS at WWDC 25",
+                eventDescription: "Speaker session by John Forester",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 30),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "What's New in Swift Concurrency",
+                eventDescription: "Speaker session by Matt Massicotte",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "Fireside Chat with Michael Darius",
+                eventDescription: "Interview session with Michael Darius",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 30),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 11, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
                 title: "One More Thing 2025 - Day 3",
                 eventDescription: "Conference event for iOS developers - Day 3",
                 location: "Residence Inn, Cupertino",
@@ -451,6 +542,45 @@ class EventService {
             
             // WEDNESDAY, June 11th
             Event(
+                title: "What's New in AI/ML",
+                eventDescription: "Speaker session by Rudrank Riyam",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 9, minute: 30),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "LLMs on MLX for absolute beginners",
+                eventDescription: "Speaker session by Ronald Mannak",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "Swift Multiplatform",
+                eventDescription: "Speaker session by Serhii Popov",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 10, minute: 30),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 11, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
                 title: "One More Thing 2025 - Day 4",
                 eventDescription: "Conference event for iOS developers - Day 4",
                 location: "Residence Inn, Cupertino",
@@ -489,6 +619,58 @@ class EventService {
             ),
             
             // THURSDAY, June 12th
+            Event(
+                title: "What's New in Testing at WWDC 25",
+                eventDescription: "Speaker session by Rachel Brindle",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 10, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 10, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "What's New in Developer Tools at WWDC 25",
+                eventDescription: "Speaker session on developer tools",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 10, minute: 30),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 11, minute: 0),
+                eventType: EventType.keynote.rawValue,
+                notes: "Part of One More Thing conference.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "James Dempsey's WWDC Week In Review",
+                eventDescription: "Weekly review session with James Dempsey",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 15, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 16, minute: 30),
+                eventType: EventType.keynote.rawValue,
+                notes: "RSVP required. Part of One More Thing conference.",
+                requiresRegistration: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
+            Event(
+                title: "OMT Closing Party & Happy Hour",
+                eventDescription: "Closing celebration for One More Thing conference",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 16, minute: 30),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 19, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Conference closing celebration.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/#OMTSchedule"
+            ),
+            
             Event(
                 title: "One More Thing 2025 - Day 5",
                 eventDescription: "Conference event for iOS developers - Day 5",
