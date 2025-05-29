@@ -14,7 +14,7 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [x] Associate friends that I meet here
 - [x] Choose people I want to meet, and mark done if I did meet
 - [x] Add a new friend quickly
-- [ ] Update with latest events
+- [x] Update with latest events
 
 ### Friends
 - [x] List out all friends
@@ -29,11 +29,12 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [x] Show my profile
 - [x] Show QR code of the contact, ready to be scanned and saved
 - [ ] Save my profile pic
-- [ ] Use NameDrop or fallback to AirDrop to exchange contact
+- [x] Use NameDrop or fallback to AirDrop to exchange contact
 
 ### Settings
-- [ ] List out my social profiles
+- [x] List out my social profiles
 - [ ] Credits to anyone who helps out building the app
+- [x] Export data
 
 ### Widget
 - [ ] Show QR Code of my profile

@@ -88,14 +88,13 @@ struct NameDropView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
-                Button {
-                    // Alternative sharing method
-                    shareContact()
-                } label: {
-                    Text("Or use standard sharing instead")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                        .padding(.top, 12)
+                if let contactData = try? CNContactVCardSerialization.data(with: [contact]) {
+                    ShareLink(item: contactData, preview: SharePreview("Contact Card", image: Image(systemName: "person.crop.rectangle"))) {
+                        Text("Or use standard sharing instead")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.top, 12)
+                    }
                 }
             }
             .padding(.bottom, 48)
@@ -149,20 +148,6 @@ struct NameDropView: View {
         shareTimer?.invalidate()
         shareTimer = nil
         isSharing = false
-    }
-    
-    private func shareContact() {
-        #if os(iOS)
-        // Here we would implement the actual sharing
-        // This is just a placeholder since the real implementation
-        // would require a UIViewControllerRepresentable
-        statusMessage = "Contact shared via system sheet"
-        
-        // Simulate a delay then dismiss
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            dismiss()
-        }
-        #endif
     }
 }
 

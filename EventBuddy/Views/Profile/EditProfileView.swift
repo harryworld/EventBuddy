@@ -4,30 +4,41 @@ import PhotosUI
 
 struct ProfileEditView: View {
     @Environment(\.dismiss) private var dismiss
-    @Bindable var user: User
-    @State private var newSocialService: SocialService = .twitter
+    @Environment(\.modelContext) private var modelContext
+    
+    @Bindable var profile: Profile
+    @State private var newSocialService: String = "twitter"
     @State private var newSocialUsername: String = ""
     @State private var showingSocialLinkSheet = false
+    
     var onSave: () -> Void
     
     var body: some View {
         NavigationStack {
             Form {
                 Section("Basic Information") {
-                    TextField("Name", text: $user.name)
-                    TextField("Email", text: $user.email)
+                    TextField("Name", text: $profile.name)
+                    TextField("Email", text: Binding(
+                        get: { profile.email ?? "" },
+                        set: { profile.email = $0.isEmpty ? nil : $0 }
+                    ))
                         .keyboardType(.emailAddress)
-                    TextField("Phone", text: $user.phone)
+                    TextField("Phone", text: Binding(
+                        get: { profile.phone ?? "" },
+                        set: { profile.phone = $0.isEmpty ? nil : $0 }
+                    ))
                         .keyboardType(.phonePad)
+                    TextField("iOS Developer passionate about SwiftUI", text: $profile.bio, axis: .vertical)
+                        .lineLimit(3...6)
                 }
                 
                 Section("Professional Information") {
-                    TextField("Job Title", text: $user.title)
-                    TextField("Company", text: $user.company)
+                    TextField("Job Title", text: $profile.title)
+                    TextField("Company", text: $profile.company)
                 }
                 
                 Section("Avatar") {
-                    Picker("Avatar", selection: $user.avatarSystemName) {
+                    Picker("Avatar", selection: $profile.avatarSystemName) {
                         ForEach(avatarOptions, id: \.self) { option in
                             Label {
                                 Text(avatarNames[option] ?? "")
@@ -40,14 +51,16 @@ struct ProfileEditView: View {
                 }
                 
                 Section("Social Links") {
-                    ForEach(user.socialLinks) { link in
-                        HStack {
-                            Image(systemName: link.service.icon)
-                                .foregroundColor(.blue)
-                            Text(link.service.displayName)
-                            Spacer()
-                            Text("@\(link.username)")
-                                .foregroundStyle(.secondary)
+                    ForEach(Array(profile.socialMediaAccounts.keys.sorted()), id: \.self) { service in
+                        if let username = profile.socialMediaAccounts[service], !username.isEmpty {
+                            HStack {
+                                Image(systemName: socialMediaIcon(for: service))
+                                    .foregroundColor(.blue)
+                                Text(service.capitalized)
+                                Spacer()
+                                Text("@\(username)")
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .onDelete(perform: deleteSocialLink)
@@ -69,6 +82,7 @@ struct ProfileEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        saveProfile()
                         onSave()
                         dismiss()
                     }
@@ -85,11 +99,11 @@ struct ProfileEditView: View {
             Form {
                 Section {
                     Picker("Service", selection: $newSocialService) {
-                        ForEach(SocialService.allCases) { service in
+                        ForEach(socialServices, id: \.self) { service in
                             Label {
-                                Text(service.displayName)
+                                Text(service.capitalized)
                             } icon: {
-                                Image(systemName: service.icon)
+                                Image(systemName: socialMediaIcon(for: service))
                             }
                             .tag(service)
                         }
@@ -145,21 +159,58 @@ struct ProfileEditView: View {
         "briefcase.fill": "Professional"
     ]
     
+    private let socialServices = [
+        "twitter", "linkedin", "github", "instagram", 
+        "facebook", "threads", "youtube"
+    ]
+    
+    private func socialMediaIcon(for service: String) -> String {
+        switch service.lowercased() {
+        case "twitter": return "bird"
+        case "linkedin": return "network"
+        case "github": return "chevron.left.forwardslash.chevron.right"
+        case "instagram": return "camera"
+        case "facebook": return "person.2.fill"
+        case "threads": return "text.bubble"
+        case "youtube": return "play.rectangle"
+        default: return "link"
+        }
+    }
+    
     private func deleteSocialLink(at offsets: IndexSet) {
-        user.socialLinks.remove(atOffsets: offsets)
+        let sortedKeys = Array(profile.socialMediaAccounts.keys.sorted())
+        for index in offsets {
+            let keyToRemove = sortedKeys[index]
+            profile.socialMediaAccounts.removeValue(forKey: keyToRemove)
+        }
     }
     
     private func addSocialLink() {
-        guard !newSocialUsername.isEmpty else { return }
-        let newLink = SocialLink(
-            service: newSocialService,
-            username: newSocialUsername.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-        user.socialLinks.append(newLink)
+        let cleanUsername = newSocialUsername.hasPrefix("@") ? String(newSocialUsername.dropFirst()) : newSocialUsername
+        profile.socialMediaAccounts[newSocialService] = cleanUsername
         newSocialUsername = ""
+        newSocialService = "twitter"
+    }
+    
+    private func saveProfile() {
+        profile.markAsUpdated()
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving profile: \(error)")
+        }
     }
 }
 
 #Preview {
-    ProfileEditView(user: UserStore().currentUser, onSave: {})
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Profile.self, configurations: config)
+    let context = container.mainContext
+    
+    let sampleProfile = Profile.preview
+    context.insert(sampleProfile)
+    
+    return ProfileEditView(profile: sampleProfile, onSave: {})
+        .modelContainer(container)
 } 
