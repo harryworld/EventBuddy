@@ -1,21 +1,22 @@
 import SwiftUI
 import Contacts
 import UIKit
+import SwiftData
 
 struct ProfileView: View {
-    let userStore: UserStore
+    @Environment(\.modelContext) private var modelContext
+    @Query private var profiles: [Profile]
     
     @State private var showingShareSheet = false
     @State private var contactData: Data?
     @State private var showingEditSheet = false
-    @State private var qrCodeContact: CNContact
+    @State private var qrCodeContact: CNContact?
     @State private var qrCodeRefreshTrigger = UUID()
     @State private var isShowingRefreshFeedback = false
     @State private var isShowingNameDrop = false
     
-    init(userStore: UserStore = UserStore()) {
-        self.userStore = userStore
-        _qrCodeContact = State(initialValue: userStore.currentUser.createContact())
+    private var currentProfile: Profile {
+        profiles.first ?? createDefaultProfile()
     }
     
     var body: some View {
@@ -74,12 +75,14 @@ struct ProfileView: View {
                 }
             }
             .sheet(isPresented: $showingEditSheet) {
-                ProfileEditView(user: userStore.currentUser, onSave: {
+                ProfileEditView(profile: currentProfile, onSave: {
                     refreshQRCode()
                 })
             }
             .sheet(isPresented: $isShowingNameDrop) {
-                NameDropView(contact: qrCodeContact)
+                if let contact = qrCodeContact {
+                    NameDropView(contact: contact)
+                }
             }
             .overlay {
                 if isShowingRefreshFeedback {
@@ -101,11 +104,14 @@ struct ProfileView: View {
                 }
             }
         }
+        .onAppear {
+            refreshQRCode()
+        }
     }
     
     private var profileHeader: some View {
         VStack(spacing: 16) {
-            Image(systemName: userStore.currentUser.avatarSystemName)
+            Image(systemName: currentProfile.avatarSystemName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 100, height: 100)
@@ -113,14 +119,22 @@ struct ProfileView: View {
                 .padding()
                 .background(Circle().fill(Color.blue.opacity(0.1)))
             
-            Text(userStore.currentUser.name)
+            Text(currentProfile.name)
                 .font(.title2)
                 .fontWeight(.bold)
             
-            if !userStore.currentUser.title.isEmpty || !userStore.currentUser.company.isEmpty {
-                Text("\(userStore.currentUser.title)\(userStore.currentUser.title.isEmpty || userStore.currentUser.company.isEmpty ? "" : " at ")\(userStore.currentUser.company)")
+            if !currentProfile.title.isEmpty || !currentProfile.company.isEmpty {
+                Text("\(currentProfile.title)\(currentProfile.title.isEmpty || currentProfile.company.isEmpty ? "" : " at ")\(currentProfile.company)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            }
+            
+            if !currentProfile.bio.isEmpty {
+                Text(currentProfile.bio)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
             
             Button {
@@ -142,14 +156,24 @@ struct ProfileView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            QRCodeView(contact: qrCodeContact, size: 220)
-                .id(qrCodeRefreshTrigger)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                )
+            if let contact = qrCodeContact {
+                QRCodeView(contact: contact, size: 220)
+                    .id(qrCodeRefreshTrigger)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                    )
+            } else {
+                ProgressView()
+                    .frame(width: 220, height: 220)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                    )
+            }
             
             Text("Scan to add me to contacts")
                 .font(.subheadline)
@@ -182,8 +206,32 @@ struct ProfileView: View {
             Text("Contact Information")
                 .font(.headline)
             
-            contactInfoRow(icon: "envelope.fill", title: "Email", value: userStore.currentUser.email)
-            contactInfoRow(icon: "phone.fill", title: "Phone", value: userStore.currentUser.phone)
+            if let email = currentProfile.email, !email.isEmpty {
+                contactInfoRow(icon: "envelope.fill", title: "Email", value: email)
+            }
+            
+            if let phone = currentProfile.phone, !phone.isEmpty {
+                contactInfoRow(icon: "phone.fill", title: "Phone", value: phone)
+            }
+            
+            if (currentProfile.email?.isEmpty ?? true) && (currentProfile.phone?.isEmpty ?? true) {
+                Text("No contact information added")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical)
+                
+                Button {
+                    showingEditSheet = true
+                } label: {
+                    Label("Add Contact Info", systemImage: "plus")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(8)
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -210,7 +258,7 @@ struct ProfileView: View {
             Text("Social Links")
                 .font(.headline)
             
-            if userStore.currentUser.socialLinks.isEmpty {
+            if currentProfile.socialLinks.isEmpty {
                 Text("No social links added")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -228,7 +276,7 @@ struct ProfileView: View {
                         .cornerRadius(8)
                 }
             } else {
-                ForEach(userStore.currentUser.socialLinks) { link in
+                ForEach(currentProfile.socialLinks) { link in
                     socialLinkRow(link: link)
                 }
             }
@@ -236,14 +284,14 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private func socialLinkRow(link: SocialLink) -> some View {
+    private func socialLinkRow(link: SocialLinkInfo) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: link.service.icon)
+            Image(systemName: link.icon)
                 .foregroundColor(.blue)
                 .frame(width: 24, height: 24)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(link.service.displayName)
+                Text(link.displayName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text("@\(link.username)")
@@ -261,7 +309,7 @@ struct ProfileView: View {
     }
     
     private func refreshQRCode() {
-        qrCodeContact = userStore.currentUser.createContact()
+        qrCodeContact = currentProfile.createContact()
         qrCodeRefreshTrigger = UUID() // Force view to refresh
         
         // Show feedback toast
@@ -278,7 +326,7 @@ struct ProfileView: View {
     }
     
     private func shareContact() {
-        let contact = userStore.currentUser.createContact()
+        let contact = currentProfile.createContact()
         contactData = try? CNContactVCardSerialization.data(with: [contact])
         
         if contactData != nil {
@@ -289,6 +337,35 @@ struct ProfileView: View {
     private func startNameDrop() {
         // Show the NameDrop sheet which will handle the interaction
         isShowingNameDrop = true
+    }
+    
+    private func createDefaultProfile() -> Profile {
+        let defaultProfile = Profile(
+            name: "Your Name",
+            bio: "Add your bio here",
+            email: nil,
+            phone: nil,
+            profileImage: nil,
+            socialMediaAccounts: [:],
+            preferences: [
+                "darkMode": false,
+                "notificationsEnabled": true,
+                "shareLocation": false
+            ],
+            title: "",
+            company: "",
+            avatarSystemName: "person.crop.circle.fill"
+        )
+        
+        modelContext.insert(defaultProfile)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving default profile: \(error)")
+        }
+        
+        return defaultProfile
     }
 }
 
@@ -303,5 +380,13 @@ struct ShareSheet: UIViewControllerRepresentable {
 }
 
 #Preview {
-    ProfileView()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Profile.self, configurations: config)
+    let context = container.mainContext
+    
+    let sampleProfile = Profile.preview
+    context.insert(sampleProfile)
+    
+    return ProfileView()
+        .modelContainer(container)
 } 

@@ -5,8 +5,6 @@ struct SettingsView: View {
     @State private var showingLogoutConfirmation = false
     @State private var showingDeleteAccountConfirmation = false
     
-    private let userStore = UserStore()
-    
     var body: some View {
         NavigationStack {
             List {

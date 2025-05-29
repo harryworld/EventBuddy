@@ -11,21 +11,20 @@ class ProfileService {
         clearExistingProfiles(modelContext: modelContext)
         
         let sampleProfile = Profile(
-            name: "Alex Developer",
-            bio: "iOS Developer passionate about SwiftUI and creating amazing user experiences. Love attending tech conferences and meeting fellow developers.",
-            email: "alex@eventbuddy.app",
-            phone: "+1 (555) 123-4567",
+            name: "John Appleseed",
+            bio: "",
+            email: "john@apple.com",
+            phone: "",
             profileImage: nil,
-            socialMediaAccounts: [
-                "twitter": "@alexdev",
-                "github": "alexdev",
-                "linkedin": "alex-developer"
-            ],
+            socialMediaAccounts: [:],
             preferences: [
                 "darkMode": true,
                 "notificationsEnabled": true,
                 "shareLocation": false
-            ]
+            ],
+            title: "iOS Developer",
+            company: "Apple Inc.",
+            avatarSystemName: "person.crop.circle.fill"
         )
         
         modelContext.insert(sampleProfile)
@@ -71,7 +70,10 @@ class ProfileService {
                 "darkMode": false,
                 "notificationsEnabled": true,
                 "shareLocation": false
-            ]
+            ],
+            title: "",
+            company: "",
+            avatarSystemName: "person.crop.circle.fill"
         )
         
         modelContext.insert(defaultProfile)
@@ -83,5 +85,34 @@ class ProfileService {
         }
         
         return defaultProfile
+    }
+    
+    // Update profile and save changes
+    static func updateProfile(_ profile: Profile, modelContext: ModelContext) {
+        profile.markAsUpdated()
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error updating profile: \(error)")
+        }
+    }
+    
+    // Add or update social media account
+    static func updateSocialAccount(for profile: Profile, service: String, username: String, modelContext: ModelContext) {
+        if username.isEmpty {
+            profile.socialMediaAccounts.removeValue(forKey: service)
+        } else {
+            let cleanUsername = username.hasPrefix("@") ? String(username.dropFirst()) : username
+            profile.socialMediaAccounts[service] = cleanUsername
+        }
+        
+        updateProfile(profile, modelContext: modelContext)
+    }
+    
+    // Remove social media account
+    static func removeSocialAccount(for profile: Profile, service: String, modelContext: ModelContext) {
+        profile.socialMediaAccounts.removeValue(forKey: service)
+        updateProfile(profile, modelContext: modelContext)
     }
 } 

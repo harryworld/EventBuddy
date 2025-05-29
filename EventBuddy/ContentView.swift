@@ -14,7 +14,6 @@ struct ContentView: View {
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
     
-    private let userStore = UserStore()
     private let settingsStore = SettingsStore()
     
     // Flag to determine if we're in preview mode
@@ -38,7 +37,7 @@ struct ContentView: View {
                         }
                         .tag(1)
 
-                    ProfileView(userStore: userStore)
+                    ProfileView()
                         .tabItem {
                             Label("Profile", systemImage: "person.circle")
                         }
@@ -88,6 +87,11 @@ struct ContentView: View {
             // Load friends sample data
             await MainActor.run {
                 FriendService.addSampleFriends(modelContext: modelContext)
+                
+                // Add sample profile if none exists
+                if ProfileService.getCurrentProfile(modelContext: modelContext) == nil {
+                    ProfileService.addSampleProfile(modelContext: modelContext)
+                }
             }
             
             // Sync events from remote JSON file
@@ -118,6 +122,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Event.self, Friend.self], inMemory: true)
+        .modelContainer(for: [Event.self, Friend.self, Profile.self], inMemory: true)
 }
 
