@@ -153,6 +153,10 @@ final class Event {
     @Relationship(deleteRule: .cascade)
     var attendees: [Friend] = []
     
+    // New properties for friend wishes
+    @Relationship(deleteRule: .nullify)
+    var friendWishes: [Friend] = []
+    
     init(id: UUID = UUID(), 
          title: String, 
          eventDescription: String, 
@@ -278,6 +282,34 @@ final class Event {
         self.url = dto.url
         self.updatedAt = updatedAt
         self.originalTimezoneIdentifier = dtoOriginalTimezone ?? "America/Los_Angeles"
+    }
+    
+    // MARK: - Friend Wishes Management
+    
+    func addFriendWish(_ friend: Friend) {
+        if !friendWishes.contains(where: { $0.id == friend.id }) {
+            friendWishes.append(friend)
+            updatedAt = Date()
+        }
+    }
+    
+    func removeFriendWish(_ friendId: UUID) {
+        friendWishes.removeAll { $0.id == friendId }
+        updatedAt = Date()
+    }
+    
+    func isFriendWished(_ friendId: UUID) -> Bool {
+        return friendWishes.contains(where: { $0.id == friendId })
+    }
+    
+    // MARK: - People Met Management (using attendees)
+    
+    func markFriendAsMet(_ friend: Friend) {
+        // Remove from friend wishes if present
+        removeFriendWish(friend.id)
+        
+        // Add to attendees if not already there
+        addFriend(friend)
     }
 }
 

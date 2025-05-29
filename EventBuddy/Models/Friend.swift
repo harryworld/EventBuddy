@@ -19,6 +19,9 @@ final class Friend {
     @Relationship(deleteRule: .cascade, inverse: \Event.attendees)
     var events: [Event] = []
     
+    @Relationship(deleteRule: .nullify, inverse: \Event.friendWishes)
+    var wishEvents: [Event] = []
+    
     init(id: UUID = UUID(), 
          name: String, 
          email: String? = nil, 

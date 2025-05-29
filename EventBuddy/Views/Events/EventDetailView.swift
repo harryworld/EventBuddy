@@ -273,17 +273,56 @@ struct EventAttendeesView: View {
     @Bindable var event: Event
     let modelContext: ModelContext
     @State private var selectedFriendForDetailEdit: Friend? = nil
+    @State private var selectedTab = 0 // 0 for People Met, 1 for Friend Wishes
     
     var body: some View {
-        SectionContainer(title: "Attendees", icon: "person.2.fill", trailingText: "\(event.attendees.count) friends") {
+        SectionContainer(title: "People", icon: "person.2.fill", trailingText: "\(event.attendees.count + event.friendWishes.count) total") {
             VStack(spacing: 16) {
-                AddFriendSection(event: event, modelContext: modelContext)
-                FriendSearchSection(event: event, modelContext: modelContext)
-                AttendingFriendsSection(
-                    event: event,
-                    modelContext: modelContext,
-                    selectedFriendForDetailEdit: $selectedFriendForDetailEdit
-                )
+                // Segmented Control
+                Picker("People Type", selection: $selectedTab) {
+                    Text("People Met (\(event.attendees.count))").tag(0)
+                    Text("Friend Wishes (\(event.friendWishes.count))").tag(1)
+                }
+                .pickerStyle(.segmented)
+                
+                // Content based on selected tab
+                if selectedTab == 0 {
+                    // People Met (Attendees)
+                    SharedAddFriendSection(
+                        event: event,
+                        modelContext: modelContext,
+                        isWishMode: false
+                    )
+                    SharedFriendSearchSection(
+                        event: event,
+                        modelContext: modelContext,
+                        isWishMode: false
+                    )
+                    SharedFriendsListSection(
+                        event: event,
+                        modelContext: modelContext,
+                        selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
+                        isWishMode: false
+                    )
+                } else {
+                    // Friend Wishes
+                    SharedAddFriendSection(
+                        event: event,
+                        modelContext: modelContext,
+                        isWishMode: true
+                    )
+                    SharedFriendSearchSection(
+                        event: event,
+                        modelContext: modelContext,
+                        isWishMode: true
+                    )
+                    SharedFriendsListSection(
+                        event: event,
+                        modelContext: modelContext,
+                        selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
+                        isWishMode: true
+                    )
+                }
             }
         }
         .sheet(item: $selectedFriendForDetailEdit) { friend in
@@ -292,19 +331,28 @@ struct EventAttendeesView: View {
     }
 }
 
-// MARK: - Add Friend Section
-struct AddFriendSection: View {
+// MARK: - Shared Add Friend Section
+struct SharedAddFriendSection: View {
     @Bindable var event: Event
     let modelContext: ModelContext
+    let isWishMode: Bool
     @State private var showingAddFriendSheet = false
     @State private var manualFriendName = ""
     @FocusState private var isAddFriendFieldFocused: Bool
+    
+    private var buttonColor: Color {
+        isWishMode ? .orange : .blue
+    }
+    
+    private var buttonText: String {
+        isWishMode ? "Add Friend Wish" : "Add Friend"
+    }
     
     var body: some View {
         if showingAddFriendSheet {
             HStack {
                 Image(systemName: "person.fill.badge.plus")
-                    .foregroundColor(.blue)
+                    .foregroundColor(buttonColor)
                 
                 TextField("Friend name", text: $manualFriendName)
                     .font(.body)
@@ -323,7 +371,7 @@ struct AddFriendSection: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(manualFriendName.isEmpty ? Color.gray : Color.blue)
+                .background(manualFriendName.isEmpty ? Color.gray : buttonColor)
                 .cornerRadius(8)
                 .disabled(manualFriendName.isEmpty)
                 
@@ -349,11 +397,11 @@ struct AddFriendSection: View {
             }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(buttonColor)
                     
-                    Text("Add Friend")
+                    Text(buttonText)
                         .fontWeight(.medium)
-                        .foregroundColor(.blue)
+                        .foregroundColor(buttonColor)
                     
                     Spacer()
                 }
@@ -374,7 +422,13 @@ struct AddFriendSection: View {
         
         let friend = Friend(name: trimmedName)
         modelContext.insert(friend)
-        event.addFriend(friend)
+        
+        if isWishMode {
+            event.addFriendWish(friend)
+        } else {
+            event.addFriend(friend)
+        }
+        
         try? modelContext.save()
         
         manualFriendName = ""
@@ -383,10 +437,11 @@ struct AddFriendSection: View {
     }
 }
 
-// MARK: - Friend Search Section
-struct FriendSearchSection: View {
+// MARK: - Shared Friend Search Section
+struct SharedFriendSearchSection: View {
     @Bindable var event: Event
     let modelContext: ModelContext
+    let isWishMode: Bool
     @State private var searchText = ""
     @Query private var allFriends: [Friend]
     
@@ -396,9 +451,25 @@ struct FriendSearchSection: View {
         } else {
             return allFriends.filter { friend in
                 friend.name.localizedCaseInsensitiveContains(searchText) &&
-                !event.attendees.contains { $0.id == friend.id }
+                !currentFriendsList.contains { $0.id == friend.id }
             }
         }
+    }
+    
+    private var currentFriendsList: [Friend] {
+        isWishMode ? event.friendWishes : event.attendees
+    }
+    
+    private var placeholderText: String {
+        isWishMode ? "Search or create new friend wish" : "Search or create new friend"
+    }
+    
+    private var iconColor: Color {
+        isWishMode ? .orange : .blue
+    }
+    
+    private var addIconColor: Color {
+        isWishMode ? .orange : .green
     }
     
     var body: some View {
@@ -407,7 +478,7 @@ struct FriendSearchSection: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
                 
-                TextField("Search or create new friend", text: $searchText)
+                TextField(placeholderText, text: $searchText)
                     .font(.body)
                     .submitLabel(.search)
             }
@@ -441,7 +512,7 @@ struct FriendSearchSection: View {
                             HStack {
                                 Image(systemName: "person.circle.fill")
                                     .font(.title3)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(iconColor)
                                 
                                 Text(friend.name)
                                     .font(.body)
@@ -449,7 +520,7 @@ struct FriendSearchSection: View {
                                 Spacer()
                                 
                                 Image(systemName: "plus.circle")
-                                    .foregroundColor(.green)
+                                    .foregroundColor(addIconColor)
                             }
                             .padding(.vertical, 12)
                             .padding(.horizontal, 8)
@@ -469,7 +540,11 @@ struct FriendSearchSection: View {
     }
     
     private func addFriendToEvent(_ friend: Friend) {
-        event.addFriend(friend)
+        if isWishMode {
+            event.addFriendWish(friend)
+        } else {
+            event.addFriend(friend)
+        }
         searchText = ""
         try? modelContext.save()
     }
@@ -480,39 +555,69 @@ struct FriendSearchSection: View {
         
         let friend = Friend(name: trimmedName)
         modelContext.insert(friend)
-        event.addFriend(friend)
-        try? modelContext.save()
         
+        if isWishMode {
+            event.addFriendWish(friend)
+        } else {
+            event.addFriend(friend)
+        }
+        
+        try? modelContext.save()
         searchText = ""
     }
 }
 
-// MARK: - Attending Friends Section
-struct AttendingFriendsSection: View {
+// MARK: - Shared Friends List Section
+struct SharedFriendsListSection: View {
     @Bindable var event: Event
     let modelContext: ModelContext
     @Binding var selectedFriendForDetailEdit: Friend?
+    let isWishMode: Bool
+    
+    private var friendsList: [Friend] {
+        isWishMode ? event.friendWishes : event.attendees
+    }
+    
+    private var sectionTitle: String {
+        isWishMode ? "Friend Wishes" : "Attending"
+    }
+    
+    private var iconColor: Color {
+        isWishMode ? .orange : .blue
+    }
     
     var body: some View {
-        if !event.attendees.isEmpty {
+        if !friendsList.isEmpty {
             HStack {
-                Text("Attending")
+                Text(sectionTitle)
                     .font(.headline)
                 
                 Spacer()
             }
             .padding(.top, 12)
             
-            ForEach(event.attendees) { friend in
+            ForEach(friendsList) { friend in
                 HStack {
                     Image(systemName: "person.circle.fill")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .foregroundColor(iconColor)
                     
                     Text(friend.name)
                         .font(.body)
                     
                     Spacer()
+                    
+                    // Show "Mark as Met" button only for friend wishes
+                    if isWishMode {
+                        Button {
+                            event.markFriendAsMet(friend)
+                            try? modelContext.save()
+                        } label: {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundColor(.green)
+                        }
+                        .buttonStyle(.plain)
+                    }
                     
                     Button {
                         selectedFriendForDetailEdit = friend
@@ -528,12 +633,21 @@ struct AttendingFriendsSection: View {
                             Label("Edit Friend", systemImage: "pencil")
                         }
                         
+                        if isWishMode {
+                            Button {
+                                event.markFriendAsMet(friend)
+                                try? modelContext.save()
+                            } label: {
+                                Label("Mark as Met", systemImage: "checkmark.circle")
+                            }
+                        }
+                        
                         Divider()
                         
                         Button(role: .destructive) {
                             removeFriendFromEvent(friend)
                         } label: {
-                            Label("Remove", systemImage: "xmark.circle")
+                            Label(isWishMode ? "Remove Wish" : "Remove", systemImage: "xmark.circle")
                         }
                     }
                     
@@ -551,7 +665,11 @@ struct AttendingFriendsSection: View {
     }
     
     private func removeFriendFromEvent(_ friend: Friend) {
-        event.removeFriend(friend.id)
+        if isWishMode {
+            event.removeFriendWish(friend.id)
+        } else {
+            event.removeFriend(friend.id)
+        }
         try? modelContext.save()
     }
 }
@@ -576,15 +694,6 @@ struct EventToolbarView: View {
             
             if event.isCustomEvent {
                 Menu {
-                    Button {
-                        openEventWebsite()
-                    } label: {
-                        Label("Go to website", systemImage: "globe")
-                    }
-                    .disabled(event.url == nil)
-
-                    Divider()
-
                     Button {
                         showingEditSheet = true
                     } label: {
@@ -663,3 +772,4 @@ struct SectionContainer<Content: View>: View {
     }
     .modelContainer(for: [Event.self, Friend.self], inMemory: true)
 } 
+
