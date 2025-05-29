@@ -18,6 +18,7 @@ struct EditEventView: View {
     @State private var requiresTicket: Bool
     @State private var requiresRegistration: Bool
     @State private var url: String
+    @State private var selectedTimezone: String
     
     // Validation states
     @State private var isFormValid = false
@@ -38,6 +39,7 @@ struct EditEventView: View {
         self._requiresTicket = State(initialValue: event.requiresTicket)
         self._requiresRegistration = State(initialValue: event.requiresRegistration)
         self._url = State(initialValue: event.url ?? "")
+        self._selectedTimezone = State(initialValue: event.originalTimezoneIdentifier ?? TimeZone.current.identifier)
     }
     
     var body: some View {
@@ -66,11 +68,13 @@ struct EditEventView: View {
                 }
                 
                 Section("Date & Time") {
-                    DatePicker("Start Date", selection: $startDate)
-                        .datePickerStyle(.compact)
+                    SmartTimePicker(
+                        startDate: $startDate, 
+                        endDate: $endDate,
+                        timezone: TimeZone(identifier: selectedTimezone) ?? TimeZone.current
+                    )
                     
-                    DatePicker("End Date", selection: $endDate)
-                        .datePickerStyle(.compact)
+                    TimezonePicker(selectedTimezone: $selectedTimezone)
                 }
                 
                 Section("Additional Information") {
@@ -116,11 +120,11 @@ struct EditEventView: View {
             } message: {
                 Text("Please fill out all required fields and ensure end date is after start date.")
             }
-            .onChange(of: title) { validateForm() }
-            .onChange(of: eventDescription) { validateForm() }
-            .onChange(of: location) { validateForm() }
-            .onChange(of: startDate) { validateForm() }
-            .onChange(of: endDate) { validateForm() }
+            .onChange(of: title) { _ = validateForm() }
+            .onChange(of: eventDescription) { _ = validateForm() }
+            .onChange(of: location) { _ = validateForm() }
+            .onChange(of: startDate) { _ = validateForm() }
+            .onChange(of: endDate) { _ = validateForm() }
         }
     }
     
@@ -150,6 +154,7 @@ struct EditEventView: View {
         event.requiresTicket = requiresTicket
         event.requiresRegistration = requiresRegistration
         event.url = url.isEmpty ? nil : url
+        event.originalTimezoneIdentifier = selectedTimezone
         event.updatedAt = Date()
         
         try? modelContext.save()

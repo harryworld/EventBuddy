@@ -10,7 +10,9 @@ struct EventListView: View {
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
     @State private var searchText = ""
-    @State private var showOnlyAttending = false
+    
+    // Use AppStorage for persistent storage of the attending filter
+    @AppStorage("showOnlyAttending") private var showOnlyAttending = false
     
     enum EventFilter: String, CaseIterable {
         case all = "All"

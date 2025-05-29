@@ -10,10 +10,9 @@ struct FriendDetailView: View {
     
     @State private var showDeleteConfirmation = false
     @State private var showEditSheet = false
-    
-    private var isFavorite: Bool {
-        friend.name == "John Appleseed" || friend.name == "Miguel Rodriguez"
-    }
+    @State private var showAddSocialSheet = false
+    @State private var newSocialPlatform = ""
+    @State private var newSocialUsername = ""
     
     var body: some View {
         ScrollView {
@@ -101,11 +100,27 @@ struct FriendDetailView: View {
                 Divider()
                 
                 // Social Media section
-                if !friend.socialMediaHandles.isEmpty {
-                    VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
                         Text("Social Media")
                             .font(.headline)
                         
+                        Spacer()
+                        
+                        Button {
+                            showAddSocialSheet = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.blue)
+                                .font(.title2)
+                        }
+                    }
+                    
+                    if friend.socialMediaHandles.isEmpty {
+                        Text("No social media accounts added yet")
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
+                    } else {
                         ForEach(Array(friend.socialMediaHandles.keys.sorted()), id: \.self) { key in
                             Button {
                                 openSocialProfile(platform: key, username: friend.socialMediaHandles[key] ?? "")
@@ -133,33 +148,7 @@ struct FriendDetailView: View {
                             }
                             .buttonStyle(.plain)
                         }
-                    }
-                    
-                    Divider()
-                }
-                
-                // Meeting Information section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Meeting Information")
-                        .font(.headline)
-                    
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "mappin.circle.fill")
-                            .foregroundColor(.blue)
-                            .frame(width: 24)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Location")
-                                .foregroundColor(.secondary)
-                                .font(.subheadline)
-                            
-                            Text(meetingLocation)
-                                .font(.body)
-                        }
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        openMapForLocation(meetingLocation)
+                        .onDelete(perform: deleteSocialLinks)
                     }
                 }
                 
@@ -269,6 +258,13 @@ struct FriendDetailView: View {
         .sheet(isPresented: $showEditSheet) {
             EditFriendView(friend: friend)
         }
+        .sheet(isPresented: $showAddSocialSheet) {
+            AddSocialLinkView(
+                platform: $newSocialPlatform,
+                username: $newSocialUsername,
+                onSave: addSocialLink
+            )
+        }
     }
     
     private func openSocialProfile(platform: String, username: String) {
@@ -288,6 +284,8 @@ struct FriendDetailView: View {
             urlString = "https://instagram.com/\(cleanUsername)"
         case "facebook":
             urlString = "https://facebook.com/\(cleanUsername)"
+        case "threads":
+            urlString = "https://threads.net/@\(cleanUsername)"
         default:
             if username.contains("://") {
                 urlString = username
@@ -301,21 +299,6 @@ struct FriendDetailView: View {
         }
     }
     
-    private func openMapForLocation(_ location: String) {
-        // Open Maps app with the location
-        let encodedLocation = location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        if let url = URL(string: "maps://?q=\(encodedLocation)") {
-            openURL(url)
-        }
-    }
-    
-    private var meetingLocation: String {
-        if friend.name == "John Appleseed" {
-            return "Apple Park"
-        }
-        return "Not specified"
-    }
-    
     private func socialMediaIcon(for platform: String) -> String {
         switch platform.lowercased() {
         case "twitter": return "bird"
@@ -323,6 +306,7 @@ struct FriendDetailView: View {
         case "linkedin": return "network"
         case "instagram": return "camera"
         case "facebook": return "person.2"
+        case "threads": return "at.badge.plus"
         default: return "link"
         }
     }
@@ -340,6 +324,90 @@ struct FriendDetailView: View {
     
     private func deleteFriend() {
         modelContext.delete(friend)
+    }
+    
+    private func addSocialLink() {
+        guard !newSocialPlatform.isEmpty && !newSocialUsername.isEmpty else { return }
+        
+        friend.socialMediaHandles[newSocialPlatform.lowercased()] = newSocialUsername.trimmingCharacters(in: .whitespacesAndNewlines)
+        friend.updatedAt = Date()
+        
+        try? modelContext.save()
+        
+        // Reset form
+        newSocialPlatform = ""
+        newSocialUsername = ""
+        showAddSocialSheet = false
+    }
+    
+    private func deleteSocialLinks(at offsets: IndexSet) {
+        for index in offsets {
+            let platform = Array(friend.socialMediaHandles.keys.sorted())[index]
+            friend.socialMediaHandles.removeValue(forKey: platform.lowercased())
+        }
+        friend.updatedAt = Date()
+        try? modelContext.save()
+    }
+}
+
+struct AddSocialLinkView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    @Binding var platform: String
+    @Binding var username: String
+    let onSave: () -> Void
+    
+    private let availablePlatforms = ["twitter", "linkedin", "github", "instagram", "facebook", "threads"]
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Social Media Platform") {
+                    Picker("Platform", selection: $platform) {
+                        Text("Select Platform").tag("")
+                        ForEach(availablePlatforms, id: \.self) { platformName in
+                            Text(platformName.capitalized).tag(platformName)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                Section("Username") {
+                    TextField(placeholderText, text: $username)
+                        .autocapitalization(.none)
+                        .autocorrectionDisabled()
+                }
+            }
+            .navigationTitle("Add Social Link")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave()
+                        dismiss()
+                    }
+                    .disabled(platform.isEmpty || username.isEmpty)
+                }
+            }
+        }
+    }
+    
+    private var placeholderText: String {
+        switch platform {
+        case "twitter": return "e.g. johndoe (without @)"
+        case "linkedin": return "e.g. johndoe"
+        case "github": return "e.g. johndoe"
+        case "instagram": return "e.g. johndoe (without @)"
+        case "facebook": return "e.g. john.doe"
+        case "threads": return "e.g. johndoe (without @)"
+        default: return "Username"
+        }
     }
 }
 
