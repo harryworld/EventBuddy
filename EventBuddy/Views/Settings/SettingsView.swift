@@ -110,7 +110,7 @@ struct SettingsView: View {
     }
     
     private var dataSection: some View {
-        Section("Data") {
+        Section {
             let dataSync = Binding(
                 get: { settingsStore.settings.dataSync },
                 set: { settingsStore.settings.dataSync = $0 }
@@ -119,7 +119,8 @@ struct SettingsView: View {
             Toggle(isOn: dataSync) {
                 Label("Sync Data Across Devices", systemImage: "arrow.triangle.2.circlepath.icloud")
             }
-            
+            .disabled(true)
+
             NavigationLink {
                 VStack {
                     Text("Export Data")
@@ -135,7 +136,21 @@ struct SettingsView: View {
             } label: {
                 Label("Export Data", systemImage: "square.and.arrow.up")
             }
+        } header: {
+            Text("Data")
+        } footer: {
+            Text("EventBuddy v\(appVersion) (\(buildNumber))")
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 8)
         }
+    }
+    
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+    
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 }
 

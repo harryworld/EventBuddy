@@ -71,7 +71,7 @@ struct PrivacySettings {
     var eventInviteNotifications: Bool = true
     var appTheme: AppTheme = .system
     var privacySettings: PrivacySettings = PrivacySettings()
-    var dataSync: Bool = true
+    var dataSync: Bool = false
     
     // Add other settings as needed
 }
