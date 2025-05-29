@@ -83,8 +83,8 @@ class EventService {
                 eventDescription: "Group run for conference attendees",
                 location: "Apple Park Visitor Center",
                 address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
-                startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 8, minute: 0),
-                endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
+                startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 10, minute: 0),
                 eventType: EventType.social.rawValue,
                 notes: "Runs from 8:00am-10:00am. Registration suggested.",
                 requiresRegistration: true,
@@ -99,7 +99,7 @@ class EventService {
                 startDate: dateFrom(month: 6, day: 7, year: 2025, hour: 10, minute: 0),
                 endDate: dateFrom(month: 6, day: 7, year: 2025, hour: 12, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Runs from 10:00am-12:00am. Registration suggested.",
+                notes: "Runs from 10:00am-12:00pm. Registration suggested.",
                 requiresRegistration: true,
                 url: "https://lu.ma/tvpvts9a"
             ),
@@ -281,6 +281,32 @@ class EventService {
             
             // TUESDAY, June 10th
             Event(
+                title: "One More Thing 2025 - Day 3",
+                eventDescription: "Conference event for iOS developers - Day 3",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 8:00am-5:30pm. Requires a ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
+            ),
+            
+            Event(
+                title: "WWDC Women's Get-Together Breakfast",
+                eventDescription: "Breakfast meetup for women in tech",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 7, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00am-9:00am. RSVP Required.",
+                requiresRegistration: true,
+                url: "https://www.meetup.com/swift-language/events/307194649/"
+            ),
+            
+            Event(
                 title: "Apple Developer Activities - Morning",
                 eventDescription: "Official Apple Developer Acitvities",
                 location: "Apple Developer Center Cupertino",
@@ -324,10 +350,10 @@ class EventService {
                 eventDescription: "Community event for developers",
                 location: "Hyatt House San Jose Cupertino",
                 address: "10380 Perimeter Rd, Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 17, minute: 0),
                 eventType: EventType.meetup.rawValue,
-                notes: "Runs from 12:00pm-10:00pm",
+                notes: "Runs from 9:00am-5:00pm",
                 requiresRegistration: true,
                 url: "https://communitykit.social/"
             ),
@@ -384,9 +410,61 @@ class EventService {
                 url: "https://theinterface.design/"
             ),
             
+            Event(
+                title: "#WWDCScholars meetup at WWDC25",
+                eventDescription: "Meetup for WWDC Scholarship and Swift Student Challenge winners",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 7:00pm-10:00pm. For WWDC Scholarship and Swift Student Challenge winners.",
+                requiresRegistration: true,
+                url: "https://forms.gle/uqf3gVhqQQG5PvSy7"
+            ),
+            
+            Event(
+                title: "WWDC'25 Watch Party @ Komunite Space, Istanbul",
+                eventDescription: "Watch party in Istanbul",
+                location: "Istanbul, Turkey",
+                address: "Istanbul, Turkey",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 7:00pm-10:00pm IST",
+                url: "https://kommunity.com/nsistanbul/events/wwdc25-seyir-partisi-6c721925",
+                originalTimezoneIdentifier: "Europe/Istanbul"
+            ),
+            
+            Event(
+                title: "WWDC'25 Watch Party Ahmedabad",
+                eventDescription: "Watch party in Ahmedabad",
+                location: "Ahmedabad, India",
+                address: "Ahmedabad, India",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 30),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 0, minute: 30),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 7:30pm-12:30am IST",
+                url: "https://lu.ma/kne1yfpm",
+                originalTimezoneIdentifier: "Asia/Kolkata"
+            ),
+            
             // WEDNESDAY, June 11th
             Event(
-                title: "CommunityKit",
+                title: "One More Thing 2025 - Day 4",
+                eventDescription: "Conference event for iOS developers - Day 4",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 8:00am-5:30pm. Requires a ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
+            ),
+            
+            Event(
+                title: "CommunityKit - Day 3",
                 eventDescription: "Community event for developers - Day 3",
                 location: "Hyatt House San Jose Cupertino",
                 address: "10380 Perimeter Rd, Cupertino, CA 95014",
@@ -411,6 +489,57 @@ class EventService {
             ),
             
             // THURSDAY, June 12th
+            Event(
+                title: "One More Thing 2025 - Day 5",
+                eventDescription: "Conference event for iOS developers - Day 5",
+                location: "Residence Inn, Cupertino",
+                address: "19429 Stevens Creek Blvd, Cupertino, CA 95014, United States",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 8, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 17, minute: 30),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 8:00am-5:30pm. Requires a ticket.",
+                requiresTicket: true,
+                url: "https://omt-conf.com/"
+            ),
+            
+            Event(
+                title: "Annual WWDC Women's Lunch (unofficial)",
+                eventDescription: "Unofficial lunch meetup for women in tech",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 14, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Free admission. Unofficial women's lunch meetup.",
+                requiresRegistration: false,
+                url: "https://www.meetup.com/swift-language/events/307194649"
+            ),
+            
+            Event(
+                title: "Vapor@WWDC",
+                eventDescription: "Vapor framework community meetup",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Free admission. Vapor framework community event.",
+                requiresRegistration: false,
+                url: "https://lu.ma/zihfxdqz"
+            ),
+            
+            Event(
+                title: "Live near WWDC",
+                eventDescription: "Local community gathering for nearby residents",
+                location: "Cupertino, California",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Community gathering for those living near WWDC area.",
+                requiresRegistration: false,
+                url: "https://livenearwwdc.com/"
+            ),
         ]
         
         // Insert all events
