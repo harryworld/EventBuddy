@@ -169,36 +169,6 @@ class EventSyncService {
         }
     }
     
-    /// Forces a complete refresh by clearing local events and re-fetching from remote
-    func forceRefresh() async {
-        isLoading = true
-        syncError = nil
-        
-        do {
-            // Clear existing events
-            try modelContext.delete(model: Event.self)
-            
-            // Fetch and add new events from remote
-            let eventsResponse = try await fetchEventsFromJSON()
-            for eventDTO in eventsResponse.events {
-                if let event = eventDTO.toEvent() {
-                    modelContext.insert(event)
-                }
-            }
-            
-            try modelContext.save()
-            lastSyncDate = Date()
-        } catch {
-            syncError = "Failed to refresh events: \(error.localizedDescription)"
-            print("Error refreshing events: \(error)")
-            
-            // If refresh fails, try to restore from bundle
-            await loadFallbackEvents()
-        }
-        
-        isLoading = false
-    }
-    
     // MARK: - Private Methods
     
     private func fetchEventsFromJSON() async throws -> EventsResponse {

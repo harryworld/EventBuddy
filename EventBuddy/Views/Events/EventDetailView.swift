@@ -695,6 +695,15 @@ struct EventToolbarView: View {
             if event.isCustomEvent {
                 Menu {
                     Button {
+                        openEventWebsite()
+                    } label: {
+                        Label("Visit Website", systemImage: "globe")
+                    }
+                    .disabled(event.url == nil)
+
+                    Divider()
+
+                    Button {
                         showingEditSheet = true
                     } label: {
                         Label("Edit Event", systemImage: "pencil")
