@@ -48,6 +48,25 @@ final class Friend {
         isFavorite.toggle()
         updatedAt = Date()
     }
+    
+    func update(name: String? = nil,
+                email: String? = nil,
+                phone: String? = nil,
+                jobTitle: String? = nil,
+                company: String? = nil,
+                socialMediaHandles: [String: String]? = nil,
+                notes: String? = nil,
+                isFavorite: Bool? = nil) {
+        if let name = name { self.name = name }
+        if let email = email { self.email = email }
+        if let phone = phone { self.phone = phone }
+        if let jobTitle = jobTitle { self.jobTitle = jobTitle }
+        if let company = company { self.company = company }
+        if let socialMediaHandles = socialMediaHandles { self.socialMediaHandles = socialMediaHandles }
+        if let notes = notes { self.notes = notes }
+        if let isFavorite = isFavorite { self.isFavorite = isFavorite }
+        self.updatedAt = Date()
+    }
 }
 
 // MARK: - Helper Extensions

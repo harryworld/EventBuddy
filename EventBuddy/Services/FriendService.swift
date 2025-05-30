@@ -22,9 +22,8 @@ class FriendService {
         } else {
             // Rule 2: If sample was added before, check if it still exists
             if sampleFriendExists(modelContext: modelContext) {
-                // Rule 3: If exists, overwrite the sample
-                removeSampleFriendIfExists(modelContext: modelContext)
-                insertSampleFriend(modelContext: modelContext)
+                // Rule 3: If exists, update the sample instead of deleting and inserting
+                updateSampleFriend(modelContext: modelContext)
             } else {
                 // Rule 4: If not exists, ignore it
                 return
@@ -70,8 +69,8 @@ class FriendService {
         }
     }
     
-    // Remove sample friend if it exists (to replace with updated data)
-    private static func removeSampleFriendIfExists(modelContext: ModelContext) {
+    // Update sample friend
+    private static func updateSampleFriend(modelContext: ModelContext) {
         let descriptor = FetchDescriptor<Friend>(
             predicate: #Predicate<Friend> { friend in
                 friend.id == sampleFriendId
@@ -80,20 +79,27 @@ class FriendService {
         
         do {
             let existingFriends = try modelContext.fetch(descriptor)
-            for friend in existingFriends {
-                modelContext.delete(friend)
+            if let friend = existingFriends.first {
+                friend.update(
+                    name: "John Appleseed",
+                    email: "john@apple.com",
+                    phone: "+1 (555) 234-5678",
+                    jobTitle: "Senior Software Engineer",
+                    company: "Apple Inc.",
+                    socialMediaHandles: [
+                        "twitter": "johnapple",
+                        "linkedin": "johnapple",
+                        "github": "johnapple"
+                    ],
+                    notes: "Works at Apple",
+                    isFavorite: true
+                )
+                
+                // Save the changes to persist them
+                try modelContext.save()
             }
         } catch {
-            print("Error removing existing sample friend: \(error)")
-        }
-    }
-
-    // Clear existing friends
-    private static func clearExistingFriends(modelContext: ModelContext) {
-        do {
-            try modelContext.delete(model: Friend.self)
-        } catch {
-            print("Error clearing friends: \(error)")
+            print("Error updating sample friend: \(error)")
         }
     }
     
