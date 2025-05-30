@@ -9,8 +9,12 @@ class EventSyncService {
     
     // Sync frequency control
     private let automaticSyncThreshold: TimeInterval = 3600 // 1 hour in seconds
+    #if DEBUG
+    private let minimumSyncInterval: TimeInterval = 5 // 5 minutes minimum between any syncs
+    #else
     private let minimumSyncInterval: TimeInterval = 300 // 5 minutes minimum between any syncs
-    
+    #endif
+
     // UserDefaults key for persisting last sync date
     private let lastSyncDateKey = "EventSyncService.lastSyncDate"
     
@@ -175,9 +179,10 @@ class EventSyncService {
         guard let url = URL(string: eventsURL) else {
             throw EventSyncError.invalidURL
         }
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
+
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        let (data, response) = try await URLSession.shared.data(for: request)
+
         // Check for HTTP errors
         if let httpResponse = response as? HTTPURLResponse,
            !(200...299).contains(httpResponse.statusCode) {
