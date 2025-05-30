@@ -282,6 +282,7 @@ final class Event {
         self.url = dto.url
         self.updatedAt = updatedAt
         self.originalTimezoneIdentifier = dtoOriginalTimezone ?? "America/Los_Angeles"
+        self.isCustomEvent = false // Mark as updated from DTO
     }
     
     // MARK: - Friend Wishes Management

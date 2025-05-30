@@ -9,8 +9,12 @@ class EventSyncService {
     
     // Sync frequency control
     private let automaticSyncThreshold: TimeInterval = 3600 // 1 hour in seconds
+    #if DEBUG
+    private let minimumSyncInterval: TimeInterval = 5 // 5 minutes minimum between any syncs
+    #else
     private let minimumSyncInterval: TimeInterval = 300 // 5 minutes minimum between any syncs
-    
+    #endif
+
     // UserDefaults key for persisting last sync date
     private let lastSyncDateKey = "EventSyncService.lastSyncDate"
     
@@ -169,45 +173,16 @@ class EventSyncService {
         }
     }
     
-    /// Forces a complete refresh by clearing local events and re-fetching from remote
-    func forceRefresh() async {
-        isLoading = true
-        syncError = nil
-        
-        do {
-            // Clear existing events
-            try modelContext.delete(model: Event.self)
-            
-            // Fetch and add new events from remote
-            let eventsResponse = try await fetchEventsFromJSON()
-            for eventDTO in eventsResponse.events {
-                if let event = eventDTO.toEvent() {
-                    modelContext.insert(event)
-                }
-            }
-            
-            try modelContext.save()
-            lastSyncDate = Date()
-        } catch {
-            syncError = "Failed to refresh events: \(error.localizedDescription)"
-            print("Error refreshing events: \(error)")
-            
-            // If refresh fails, try to restore from bundle
-            await loadFallbackEvents()
-        }
-        
-        isLoading = false
-    }
-    
     // MARK: - Private Methods
     
     private func fetchEventsFromJSON() async throws -> EventsResponse {
         guard let url = URL(string: eventsURL) else {
             throw EventSyncError.invalidURL
         }
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
+
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        let (data, response) = try await URLSession.shared.data(for: request)
+
         // Check for HTTP errors
         if let httpResponse = response as? HTTPURLResponse,
            !(200...299).contains(httpResponse.statusCode) {

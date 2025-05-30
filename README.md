@@ -33,7 +33,8 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 
 ### Settings
 - [x] List out my social profiles
-- [ ] Credits to anyone who helps out building the app
+- [x] Show GitHub open-source link
+- [x] Credits to anyone who helps out building the app
 - [x] Export data
 
 ### Widget

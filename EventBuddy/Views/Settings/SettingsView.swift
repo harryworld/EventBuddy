@@ -11,8 +11,31 @@ struct SettingsView: View {
                 contactHarrySection
                 appearanceSection
                 dataSection
+                creditsSection
+                aboutProjectSection
             }
             .navigationTitle("Settings")
+        }
+    }
+    
+    private var aboutProjectSection: some View {
+        Section {
+            Link(destination: URL(string: "https://github.com/harryworld/EventBuddy")!) {
+                HStack {
+                    Label("View on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+        } header: {
+            Text("About EventBuddy")
+        } footer: {
+            Text("EventBuddy is open source and part of the BuildWithHarry series. Contributions and suggestions are welcome!")
         }
     }
     
@@ -139,6 +162,24 @@ struct SettingsView: View {
             Text("EventBuddy v\(appVersion) (\(buildNumber))")
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 8)
+        }
+    }
+    
+    private var creditsSection: some View {
+        Section {
+            HStack {
+                Label("App Icon", systemImage: "app.badge")
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+                
+                Text("Hwang & ChatGPT")
+                    .foregroundStyle(.secondary)
+            }
+        } header: {
+            Text("Credits")
+        } footer: {
+            Text("Special thanks to everyone who contributed to making EventBuddy better!")
         }
     }
     
