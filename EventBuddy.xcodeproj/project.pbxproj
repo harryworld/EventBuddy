@@ -45,10 +45,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0665B1002DEDF8C500DEFBAD /* Exceptions for "EventBuddyWidgets" folder in "EventBuddy" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				EventBuddyWidgetsAttributes.swift,
+			);
+			target = 068753A82DD6D5A00048FD00 /* EventBuddy */;
+		};
 		06E7585C2DE36E3E000EEE35 /* Exceptions for "EventBuddy" folder in "EventBuddy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Views/Components/LiveActivityTestView.swift,
 			);
 			target = 068753A82DD6D5A00048FD00 /* EventBuddy */;
 		};
@@ -66,6 +74,7 @@
 				Models/Friend.swift,
 				Models/ModelConfiguration.swift,
 				Models/Profile.swift,
+				Views/Components/LiveActivityTestView.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 		};
@@ -84,6 +93,7 @@
 		06E75D012DEDB9AF000EEE35 /* EventBuddyWidgets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				0665B1002DEDF8C500DEFBAD /* Exceptions for "EventBuddyWidgets" folder in "EventBuddy" target */,
 				06E75D162DEDB9B0000EEE35 /* Exceptions for "EventBuddyWidgets" folder in "EventBuddyWidgetsExtension" target */,
 			);
 			path = EventBuddyWidgets;
@@ -403,6 +413,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddy/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -434,6 +446,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddy/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
