@@ -18,3 +18,9 @@ extension SwiftUI.App {
         return EventBuddySchema.sharedModelContainer
     }
 }
+
+extension SwiftUI.Widget {
+    func setupSwiftDataContainer() -> ModelContainer {
+        return EventBuddySchema.sharedModelContainer
+    }
+}
