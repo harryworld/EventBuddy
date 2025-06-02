@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct EventBuddyWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        EventBuddyWidgets()
+        EventBuddyWidget()
         EventBuddyWidgetsControl()
         EventBuddyWidgetsLiveActivity()
     }

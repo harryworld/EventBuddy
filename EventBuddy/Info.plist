@@ -4,6 +4,17 @@
 <dict>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>EventBuddy would like to add events to your Calendar</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.buildwithharry.EventBuddy</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>eventbuddy</string>
+			</array>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>

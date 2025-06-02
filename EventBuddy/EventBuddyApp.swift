@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import WidgetKit
 
 @main
 struct EventBuddyApp: App {
@@ -18,7 +19,12 @@ struct EventBuddyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                    // Refresh widgets when app becomes active
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
         }
         .modelContainer(setupSwiftDataContainer())
     }
+
 }

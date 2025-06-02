@@ -74,6 +74,9 @@ struct FriendDetailView: View {
                 onSave: addSocialLink
             )
         }
+        .navigationDestination(for: Event.self) { event in
+            EventDetailView(event: event)
+        }
     }
     
     private func deleteFriend() {
