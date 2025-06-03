@@ -86,9 +86,18 @@ struct EventDetailView: View {
     }
     
     private func deleteEvent() {
+        // Now that we've fixed the circular cascade deletion issue,
+        // we can safely delete without manual relationship clearing
         modelContext.delete(event)
-        try? modelContext.save()
-        dismiss()
+        
+        do {
+            try modelContext.save()
+            // Only dismiss after successful deletion
+            dismiss()
+        } catch {
+            print("Error deleting event: \(error)")
+            // If deletion fails, we don't dismiss
+        }
     }
 }
 
