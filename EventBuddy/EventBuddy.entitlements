@@ -10,7 +10,5 @@
 	</array>
 	<key>com.apple.developer.usernotifications.time-sensitive</key>
 	<true/>
-	<key>com.apple.developer.ActivityKit.frequent-updates</key>
-	<true/>
 </dict>
 </plist>

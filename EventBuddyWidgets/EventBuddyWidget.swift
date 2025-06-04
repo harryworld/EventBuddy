@@ -72,7 +72,7 @@ struct EventBuddyWidgetEntryView: View {
 }
 
 // MARK: - Widget Configuration
-struct EventBuddyWidget: Widget {
+struct EventBuddyWidgets: Widget {
     let kind: String = "EventBuddyWidget"
     
     var body: some WidgetConfiguration {
