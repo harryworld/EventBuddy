@@ -12,6 +12,7 @@ import SwiftUI
 struct EventBuddyWidgetsBundle: WidgetBundle {
     var body: some Widget {
         EventBuddyWidgets()
+        QRCodeWidget()
         EventBuddyWidgetsControl()
         EventBuddyWidgetsLiveActivity()
     }
