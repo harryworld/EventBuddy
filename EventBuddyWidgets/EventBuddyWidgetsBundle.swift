@@ -13,7 +13,9 @@ struct EventBuddyWidgetsBundle: WidgetBundle {
     var body: some Widget {
         EventBuddyWidgets()
         QRCodeWidget()
-        EventBuddyWidgetsControl()
+        if #available(iOS 18, *) {
+            EventBuddyWidgetsControl()
+        }
         EventBuddyWidgetsLiveActivity()
     }
 }
