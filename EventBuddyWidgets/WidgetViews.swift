@@ -40,43 +40,41 @@ struct SmallEventWidgetView: View {
             .widgetURL(URL(string: "eventbuddy://event/\(nextEvent.id.uuidString)"))
         } else {
             VStack {
-                Image(systemName: "calendar.badge.exclamationmark")
-                    .font(.title2)
-                    .foregroundColor(.secondary)
+                Spacer()
                 
-                Text("No upcoming events")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                    
+                    Text("No upcoming events")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                Spacer()
             }
             .widgetURL(URL(string: "eventbuddy://events"))
         }
     }
 }
 
-// MARK: - Medium Widget (Events List or QR Code)
+// MARK: - Medium Widget (Events List)
 struct MediumWidgetView: View {
     let entry: EventBuddyEntry
     
     var body: some View {
-        if entry.configuration.widgetType == .qrCode {
-            QRCodeWidgetView(profile: entry.profile)
-        } else {
-            EventsListWidgetView(events: Array(entry.events.prefix(3)))
-        }
+        EventsListWidgetView(events: Array(entry.events.prefix(3)))
     }
 }
 
-// MARK: - Large Widget (More Events or Large QR Code)
+// MARK: - Large Widget (More Events)
 struct LargeWidgetView: View {
     let entry: EventBuddyEntry
     
     var body: some View {
-        if entry.configuration.widgetType == .qrCode {
-            QRCodeWidgetView(profile: entry.profile, isLarge: true)
-        } else {
-            EventsListWidgetView(events: Array(entry.events.prefix(5)), isLarge: true)
-        }
+        EventsListWidgetView(events: Array(entry.events.prefix(5)), isLarge: true)
     }
 }
 
@@ -91,7 +89,7 @@ struct EventsListWidgetView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             HStack {
                 Text("Upcoming Events")
                     .font(.headline)
@@ -105,7 +103,8 @@ struct EventsListWidgetView: View {
             
             if events.isEmpty {
                 Spacer()
-                VStack {
+                
+                VStack(spacing: 12) {
                     Image(systemName: "calendar.badge.exclamationmark")
                         .font(.title)
                         .foregroundColor(.secondary)
@@ -113,7 +112,9 @@ struct EventsListWidgetView: View {
                     Text("No upcoming events")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
+                
                 Spacer()
             } else {
                 ForEach(events) { event in
@@ -169,71 +170,6 @@ struct EventRowView: View {
             }
         }
         .padding(.vertical, 2)
-    }
-}
-
-// MARK: - QR Code Widget
-struct QRCodeWidgetView: View {
-    let profile: Profile?
-    let isLarge: Bool
-    
-    init(profile: Profile?, isLarge: Bool = false) {
-        self.profile = profile
-        self.isLarge = isLarge
-    }
-    
-    var body: some View {
-        if let profile = profile {
-            VStack(spacing: isLarge ? 12 : 8) {
-                HStack {
-                    Text("My Contact")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "qrcode")
-                        .foregroundColor(.blue)
-                }
-                
-                QRCodeView(
-                    contact: profile.createContact(),
-                    size: isLarge ? 120 : 80
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.white)
-                )
-                
-                VStack(spacing: 2) {
-                    Text(profile.name)
-                        .font(.system(size: isLarge ? 14 : 12, weight: .medium))
-                        .lineLimit(1)
-                    
-                    if !profile.title.isEmpty || !profile.company.isEmpty {
-                        Text("\(profile.title)\(profile.title.isEmpty || profile.company.isEmpty ? "" : " at ")\(profile.company)")
-                            .font(.system(size: isLarge ? 12 : 10))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                
-                if !isLarge {
-                    Spacer()
-                }
-            }
-            .widgetURL(URL(string: "eventbuddy://profile"))
-        } else {
-            VStack {
-                Image(systemName: "person.crop.circle.badge.questionmark")
-                    .font(.title)
-                    .foregroundColor(.secondary)
-                
-                Text("Profile not found")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
     }
 }
 

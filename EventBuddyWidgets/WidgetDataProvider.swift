@@ -14,21 +14,14 @@ enum WidgetEventFilter: String, CaseIterable {
     }
 }
 
-enum WidgetTimeRange: String, CaseIterable {
-    case week = "week"
-    case month = "month"
+enum WidgetTimeScope: String, CaseIterable {
+    case today = "today"
+    case future = "future"
     
     var displayName: String {
         switch self {
-        case .week: return "Next 7 Days"
-        case .month: return "Next 30 Days"
-        }
-    }
-    
-    var days: Int {
-        switch self {
-        case .week: return 7
-        case .month: return 30
+        case .today: return "Today Only"
+        case .future: return "Future Days"
         }
     }
 }
@@ -47,11 +40,21 @@ class WidgetDataProvider {
     
     func getUpcomingEvents(
         filter: WidgetEventFilter = .all,
-        timeRange: WidgetTimeRange = .week,
+        timeScope: WidgetTimeScope = .future,
         limit: Int = 5
     ) -> [Event] {
         let now = Date()
-        let endDate = Calendar.current.date(byAdding: .day, value: timeRange.days, to: now) ?? now
+        let calendar = Calendar.current
+        
+        let endDate: Date
+        switch timeScope {
+        case .today:
+            // Get end of today
+            endDate = calendar.dateInterval(of: .day, for: now)?.end ?? now
+        case .future:
+            // Get events for the next 30 days
+            endDate = calendar.date(byAdding: .day, value: 30, to: now) ?? now
+        }
         
         let predicate = #Predicate<Event> { event in
             event.startDate >= now && event.startDate <= endDate
@@ -81,7 +84,7 @@ class WidgetDataProvider {
     }
     
     func getNextEvent(filter: WidgetEventFilter = .all) -> Event? {
-        return getUpcomingEvents(filter: filter, timeRange: .month, limit: 1).first
+        return getUpcomingEvents(filter: filter, timeScope: .future, limit: 1).first
     }
     
     func getCurrentProfile() -> Profile? {

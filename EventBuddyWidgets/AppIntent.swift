@@ -11,31 +11,12 @@ import AppIntents
 struct EventBuddyWidgetConfigurationIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "EventBuddy Widget Configuration" }
     static var description: IntentDescription { "Configure your EventBuddy widget display options." }
-
-    @Parameter(title: "Widget Type", default: .events)
-    var widgetType: WidgetTypeIntent
     
     @Parameter(title: "Event Filter", default: .all)
     var eventFilter: EventFilterIntent
     
-    @Parameter(title: "Time Range", default: .week)
-    var timeRange: TimeRangeIntent
-}
-
-enum WidgetTypeIntent: String, CaseIterable, AppEnum {
-    case events = "events"
-    case qrCode = "qrCode"
-    
-    static var typeDisplayRepresentation: TypeDisplayRepresentation {
-        TypeDisplayRepresentation(name: "Widget Type")
-    }
-    
-    static var caseDisplayRepresentations: [WidgetTypeIntent: DisplayRepresentation] {
-        [
-            .events: DisplayRepresentation(title: "Events"),
-            .qrCode: DisplayRepresentation(title: "QR Code")
-        ]
-    }
+    @Parameter(title: "Time Scope", default: .future)
+    var timeScope: TimeScopeIntent
 }
 
 enum EventFilterIntent: String, CaseIterable, AppEnum {
@@ -54,18 +35,18 @@ enum EventFilterIntent: String, CaseIterable, AppEnum {
     }
 }
 
-enum TimeRangeIntent: String, CaseIterable, AppEnum {
-    case week = "week"
-    case month = "month"
+enum TimeScopeIntent: String, CaseIterable, AppEnum {
+    case today = "today"
+    case future = "future"
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
-        TypeDisplayRepresentation(name: "Time Range")
+        TypeDisplayRepresentation(name: "Time Scope")
     }
     
-    static var caseDisplayRepresentations: [TimeRangeIntent: DisplayRepresentation] {
+    static var caseDisplayRepresentations: [TimeScopeIntent: DisplayRepresentation] {
         [
-            .week: DisplayRepresentation(title: "Next 7 Days"),
-            .month: DisplayRepresentation(title: "Next 30 Days")
+            .today: DisplayRepresentation(title: "Today Only"),
+            .future: DisplayRepresentation(title: "Future Days")
         ]
     }
 }

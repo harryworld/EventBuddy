@@ -2,19 +2,6 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-// MARK: - Widget Configuration
-enum WidgetType: String, CaseIterable {
-    case events = "events"
-    case qrCode = "qrCode"
-    
-    var displayName: String {
-        switch self {
-        case .events: return "Events"
-        case .qrCode: return "QR Code"
-        }
-    }
-}
-
 // MARK: - Widget Entry
 struct EventBuddyEntry: TimelineEntry {
     let date: Date
@@ -51,9 +38,9 @@ struct EventBuddyTimelineProvider: AppIntentTimelineProvider {
         let provider = WidgetDataProvider.shared
         
         let filter: WidgetEventFilter = configuration.eventFilter == .attending ? .attending : .all
-        let timeRange: WidgetTimeRange = configuration.timeRange == .month ? .month : .week
+        let timeScope: WidgetTimeScope = configuration.timeScope == .today ? .today : .future
         
-        let events = provider.getUpcomingEvents(filter: filter, timeRange: timeRange)
+        let events = provider.getUpcomingEvents(filter: filter, timeScope: timeScope)
         let profile = provider.getCurrentProfile()
         
         return EventBuddyEntry(
@@ -98,7 +85,7 @@ struct EventBuddyWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("EventBuddy")
-        .description("Stay updated with your upcoming events and share your contact.")
+        .description("Stay updated with your upcoming events.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
