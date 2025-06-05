@@ -119,16 +119,18 @@ struct EventHeaderView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     
-                    Button {
-                        showingDescriptionPopover = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.subheadline)
-                            .foregroundColor(.blue)
-                    }
-                    .buttonStyle(.plain)
-                    .popover(isPresented: $showingDescriptionPopover, arrowEdge: .top) {
-                        EventDescriptionPopover(description: event.eventDescription)
+                    if !event.eventDescription.isEmpty {
+                        Button {
+                            showingDescriptionPopover = true
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .popover(isPresented: $showingDescriptionPopover, arrowEdge: .top) {
+                            EventDescriptionPopover(description: event.eventDescription)
+                        }
                     }
                 }
             }
@@ -261,17 +263,24 @@ struct EventLocationView: View {
     let event: Event
     
     var body: some View {
-        SectionContainer(title: event.location, icon: "mappin.circle.fill") {
+        SectionContainer(title: event.location.isEmpty ? "Location" : event.location, icon: "mappin.circle.fill") {
             VStack(alignment: .leading, spacing: 12) {
-                if let address = event.address, !address.isEmpty {
+                if event.location.isEmpty {
+                    Text("No location specified")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .italic()
+                } else if let address = event.address, !address.isEmpty {
                     Text(address)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 
-                EventMapView(event: event)
-                    .frame(height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                if !event.location.isEmpty {
+                    EventMapView(event: event)
+                        .frame(height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
             }
         }
     }
