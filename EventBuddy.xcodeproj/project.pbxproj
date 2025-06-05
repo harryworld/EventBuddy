@@ -56,7 +56,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Components/LiveActivityTestView.swift,
 			);
 			target = 068753A82DD6D5A00048FD00 /* EventBuddy */;
 		};
@@ -74,7 +73,7 @@
 				Models/Friend.swift,
 				Models/ModelConfiguration.swift,
 				Models/Profile.swift,
-				Views/Components/LiveActivityTestView.swift,
+				Services/LiveActivityService.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 		};

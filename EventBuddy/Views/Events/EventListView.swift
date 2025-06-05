@@ -4,6 +4,7 @@ import SwiftData
 struct EventListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
+    @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
 
     @Query(sort: \Event.startDate) private var events: [Event]
     
@@ -11,7 +12,6 @@ struct EventListView: View {
     @State private var selectedEventFilter: EventFilter = .all
     @State private var searchText = ""
     @State private var navigationPath = NavigationPath()
-    @State private var liveActivityService = LiveActivityService()
     
     // Use AppStorage for persistent storage of the attending filter
     @AppStorage("showOnlyAttending") private var showOnlyAttending = false
@@ -61,16 +61,6 @@ struct EventListView: View {
                         .foregroundColor(.blue)
                     }
                     .disabled(eventSyncService?.isLoading == true)
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        startLiveActivity()
-                    } label: {
-                        Image(systemName: "circle.fill")
-                            .font(.title3)
-                            .foregroundColor(.orange)
-                    }
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
@@ -400,22 +390,6 @@ struct EventListView: View {
         
         // Reset the navigation state
         coordinator.resetNavigation()
-    }
-    
-    private func startLiveActivity() {
-        // Find the next upcoming event that the user is attending
-        let upcomingEvents = events.filter { event in
-            event.startDate > Date() && event.isAttending
-        }.sorted { $0.startDate < $1.startDate }
-        
-        guard let nextEvent = upcomingEvents.first else {
-            print("No upcoming events you're attending found")
-            return
-        }
-        
-        Task {
-            await liveActivityService.startLiveActivity(for: nextEvent)
-        }
     }
 }
 
