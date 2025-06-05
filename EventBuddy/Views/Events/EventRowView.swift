@@ -58,16 +58,17 @@ struct EventRowView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                } else {
+                } else if !event.eventDescription.isEmpty {
                     Text(event.eventDescription)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 
-                Text(event.location)
+                Text(event.location.isEmpty ? "No location" : event.location)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(event.location.isEmpty ? .gray : .secondary)
+                    .italic(event.location.isEmpty)
             }
             
             Spacer()

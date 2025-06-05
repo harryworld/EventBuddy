@@ -155,7 +155,7 @@ final class Event {
     var originalTimezoneIdentifier: String?
     var isCustomEvent: Bool = true
     
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .nullify)
     var attendees: [Friend] = []
     
     // New properties for friend wishes
@@ -164,8 +164,8 @@ final class Event {
     
     init(id: UUID = UUID(), 
          title: String, 
-         eventDescription: String, 
-         location: String,
+         eventDescription: String = "", 
+         location: String = "",
          address: String? = nil,
          startDate: Date, 
          endDate: Date, 

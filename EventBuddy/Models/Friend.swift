@@ -16,7 +16,7 @@ final class Friend {
     var updatedAt: Date
     var isFavorite: Bool = false
     
-    @Relationship(deleteRule: .cascade, inverse: \Event.attendees)
+    @Relationship(deleteRule: .nullify, inverse: \Event.attendees)
     var events: [Event] = []
     
     @Relationship(deleteRule: .nullify, inverse: \Event.friendWishes)

@@ -100,21 +100,17 @@ struct AddEventView: View {
             .alert("Invalid Form", isPresented: $showValidationAlert) {
                 Button("OK") { }
             } message: {
-                Text("Please fill out all required fields and ensure end date is after start date.")
+                Text("Please enter a title and ensure end date is after start date.")
             }
             .onChange(of: title) { _ = validateForm() }
-            .onChange(of: eventDescription) { _ = validateForm() }
-            .onChange(of: location) { _ = validateForm() }
             .onChange(of: startDate) { _ = validateForm() }
             .onChange(of: endDate) { _ = validateForm() }
         }
     }
     
     private func validateForm() -> Bool {
-        // Check required fields
+        // Check required fields - only title and proper date ordering are required
         guard !title.isEmpty,
-              !eventDescription.isEmpty,
-              !location.isEmpty,
               endDate > startDate else {
             isFormValid = false
             return false
