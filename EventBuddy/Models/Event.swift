@@ -2,6 +2,11 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// Notification name for attendance changes
+extension Notification.Name {
+    static let eventAttendanceChanged = Notification.Name("eventAttendanceChanged")
+}
+
 enum EventType: String, Codable, CaseIterable {
     case keynote = "Keynote"
     case watchParty = "Watch Party"
@@ -208,11 +213,32 @@ final class Event {
     func toggleAttending() {
         isAttending.toggle()
         updatedAt = Date()
+        
+        print("🔵 Event: Attendance toggled for '\(title)' - now attending: \(isAttending)")
+        
+        // Post notification for Live Activity service
+        NotificationCenter.default.post(name: .eventAttendanceChanged, object: self)
     }
     
     // Check if the event has ended
     var hasEnded: Bool {
         return Date() > endDate
+    }
+    
+    // Check if the event is currently ongoing
+    var isOngoing: Bool {
+        let now = Date()
+        return now >= startDate && now <= endDate
+    }
+    
+    // Check if the event is currently ongoing and the user is attending
+    var isOngoingAndAttending: Bool {
+        return isOngoing && isAttending
+    }
+    
+    // Static method to find ongoing events the user is attending
+    static func findOngoingAttendingEvents(from events: [Event]) -> [Event] {
+        return events.filter { $0.isOngoingAndAttending }
     }
     
     // Convert to DTO for JSON serialization

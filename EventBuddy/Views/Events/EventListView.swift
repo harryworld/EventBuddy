@@ -4,15 +4,20 @@ import SwiftData
 struct EventListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
+    @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
 
     @Query(sort: \Event.startDate) private var events: [Event]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
     @State private var searchText = ""
+    @State private var navigationPath = NavigationPath()
     
     // Use AppStorage for persistent storage of the attending filter
     @AppStorage("showOnlyAttending") private var showOnlyAttending = false
+    
+    // Navigation coordinator for deep linking
+    var navigationCoordinator: NavigationCoordinator?
     
     enum EventFilter: String, CaseIterable {
         case all = "All"
@@ -23,7 +28,7 @@ struct EventListView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             VStack(alignment: .leading, spacing: 0) {
                 // Title and dates
                 eventHeaderInfo
@@ -70,6 +75,18 @@ struct EventListView: View {
             }
             .sheet(isPresented: $showingAddEventSheet) {
                 AddEventView()
+            }
+            .navigationDestination(for: Event.self) { event in
+                EventDetailView(event: event)
+            }
+            .onAppear {
+                handleDeepLinkNavigation()
+            }
+            .onChange(of: navigationCoordinator?.shouldNavigateToEvent) { _, shouldNavigate in
+                if shouldNavigate == true && navigationCoordinator?.shouldScrollToEvent != true {
+                    // Only handle immediate navigation if we're not scrolling first
+                    handleDeepLinkNavigation()
+                }
             }
             .overlay {
                 if eventSyncService?.isLoading == true {
@@ -229,11 +246,12 @@ struct EventListView: View {
     }
 
     private var eventListByDate: some View {
-        ScrollView {
-            // Search bar
-            searchBar
+        ScrollViewReader { proxy in
+            ScrollView {
+                // Search bar
+                searchBar
 
-            LazyVStack(alignment: .leading, spacing: 25) {
+                LazyVStack(alignment: .leading, spacing: 25) {
                 if filteredEvents.isEmpty {
                     ContentUnavailableView {
                         Label("No Events", systemImage: "calendar.badge.exclamationmark")
@@ -259,10 +277,11 @@ struct EventListView: View {
                                     .padding(.horizontal)
                                 
                                 ForEach(dayEvents) { event in
-                                    NavigationLink(destination: EventDetailView(event: event)) {
+                                    NavigationLink(value: event) {
                                         EventRowView(event: event)
                                     }
                                     .buttonStyle(.plain)
+                                    .id(event.id)
                                 }
                             }
                         }
@@ -272,6 +291,20 @@ struct EventListView: View {
             }
             .animation(.spring(duration: 0.2), value: showOnlyAttending)
             .animation(.spring(duration: 0.2), value: selectedEventFilter)
+            .onChange(of: navigationCoordinator?.shouldScrollToEvent) { _, shouldScroll in
+                if shouldScroll == true, let eventToShow = navigationCoordinator?.eventToShow {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        proxy.scrollTo(eventToShow.id, anchor: .center)
+                    }
+                    
+                    // After scrolling, wait a moment then navigate to detail
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        navigationPath.append(eventToShow)
+                        navigationCoordinator?.resetNavigation()
+                    }
+                }
+            }
+        }
         }
     }
     
@@ -343,6 +376,20 @@ struct EventListView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: relativeTo)
+    }
+    
+    private func handleDeepLinkNavigation() {
+        guard let coordinator = navigationCoordinator,
+              coordinator.shouldNavigateToEvent,
+              let eventToShow = coordinator.eventToShow else {
+            return
+        }
+        
+        // Navigate to the specific event
+        navigationPath.append(eventToShow)
+        
+        // Reset the navigation state
+        coordinator.resetNavigation()
     }
 }
 

@@ -22,7 +22,7 @@ struct FriendAttendedEventsView: View {
                     .padding(.top, 4)
             } else {
                 ForEach(friend.events) { event in
-                    NavigationLink(destination: EventDetailView(event: event)) {
+                    NavigationLink(value: event) {
                         HStack(alignment: .top, spacing: 12) {
                             // Calendar icon with date
                             ZStack {

@@ -10,9 +10,9 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var selectedTab = 0
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
+    @State private var navigationCoordinator = NavigationCoordinator()
     
     private let settingsStore = SettingsStore()
     
@@ -24,8 +24,8 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let eventSyncService = eventSyncService {
-                TabView(selection: $selectedTab) {
-                    EventListView()
+                TabView(selection: $navigationCoordinator.selectedTab) {
+                    EventListView(navigationCoordinator: navigationCoordinator)
                         .tabItem {
                             Label("Events", systemImage: "calendar")
                         }
@@ -73,6 +73,9 @@ struct ContentView: View {
                 loadInitialData()
             }
         }
+        .onOpenURL { url in
+            handleDeepLink(url)
+        }
     }
     
     private func setupServices() {
@@ -116,6 +119,23 @@ struct ContentView: View {
                     EventService.addSampleWWDCEvents(modelContext: modelContext)
                 }
             }
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "eventbuddy" else { return }
+        
+        switch url.host {
+        case "event":
+            if let eventId = UUID(uuidString: url.lastPathComponent) {
+                navigationCoordinator.navigateToEvent(with: eventId, modelContext: modelContext)
+            }
+        case "events":
+            navigationCoordinator.navigateToEventsTab()
+        case "profile":
+            navigationCoordinator.navigateToProfileTab()
+        default:
+            break
         }
     }
 }
