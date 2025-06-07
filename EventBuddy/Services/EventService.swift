@@ -469,6 +469,19 @@ class EventService {
                 url: "https://lu.ma/snplx9gn"
             ),
             
+            Event(
+                title: "iOSDevHappyHour State of the Union Watch Party",
+                eventDescription: "Watch party for Apple's State of the Union presentation hosted by iOSDevHappyHour at CommunityKit",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 13, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 16, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "State of the Union watch party hosted by iOSDevHappyHour at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://communitykit.social/schedule.html"
+            ),
+            
             // TUESDAY, June 10th
             Event(
                 title: "CommunityKit Hackathon Space - Day 2",
@@ -494,6 +507,19 @@ class EventService {
                 notes: "Lightning talks at CommunityKit. Registration to present available.",
                 requiresRegistration: true,
                 url: "https://docs.google.com/forms/d/e/1FAIpQLScA0IWK6m64fLAv97-Oqj5Fr8JtOXQ7SVtBqKN0xOuOF596Lg/viewform"
+            ),
+            
+            Event(
+                title: "Community Table: A Panel Style Event",
+                eventDescription: "Panel discussion with community members and leaders",
+                location: "Hyatt House San Jose Cupertino - All Rooms",
+                address: "10380 Perimeter Rd, Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Panel style community discussion at CommunityKit.",
+                requiresRegistration: true,
+                url: "https://lu.ma/6pjozi4t"
             ),
             
             Event(

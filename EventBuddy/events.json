@@ -470,6 +470,22 @@
       "updatedAt": "2025-05-29T15:29:06Z"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440028a",
+      "title": "iOSDevHappyHour State of the Union Watch Party",
+      "eventDescription": "Watch party for Apple's State of the Union presentation hosted by iOSDevHappyHour at CommunityKit",
+      "location": "Hyatt House San Jose Cupertino - All Rooms",
+      "address": "10380 Perimeter Rd, Cupertino, CA 95014",
+      "startDate": "2025-06-09T13:00:00-07:00",
+      "endDate": "2025-06-09T16:00:00-07:00",
+      "eventType": "Watch Party",
+      "notes": "State of the Union watch party hosted by iOSDevHappyHour at CommunityKit.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://communitykit.social/schedule.html",
+      "createdAt": "2025-05-29T15:29:06Z",
+      "updatedAt": "2025-05-29T15:29:06Z"
+    },
+    {
       "id": "550e8400-e29b-41d4-a716-446655440029",
       "title": "CommunityKit Hackathon Space - Day 2",
       "eventDescription": "Continuous hackathon and coding space",
@@ -498,6 +514,22 @@
       "requiresTicket": false,
       "requiresRegistration": true,
       "url": "https://docs.google.com/forms/d/e/1FAIpQLScA0IWK6m64fLAv97-Oqj5Fr8JtOXQ7SVtBqKN0xOuOF596Lg/viewform",
+      "createdAt": "2025-05-29T15:29:06Z",
+      "updatedAt": "2025-05-29T15:29:06Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440030a",
+      "title": "Community Table: A Panel Style Event",
+      "eventDescription": "Panel discussion with community members and leaders",
+      "location": "Hyatt House San Jose Cupertino - All Rooms",
+      "address": "10380 Perimeter Rd, Cupertino, CA 95014",
+      "startDate": "2025-06-10T11:00:00-07:00",
+      "endDate": "2025-06-10T12:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Panel style community discussion at CommunityKit.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://lu.ma/6pjozi4t",
       "createdAt": "2025-05-29T15:29:06Z",
       "updatedAt": "2025-05-29T15:29:06Z"
     },
