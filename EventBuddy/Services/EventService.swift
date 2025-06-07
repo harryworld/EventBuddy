@@ -1044,13 +1044,14 @@ class EventService {
             
             Event(
                 title: "Code Crawl @ WWDC",
-                eventDescription: "Free coding event during WWDC",
-                location: "Apple Apple Park Visitor Center",
+                eventDescription: "Build something brand new, with the latest APIs! A social coding adventure through Cupertino's best coffee spots. Start at Apple Visitor Center, team up or fly solo, pick an idea using new WWDC APIs, then walk from place to place coding and building. Wrap up at The Edinburgh to socialize and share projects.",
+                location: "Apple Park Visitor Center",
                 address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
                 startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 0),
                 endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
                 eventType: EventType.meetup.rawValue,
-                notes: "Runs from 12:00pm-6:00pm. Free event.",
+                notes: "Social coding adventure through Cupertino's coffee spots. Start at Apple Visitor Center, code at various locations, end at The Edinburgh. Bring laptop and ideas. 34+ people going. Free event.",
+                requiresRegistration: true,
                 url: "https://lu.ma/lc8o9js7"
             ),
             
