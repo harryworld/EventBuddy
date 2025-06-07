@@ -144,6 +144,19 @@ class EventService {
             ),
 
             Event(
+                title: "Vision Pro Community Morning Coffee Meetup",
+                eventDescription: "Morning coffee meetup for Vision Pro community at Philz Coffee Main Street, Cupertino",
+                location: "Philz Coffee Main Street",
+                address: "19439 Stevens Creek Blvd, Cupertino, CA 95014, USA",
+                startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 9, minute: 0),
+                endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 12, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 9:00am-12:00pm. Vision Pro community meetup.",
+                requiresRegistration: true,
+                url: "https: // lu.ma/ajkwy21w"
+            ),
+
+            Event(
                 title: "Core Coffee - WWDC Edition",
                 eventDescription: "Coffee chat about last-minute WWDC predictions, development, tech, and everything in-between 🍏 Hosted by Kai Dombrowski.",
                 location: "Voyager Craft Coffee (San Pedro Square)",
@@ -192,6 +205,18 @@ class EventService {
                 notes: "Runs from 6:30pm-11:00pm. Requires a ticket.",
                 requiresTicket: true,
                 url: "https://lu.ma/94pquugz"
+            ),
+            
+            Event(
+                title: "Dr. Funk's Tech House @ WWDC",
+                eventDescription: "Tech house event by The App Association",
+                location: "Cupertino, California",
+                address: "29 N San Pedro St, San Jose, CA 95110, USA",
+                startDate: dateFrom(month: 6, day: 8, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 8, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00pm-9:00pm. By The App Association.",
+                url: "https://lu.ma/rk6326z7"
             ),
             
             Event(
@@ -342,6 +367,80 @@ class EventService {
                 eventType: EventType.watchParty.rawValue,
                 notes: "Runs from 3:00am-7:00am AEST",
                 originalTimezoneIdentifier: "Australia/Sydney"
+            ),
+            
+            Event(
+                title: "CocoaHeads special WWDC chez Voodoo",
+                eventDescription: "Watch party in Paris, France",
+                location: "Paris, France",
+                address: "Paris, France",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 18, minute: 30),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 21, minute: 30),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 6:30pm-9:30pm CEST",
+                originalTimezoneIdentifier: "Europe/Paris"
+            ),
+            
+            Event(
+                title: "WWDC'25 Watch Party @ Komunite Space, Istanbul",
+                eventDescription: "Watch party in Istanbul",
+                location: "Istanbul, Turkey",
+                address: "Istanbul, Turkey",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 22, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 7:00pm-10:00pm IST",
+                url: "https://kommunity.com/nsistanbul/events/wwdc25-seyir-partisi-6c721925",
+                originalTimezoneIdentifier: "Europe/Istanbul"
+            ),
+            
+            Event(
+                title: "WWDC'25 Watch Party Ahmedabad",
+                eventDescription: "Watch party in Ahmedabad",
+                location: "Ahmedabad, India",
+                address: "Ahmedabad, India",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 19, minute: 30),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 0, minute: 30),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 7:30pm-12:30am IST",
+                url: "https://lu.ma/kne1yfpm",
+                originalTimezoneIdentifier: "Asia/Kolkata"
+            ),
+            
+            Event(
+                title: "SwiftPH WWDC Keynote Watch Party",
+                eventDescription: "Watch party in Manila and Davao, Philippines",
+                location: "Manila and Davao, Philippines",
+                address: "Manila and Davao, Philippines",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 12, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 15, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 12:00am-3:00am PHT",
+                originalTimezoneIdentifier: "Asia/Manila"
+            ),
+            
+            Event(
+                title: "NSManchester WWDC25 Watch Party",
+                eventDescription: "Watch party at Jaguar Land Rover, Manchester, UK",
+                location: "Manchester, United Kingdom",
+                address: "Manchester, United Kingdom",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 17, minute: 30),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 20, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 5:30pm-8:00pm BST",
+                originalTimezoneIdentifier: "Europe/London"
+            ),
+            
+            Event(
+                title: "STL Swift WWDC Watch Event",
+                eventDescription: "Watch party in Saint Louis, Missouri",
+                location: "Saint Louis, Missouri",
+                address: "Saint Louis, Missouri",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 11, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 14, minute: 0),
+                eventType: EventType.watchParty.rawValue,
+                notes: "Runs from 11:00am-2pm CDT",
+                originalTimezoneIdentifier: "America/Chicago"
             ),
             
             Event(
@@ -533,7 +632,7 @@ class EventService {
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
                 startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 10, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 12, minute: 30),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 13, minute: 00),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
@@ -545,8 +644,8 @@ class EventService {
                 eventDescription: "Official Apple Developer Activities",
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 14, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 30),
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 13, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 00),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
@@ -558,8 +657,8 @@ class EventService {
                 eventDescription: "Official Apple Developer Activities",
                 location: "Apple Developer Center Cupertino",
                 address: "10500 N Tantau Ave, Cupertino, CA 95014, United States",
-                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
-                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 20, minute: 30),
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 16, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 19, minute: 00),
                 eventType: EventType.keynote.rawValue,
                 notes: "Official Apple Developer Activities. Requires WWDC ticket.",
                 requiresTicket: true,
@@ -655,6 +754,19 @@ class EventService {
                 notes: "Runs from 2:00pm-6:00pm. Requires registration.",
                 requiresRegistration: true,
                 url: "https://theinterface.design/"
+            ),
+            
+            Event(
+                title: "The Talk Show Live From WWDC 2025",
+                eventDescription: "Live recording of The Talk Show podcast",
+                location: "The California Theatre, San Jose, California",
+                address: "The California Theatre, 345 S.First St., San Jose, CA 95113",
+                startDate: dateFrom(month: 6, day: 10, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 10, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 6:00pm-9:00pm. Requires a ticket.",
+                requiresTicket: true,
+                url: "https: // ti.to/daringfireball/the-talk-show-live-from-wwdc-2025"
             ),
             
             // WEDNESDAY, June 11th
@@ -813,6 +925,18 @@ class EventService {
                 url: "https://communitykit.social/schedule.html"
             ),
             
+            Event(
+                title: "☁️📣🍻 Cloud x Voice x Beers: Gathering",
+                eventDescription: "Gathering by Cloudflare, 11Labs & Clevercloud",
+                location: "Stevens Creek Boulevard, Cupertino",
+                address: "Cupertino, CA 95014",
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 23, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 7:00pm-11:00pm. Gathering by Cloudflare, 11Labs & Clevercloud.",
+                url: "https://dubdub.community/cloud-x-voice-x-beers-wwdc-lnjjlq"
+            ),
+            
             // THURSDAY, June 12th
             Event(
                 title: "What's New in Testing at WWDC 25",
@@ -884,12 +1008,24 @@ class EventService {
                 eventDescription: "Unofficial lunch meetup for women in tech",
                 location: "Cupertino, California",
                 address: "Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 14, minute: 0),
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 12, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 13, minute: 30),
                 eventType: EventType.social.rawValue,
-                notes: "Free admission. Unofficial women's lunch meetup.",
+                notes: "Runs from 12:00pm-1:30pm. Free admission. Unofficial women's lunch meetup.",
                 requiresRegistration: false,
                 url: "https://www.meetup.com/swift-language/events/307194649"
+            ),
+            
+            Event(
+                title: "Code Crawl @ WWDC",
+                eventDescription: "Free coding event during WWDC",
+                location: "Apple Apple Park Visitor Center",
+                address: "10600 N Tantau Ave, Cupertino, CA 95014, USA",
+                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 12, minute: 0),
+                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 18, minute: 0),
+                eventType: EventType.meetup.rawValue,
+                notes: "Runs from 12:00pm-6:00pm. Free event.",
+                url: "https://lu.ma/lc8o9js7"
             ),
             
             Event(
@@ -897,10 +1033,10 @@ class EventService {
                 eventDescription: "Local community gathering for nearby residents",
                 location: "Cupertino, California",
                 address: "Cupertino, CA 95014",
-                startDate: dateFrom(month: 6, day: 12, year: 2025, hour: 19, minute: 0),
-                endDate: dateFrom(month: 6, day: 12, year: 2025, hour: 22, minute: 0),
+                startDate: dateFrom(month: 6, day: 11, year: 2025, hour: 19, minute: 0),
+                endDate: dateFrom(month: 6, day: 11, year: 2025, hour: 23, minute: 0),
                 eventType: EventType.social.rawValue,
-                notes: "Community gathering for those living near WWDC area.",
+                notes: "Runs from 7:00pm-11:00pm. Community gathering for those living near WWDC area.",
                 requiresRegistration: false,
                 url: "https://livenearwwdc.com/"
             ),
@@ -1182,6 +1318,20 @@ class EventService {
                 notes: "Online group lab with Apple engineers. Requires Apple Developer Program membership.",
                 requiresRegistration: true,
                 url: "https://developer.apple.com/wwdc25/sessions-and-labs/"
+            ),
+            
+            // SATURDAY, June 14th
+            Event(
+                title: "Luma AI @ WWDC: Happy Hour",
+                eventDescription: "Happy hour event by Luma AI",
+                location: "Dumpling Time",
+                address: "SERRANO Building, 378 Santana Row #1035, San Jose, CA 95128, USA",
+                startDate: dateFrom(month: 6, day: 14, year: 2025, hour: 16, minute: 30),
+                endDate: dateFrom(month: 6, day: 14, year: 2025, hour: 21, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Runs from 4:30pm-9:00pm. Free event, requires registration.",
+                requiresRegistration: true,
+                url: "https://lu.ma/luma-happy-hour"
             )
         ]
         
