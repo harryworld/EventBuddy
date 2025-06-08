@@ -174,6 +174,12 @@ struct SettingsView: View {
                 Label("Export Data", systemImage: "square.and.arrow.up")
             }
             
+            NavigationLink {
+                DataImportView()
+            } label: {
+                Label("Import Data", systemImage: "square.and.arrow.down")
+            }
+            
             #if DEBUG
             NavigationLink {
                 DataExportTestView()
