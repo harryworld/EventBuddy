@@ -16,6 +16,5 @@ struct EventBuddyWidgetsBundle: WidgetBundle {
         if #available(iOS 18, *) {
             EventBuddyWidgetsControl()
         }
-        EventBuddyWidgetsLiveActivity()
     }
 }

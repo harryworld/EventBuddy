@@ -13,6 +13,9 @@ struct EditFriendView: View {
     @State private var company: String
     @State private var notes: String
     @State private var socialMediaHandles: [String: String]
+    @State private var showAddSocialSheet = false
+    @State private var newPlatform = ""
+    @State private var newUsername = ""
     
     init(friend: Friend) {
         self.friend = friend
@@ -54,7 +57,45 @@ struct EditFriendView: View {
                 }
                 
                 Section("Social Media") {
-                    ForEach(Array(socialMediaHandles.keys.sorted()), id: \.self) { platform in
+                    // Common social media platforms
+                    HStack {
+                        Image(systemName: "bubble.left")
+                            .foregroundColor(.blue)
+                            .frame(width: 30)
+                        TextField("Twitter/X", text: Binding(
+                            get: { socialMediaHandles["twitter"] ?? "" },
+                            set: { socialMediaHandles["twitter"] = $0.isEmpty ? nil : $0 }
+                        ))
+                        .autocapitalization(.none)
+                        .autocorrectionDisabled()
+                    }
+                    
+                    HStack {
+                        Image(systemName: "network")
+                            .foregroundColor(.blue)
+                            .frame(width: 30)
+                        TextField("LinkedIn", text: Binding(
+                            get: { socialMediaHandles["linkedin"] ?? "" },
+                            set: { socialMediaHandles["linkedin"] = $0.isEmpty ? nil : $0 }
+                        ))
+                        .autocapitalization(.none)
+                        .autocorrectionDisabled()
+                    }
+                    
+                    HStack {
+                        Image(systemName: "terminal")
+                            .foregroundColor(.blue)
+                            .frame(width: 30)
+                        TextField("GitHub", text: Binding(
+                            get: { socialMediaHandles["github"] ?? "" },
+                            set: { socialMediaHandles["github"] = $0.isEmpty ? nil : $0 }
+                        ))
+                        .autocapitalization(.none)
+                        .autocorrectionDisabled()
+                    }
+                    
+                    // Additional social media platforms
+                    ForEach(Array(additionalSocialPlatforms.sorted()), id: \.self) { platform in
                         HStack {
                             Image(systemName: socialMediaIcon(for: platform))
                                 .foregroundColor(.blue)
@@ -75,6 +116,21 @@ struct EditFriendView: View {
                             }
                         }
                     }
+                    
+                    // Add new social media button
+                    Button {
+                        newPlatform = "" // Reset platform selection
+                        newUsername = "" // Reset username
+                        showAddSocialSheet = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            Text("Add Social Media")
+                                .foregroundColor(.blue)
+                        }
+                    }
                 }
                 
                 Section("Notes") {
@@ -84,6 +140,20 @@ struct EditFriendView: View {
             }
             .navigationTitle("Edit Friend")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showAddSocialSheet) {
+                AddSocialLinkView(
+                    platform: $newPlatform,
+                    username: $newUsername,
+                    onSave: {
+                        if !newPlatform.isEmpty && !newUsername.isEmpty {
+                            socialMediaHandles[newPlatform] = newUsername
+                            newPlatform = ""
+                            newUsername = ""
+                        }
+                    },
+                    existingPlatforms: Set(socialMediaHandles.keys)
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -118,9 +188,14 @@ struct EditFriendView: View {
         }
     }
     
+    private var additionalSocialPlatforms: Set<String> {
+        let commonPlatforms: Set<String> = ["twitter", "linkedin", "github"]
+        return Set(socialMediaHandles.keys).subtracting(commonPlatforms)
+    }
+    
     private func socialMediaIcon(for platform: String) -> String {
         switch platform.lowercased() {
-        case "twitter": return "bird"
+        case "twitter": return "bubble.left"
         case "github": return "terminal"
         case "linkedin": return "network"
         case "instagram": return "camera"

@@ -12,6 +12,7 @@ struct EventListView: View {
     @State private var selectedEventFilter: EventFilter = .all
     @State private var searchText = ""
     @State private var navigationPath = NavigationPath()
+    @State private var showHistoricalEvents = false
     
     // Use AppStorage for persistent storage of the attending filter
     @AppStorage("showOnlyAttending") private var showOnlyAttending = false
@@ -163,6 +164,26 @@ struct EventListView: View {
                     .fontWeight(.bold)
                 
                 Spacer()
+                
+                Button(action: {
+                    withAnimation(.spring(duration: 0.3)) {
+                        showHistoricalEvents.toggle()
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: showHistoricalEvents ? "clock.fill" : "clock")
+                        Text("History")
+                            .fontWeight(.medium)
+                    }
+                    .font(.caption)
+                    .foregroundColor(showHistoricalEvents ? .white : .blue)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(showHistoricalEvents ? Color.blue : Color.blue.opacity(0.1))
+                    )
+                }
             }
             
             Text("June 7-13, 2025 • Cupertino")
@@ -291,6 +312,7 @@ struct EventListView: View {
             }
             .animation(.spring(duration: 0.2), value: showOnlyAttending)
             .animation(.spring(duration: 0.2), value: selectedEventFilter)
+            .animation(.spring(duration: 0.2), value: showHistoricalEvents)
             .onChange(of: navigationCoordinator?.shouldScrollToEvent) { _, shouldScroll in
                 if shouldScroll == true, let eventToShow = navigationCoordinator?.eventToShow {
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -310,6 +332,14 @@ struct EventListView: View {
     
     private var filteredEvents: [Event] {
         var result = events
+        
+        // Filter by time (hide past events unless showing historical events)
+        if !showHistoricalEvents {
+            let now = Date()
+            result = result.filter { event in
+                event.startDate >= now
+            }
+        }
         
         // Filter by search text
         if !searchText.isEmpty {

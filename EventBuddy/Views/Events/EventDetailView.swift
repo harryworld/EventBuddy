@@ -292,6 +292,7 @@ struct EventAttendeesView: View {
     let modelContext: ModelContext
     @State private var selectedFriendForDetailEdit: Friend? = nil
     @State private var selectedTab = 0 // 0 for People Met, 1 for Friend Wishes
+    @State private var filterText = ""
     
     var body: some View {
         SectionContainer(title: "People", icon: "person.2.fill", trailingText: "\(event.attendees.count + event.friendWishes.count) total") {
@@ -314,13 +315,15 @@ struct EventAttendeesView: View {
                     SharedFriendSearchSection(
                         event: event,
                         modelContext: modelContext,
-                        isWishMode: false
+                        isWishMode: false,
+                        filterText: $filterText
                     )
                     SharedFriendsListSection(
                         event: event,
                         modelContext: modelContext,
                         selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
-                        isWishMode: false
+                        isWishMode: false,
+                        filterText: $filterText
                     )
                 } else {
                     // Friend Wishes
@@ -332,13 +335,15 @@ struct EventAttendeesView: View {
                     SharedFriendSearchSection(
                         event: event,
                         modelContext: modelContext,
-                        isWishMode: true
+                        isWishMode: true,
+                        filterText: $filterText
                     )
                     SharedFriendsListSection(
                         event: event,
                         modelContext: modelContext,
                         selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
-                        isWishMode: true
+                        isWishMode: true,
+                        filterText: $filterText
                     )
                 }
             }
@@ -379,6 +384,15 @@ struct SharedAddFriendSection: View {
                     .onSubmit {
                         createManualFriend()
                     }
+                
+                if !manualFriendName.isEmpty {
+                    Button {
+                        manualFriendName = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                }
                 
                 Button {
                     createManualFriend()
@@ -460,15 +474,15 @@ struct SharedFriendSearchSection: View {
     @Bindable var event: Event
     let modelContext: ModelContext
     let isWishMode: Bool
-    @State private var searchText = ""
     @Query private var allFriends: [Friend]
+    @Binding var filterText: String
     
     private var filteredFriends: [Friend] {
-        if searchText.isEmpty {
+        if filterText.isEmpty {
             return []
         } else {
             return allFriends.filter { friend in
-                friend.name.localizedCaseInsensitiveContains(searchText) &&
+                friend.name.localizedCaseInsensitiveContains(filterText) &&
                 !currentFriendsList.contains { $0.id == friend.id }
             }
         }
@@ -496,23 +510,32 @@ struct SharedFriendSearchSection: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
                 
-                TextField(placeholderText, text: $searchText)
+                TextField(placeholderText, text: $filterText)
                     .font(.body)
                     .submitLabel(.search)
+                
+                if !filterText.isEmpty {
+                    Button {
+                        filterText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             .padding(12)
             .background(Color(.systemGray6))
             .cornerRadius(8)
             
-            if !searchText.isEmpty {
+            if !filterText.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
                     if filteredFriends.isEmpty {
                         Button {
-                            createQuickFriend(name: searchText)
+                            createQuickFriend(name: filterText)
                         } label: {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("Create \"\(searchText)\"")
+                                Text("Create \"\(filterText)\"")
                                 Spacer()
                             }
                             .padding(.vertical, 12)
@@ -563,7 +586,7 @@ struct SharedFriendSearchSection: View {
         } else {
             event.addFriend(friend)
         }
-        searchText = ""
+        filterText = ""
         try? modelContext.save()
     }
     
@@ -581,7 +604,7 @@ struct SharedFriendSearchSection: View {
         }
         
         try? modelContext.save()
-        searchText = ""
+        filterText = ""
     }
 }
 
@@ -591,9 +614,24 @@ struct SharedFriendsListSection: View {
     let modelContext: ModelContext
     @Binding var selectedFriendForDetailEdit: Friend?
     let isWishMode: Bool
+    @Binding var filterText: String
     
     private var friendsList: [Friend] {
         isWishMode ? event.friendWishes : event.attendees
+    }
+    
+    private var filteredFriendsList: [Friend] {
+        if filterText.isEmpty {
+            return friendsList
+        } else {
+            return friendsList.filter { friend in
+                friend.name.localizedCaseInsensitiveContains(filterText) ||
+                (friend.email?.localizedCaseInsensitiveContains(filterText) ?? false) ||
+                (friend.phone?.localizedCaseInsensitiveContains(filterText) ?? false) ||
+                (friend.company?.localizedCaseInsensitiveContains(filterText) ?? false) ||
+                (friend.jobTitle?.localizedCaseInsensitiveContains(filterText) ?? false)
+            }
+        }
     }
     
     private var sectionTitle: String {
@@ -611,10 +649,14 @@ struct SharedFriendsListSection: View {
                     .font(.headline)
                 
                 Spacer()
+                
+                Text("\(filteredFriendsList.count) of \(friendsList.count)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             .padding(.top, 12)
             
-            ForEach(friendsList) { friend in
+            ForEach(filteredFriendsList) { friend in
                 HStack {
                     Image(systemName: "person.circle.fill")
                         .font(.title2)

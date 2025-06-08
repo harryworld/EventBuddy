@@ -10,6 +10,7 @@ struct SettingsView: View {
             List {
                 contactHarrySection
                 appearanceSection
+                shareAppSection
                 dataSection
                 creditsSection
                 aboutProjectSection
@@ -127,6 +128,31 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+        }
+    }
+    
+    private var shareAppSection: some View {
+        Section {
+            ShareLink(
+                item: URL(string: "https://apple.co/4mEeOD5")!,
+                subject: Text("Check out EventBuddy!"),
+                message: Text("I'm using EventBuddy to connect with friends at WWDC events. Download it here:")
+            ) {
+                HStack {
+                    Label("Share EventBuddy", systemImage: "square.and.arrow.up")
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+        } header: {
+            Text("Share")
+        } footer: {
+            Text("Help your friends discover EventBuddy and connect at WWDC events!")
         }
     }
     

@@ -112,6 +112,15 @@ struct FriendListView: View {
                 .foregroundColor(.secondary)
             TextField("Search friends", text: $searchText)
                 .autocorrectionDisabled()
+            
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+            }
         }
         .padding(10)
         .background(Color(uiColor: .systemGray6))
@@ -136,6 +145,7 @@ struct FriendListView: View {
             // All Friends filter
             Button {
                 selectedFilter = .all
+                searchText = ""
             } label: {
                 HStack {
                     Image(systemName: selectedFilter == .all ? "checkmark.circle.fill" : "circle")
@@ -156,6 +166,7 @@ struct FriendListView: View {
             // Favorites filter
             Button {
                 selectedFilter = .favorites
+                searchText = ""
             } label: {
                 HStack {
                     Image(systemName: selectedFilter == .favorites ? "star.fill" : "star")
