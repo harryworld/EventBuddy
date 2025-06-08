@@ -15,6 +15,9 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [x] Choose people I want to meet, and mark done if I did meet
 - [x] Add a new friend quickly
 - [x] Update with latest events
+- [x] Hide events in the past days
+- [ ] Show DONE button on the keyboard to hide it
+- [ ] Filter user list by text field
 
 ### Friends
 - [x] List out all friends
@@ -24,18 +27,25 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [x] Show events that I meet this person
 - [x] Quickly jump to social media links of this person
 - [ ] Save friends photo
+- [ ] Add a checkmark to indicate if I took a picture
+- [x] Add litte cross on search bar to reset
+- [x] Reset text field when switching filter
+- [x] Social handles by default start with small letter
+- [x] Unify Add & Edit friend page for social handles
 
 ### Profile
 - [x] Show my profile
 - [x] Show QR code of the contact, ready to be scanned and saved
 - [ ] Save my profile pic
 - [x] Use NameDrop or fallback to AirDrop to exchange contact
+- [ ] Add URL field
 
 ### Settings
 - [x] List out my social profiles
 - [x] Show GitHub open-source link
 - [x] Credits to anyone who helps out building the app
 - [x] Export data
+- [x] Add a way to share the App Store link
 
 ### Widget
 - [ ] Show QR Code of my profile
@@ -50,10 +60,17 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 - [ ] Available on iPhone and Mac
 - [ ] Use App Clips
 
+### Bugs
+
+- [ ] Data is not saved
+- [ ] Live Activity couldn't get updated locally
+- [ ] Missing events
+
 ### Future Plans
 
 - [ ] Show past events
 - [ ] Connect to Luma API
+- [ ] Capture Twitter handle easily and save to this app
 
 ## Getting Started
 
