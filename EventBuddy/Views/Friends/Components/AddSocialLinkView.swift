@@ -24,6 +24,7 @@ struct AddSocialLinkView: View {
                 
                 Section("Username") {
                     TextField(placeholderText, text: $username)
+                        .autocapitalization(.none)
                         .autocorrectionDisabled()
                 }
             }
