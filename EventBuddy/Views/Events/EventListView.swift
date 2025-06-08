@@ -336,8 +336,12 @@ struct EventListView: View {
         // Filter by time (hide past events unless showing historical events)
         if !showHistoricalEvents {
             let now = Date()
+            let calendar = Calendar.current
+            let startOfToday = calendar.startOfDay(for: now)
+            
             result = result.filter { event in
-                event.startDate >= now
+                // Show events from today onwards (including past events of today)
+                event.startDate >= startOfToday
             }
         }
         
