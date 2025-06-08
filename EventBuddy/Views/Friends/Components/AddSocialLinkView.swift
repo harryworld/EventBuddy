@@ -6,8 +6,16 @@ struct AddSocialLinkView: View {
     @Binding var platform: String
     @Binding var username: String
     let onSave: () -> Void
+    let existingPlatforms: Set<String>
     
     private let availablePlatforms = ["twitter", "linkedin", "github", "instagram", "facebook", "threads"]
+    
+    init(platform: Binding<String>, username: Binding<String>, onSave: @escaping () -> Void, existingPlatforms: Set<String> = []) {
+        self._platform = platform
+        self._username = username
+        self.onSave = onSave
+        self.existingPlatforms = existingPlatforms
+    }
     
     var body: some View {
         NavigationStack {
@@ -15,7 +23,7 @@ struct AddSocialLinkView: View {
                 Section("Social Media Platform") {
                     Picker("Platform", selection: $platform) {
                         Text("Select Platform").tag("")
-                        ForEach(availablePlatforms, id: \.self) { platformName in
+                        ForEach(availableUnusedPlatforms, id: \.self) { platformName in
                             Text(platformName.capitalized).tag(platformName)
                         }
                     }
@@ -46,6 +54,16 @@ struct AddSocialLinkView: View {
                 }
             }
         }
+        .onAppear {
+            // Pre-select the first available platform if none is selected
+            if platform.isEmpty && !availableUnusedPlatforms.isEmpty {
+                platform = availableUnusedPlatforms.first!
+            }
+        }
+    }
+    
+    private var availableUnusedPlatforms: [String] {
+        return availablePlatforms.filter { !existingPlatforms.contains($0) }
     }
     
     private var placeholderText: String {

@@ -119,6 +119,8 @@ struct EditFriendView: View {
                     
                     // Add new social media button
                     Button {
+                        newPlatform = "" // Reset platform selection
+                        newUsername = "" // Reset username
                         showAddSocialSheet = true
                     } label: {
                         HStack {
@@ -148,7 +150,8 @@ struct EditFriendView: View {
                             newPlatform = ""
                             newUsername = ""
                         }
-                    }
+                    },
+                    existingPlatforms: Set(socialMediaHandles.keys)
                 )
             }
             .toolbar {

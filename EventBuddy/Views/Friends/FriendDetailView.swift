@@ -71,8 +71,16 @@ struct FriendDetailView: View {
             AddSocialLinkView(
                 platform: $newSocialPlatform,
                 username: $newSocialUsername,
-                onSave: addSocialLink
+                onSave: addSocialLink,
+                existingPlatforms: Set(friend.socialMediaHandles.keys)
             )
+        }
+        .onChange(of: showAddSocialSheet) { _, isShowing in
+            if isShowing {
+                // Reset form when sheet opens
+                newSocialPlatform = ""
+                newSocialUsername = ""
+            }
         }
         .navigationDestination(for: Event.self) { event in
             EventDetailView(event: event)
