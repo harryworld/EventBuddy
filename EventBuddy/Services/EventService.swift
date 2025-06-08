@@ -308,6 +308,19 @@ class EventService {
                 url: "https://lu.ma/9vs7dmot"
             ),
             
+            Event(
+                title: "WWBBQ @ Superwall House",
+                eventDescription: "Chill out after the first day of WWDC. Join the Superwall team at their house in San Jose for BBQ, beers, and a chill evening.",
+                location: "Superwall House",
+                address: "14325 Clayton Rd, San Jose, CA 95127, USA",
+                startDate: dateFrom(month: 6, day: 9, year: 2025, hour: 18, minute: 0),
+                endDate: dateFrom(month: 6, day: 9, year: 2025, hour: 23, minute: 0),
+                eventType: EventType.social.rawValue,
+                notes: "Event is full. Join waitlist if interested. 70 people going including Tim Condon, Antoine van der Lee and others. Presented by Superwall Team, hosted by Nick Godwin.",
+                requiresRegistration: true,
+                url: "https://lu.ma/b9gzd4pu?tk=cLPvVD"
+            ),
+            
             // International Watch Parties
             Event(
                 title: "WWDC'25 TLV Watch Party @ monday.com",
