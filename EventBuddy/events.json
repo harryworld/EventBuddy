@@ -161,7 +161,7 @@
       "updatedAt": "2025-05-29T15:29:06Z"
     },
     {
-      "id": "550e8400-e29b-41d4-a716-446655440010a",
+      "id": "550e8400-e29b-41d4-a716-446655440100",
       "title": "Vision Pro Community Morning Coffee Meetup",
       "eventDescription": "Morning coffee meetup for Vision Pro community at Philz Coffee Main Street, Cupertino",
       "location": "Philz Coffee Main Street",
@@ -353,7 +353,7 @@
       "updatedAt": "2025-05-29T15:29:06Z"
     },
     {
-      "id": "550e8400-e29b-41d4-a716-446655440021a",
+      "id": "550e8400-e29b-41d4-a716-446655440101",
       "title": "WWBBQ @ Superwall House",
       "eventDescription": "Chill out after the first day of WWDC. Join the Superwall team at their house in San Jose for BBQ, beers, and a chill evening.",
       "location": "Superwall House",
@@ -486,7 +486,7 @@
       "updatedAt": "2025-05-29T15:29:06Z"
     },
     {
-      "id": "550e8400-e29b-41d4-a716-446655440028a",
+      "id": "550e8400-e29b-41d4-a716-446655440102",
       "title": "iOSDevHappyHour State of the Union Watch Party",
       "eventDescription": "Watch party for Apple's State of the Union presentation hosted by iOSDevHappyHour at CommunityKit",
       "location": "Hyatt House San Jose Cupertino - All Rooms",
@@ -534,7 +534,7 @@
       "updatedAt": "2025-05-29T15:29:06Z"
     },
     {
-      "id": "550e8400-e29b-41d4-a716-446655440030a",
+      "id": "550e8400-e29b-41d4-a716-446655440103",
       "title": "Community Table: A Panel Style Event",
       "eventDescription": "Panel discussion with community members and leaders",
       "location": "Hyatt House San Jose Cupertino - All Rooms",
@@ -723,7 +723,7 @@
       "requiresRegistration": false,
       "url": "https://developer.apple.com/wwdc25/",
       "createdAt": "2025-05-29T15:29:06Z",
-      "updatedAt": "2025-05-29T15:29:06Z"
+      "updatedAt": "2025-06-09T15:29:06Z"
     },
     {
       "id": "550e8400-e29b-41d4-a716-446655440042",
@@ -739,7 +739,7 @@
       "requiresRegistration": false,
       "url": "https://developer.apple.com/wwdc25/",
       "createdAt": "2025-05-29T15:29:06Z",
-      "updatedAt": "2025-05-29T15:29:06Z"
+      "updatedAt": "2025-06-09T15:29:06Z"
     },
     {
       "id": "550e8400-e29b-41d4-a716-446655440043",
@@ -755,7 +755,7 @@
       "requiresRegistration": false,
       "url": "https://developer.apple.com/wwdc25/",
       "createdAt": "2025-05-29T15:29:06Z",
-      "updatedAt": "2025-05-29T15:29:06Z"
+      "updatedAt": "2025-06-09T15:29:06Z"
     },
     {
       "id": "550e8400-e29b-41d4-a716-446655440044",
