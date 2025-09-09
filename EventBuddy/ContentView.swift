@@ -49,6 +49,7 @@ struct ContentView: View {
                         }
                         .tag(3)
                 }
+                .tabBarMinimumEffect()
                 .environment(eventSyncService)
                 .alert("Sync Error", isPresented: $showingSyncError) {
                     Button("OK") { }
@@ -145,3 +146,13 @@ struct ContentView: View {
         .modelContainer(for: [Event.self, Friend.self, Profile.self], inMemory: true)
 }
 
+extension View {
+    func tabBarMinimumEffect() -> some View {
+        if #available(iOS 26, *) {
+            return self
+                .tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            return self
+        }
+    }
+}
