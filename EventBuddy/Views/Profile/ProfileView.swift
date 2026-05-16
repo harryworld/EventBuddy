@@ -1,11 +1,10 @@
 import SwiftUI
 import Contacts
 import UIKit
-import SwiftData
 
 struct ProfileView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.modelContext) private var modelContext
-    @Query private var profiles: [Profile]
     
     @State private var showingEditSheet = false
     @State private var qrCodeContact: CNContact?
@@ -14,7 +13,7 @@ struct ProfileView: View {
     @State private var isShowingNameDrop = false
     
     private var currentProfile: Profile {
-        profiles.first ?? createDefaultProfile()
+        appStore.profiles.first ?? createDefaultProfile()
     }
     
     var body: some View {
@@ -347,13 +346,9 @@ struct ProfileView: View {
 }
 
 #Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Profile.self, configurations: config)
-    let context = container.mainContext
-    
-    let sampleProfile = Profile.preview
-    context.insert(sampleProfile)
-    
+    let environment = AppEnvironment()
+    environment.store.profiles = [Profile.preview]
     return ProfileView()
-        .modelContainer(container)
-} 
+        .environment(environment.store)
+        .environment(\.modelContext, environment.modelContext)
+}

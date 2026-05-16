@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct EditEventView: View {
     @Environment(\.dismiss) private var dismiss

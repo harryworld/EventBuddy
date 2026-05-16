@@ -1,9 +1,7 @@
 import Foundation
-import SwiftData
-import SwiftUI
 
-@Model
-final class Friend {
+@Observable
+final class Friend: Identifiable, Hashable {
     var id: UUID
     var name: String
     var email: String?
@@ -16,10 +14,8 @@ final class Friend {
     var updatedAt: Date
     var isFavorite: Bool = false
     
-    @Relationship(deleteRule: .nullify, inverse: \Event.attendees)
     var events: [Event] = []
     
-    @Relationship(deleteRule: .nullify, inverse: \Event.friendWishes)
     var wishEvents: [Event] = []
     
     init(id: UUID = UUID(), 
@@ -66,6 +62,14 @@ final class Friend {
         if let notes = notes { self.notes = notes }
         if let isFavorite = isFavorite { self.isFavorite = isFavorite }
         self.updatedAt = Date()
+    }
+
+    static func == (lhs: Friend, rhs: Friend) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

@@ -1,6 +1,5 @@
 import WidgetKit
 import SwiftUI
-import SwiftData
 import Contacts
 
 // MARK: - QR Code Widget Entry

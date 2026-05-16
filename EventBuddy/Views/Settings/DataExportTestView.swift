@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct DataExportTestView: View {
     @Environment(\.modelContext) private var modelContext

@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct FriendHeaderView: View {
     let friend: Friend

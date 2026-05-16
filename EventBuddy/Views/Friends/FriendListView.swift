@@ -1,9 +1,8 @@
 import SwiftUI
-import SwiftData
 
 struct FriendListView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.modelContext) private var modelContext
-    @Query private var friends: [Friend]
     
     @State private var searchText = ""
     @State private var selectedFilter: FriendFilter = .all
@@ -217,7 +216,7 @@ struct FriendListView: View {
     }
 
     private var filteredFriends: [Friend] {
-        let searchFiltered = friends.filter { friend in
+        let searchFiltered = appStore.friends.filter { friend in
             if searchText.isEmpty {
                 return true
             } else {
@@ -326,6 +325,8 @@ struct FriendListView: View {
 }
 
 #Preview {
-    FriendListView()
-        .modelContainer(for: Friend.self, inMemory: true)
-} 
+    let environment = AppEnvironment()
+    return FriendListView()
+        .environment(environment.store)
+        .environment(\.modelContext, environment.modelContext)
+}

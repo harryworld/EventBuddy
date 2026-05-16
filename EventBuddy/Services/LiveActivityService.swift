@@ -1,8 +1,8 @@
 import ActivityKit
 import Foundation
-import SwiftData
 import UIKit
 
+@MainActor
 @Observable
 class LiveActivityService {
     private var currentActivity: Activity<EventBuddyWidgetsAttributes>?
@@ -16,7 +16,6 @@ class LiveActivityService {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        updateTimer?.invalidate()
     }
     
     private func setupNotificationObserver() {
@@ -25,10 +24,8 @@ class LiveActivityService {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            guard let self = self,
-                  let modelContext = self.modelContext else { return }
-            
-            Task {
+            Task { @MainActor [weak self] in
+                guard let self, let modelContext = self.modelContext else { return }
                 await self.checkAndStartLiveActivityForOngoingEvents(modelContext: modelContext)
             }
         }
@@ -39,10 +36,8 @@ class LiveActivityService {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            guard let self = self,
-                  let modelContext = self.modelContext else { return }
-            
-            Task {
+            Task { @MainActor [weak self] in
+                guard let self, let modelContext = self.modelContext else { return }
                 await self.handleAppEnteringBackground(modelContext: modelContext)
             }
         }
@@ -52,43 +47,20 @@ class LiveActivityService {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            guard let self = self,
-                  let modelContext = self.modelContext else { return }
-            
-            print("🔴 LiveActivityService: App entering foreground - refreshing Live Activity")
-            Task {
+            Task { @MainActor [weak self] in
+                guard let self, self.modelContext != nil else { return }
+                print("🔴 LiveActivityService: App entering foreground - refreshing Live Activity")
                 await self.forceUpdate()
             }
         }
     }
     
     private func startPeriodicUpdates() {
-        // Ensure timer runs on main thread
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Update every 2 minutes for less frequent updates since timer intervals handle time automatically
-            self.updateTimer = Timer.scheduledTimer(withTimeInterval: 120.0, repeats: true) { [weak self] _ in
-                guard let self = self,
-                      let modelContext = self.modelContext else { return }
-                
-                Task { @MainActor in
-                    await self.updateOngoingActivities(modelContext: modelContext)
-                    await self.adjustUpdateFrequencyIfNeeded(modelContext: modelContext)
-                }
-            }
-            
-            // Ensure timer is added to run loop
-            if let timer = self.updateTimer {
-                RunLoop.main.add(timer, forMode: .common)
-            }
-            
-            print("🔴 LiveActivityService: Started periodic updates (every 2 minutes - timer intervals handle time)")
-        }
+        scheduleTimer(interval: 120.0, logMessage: "🔴 LiveActivityService: Started periodic updates (every 2 minutes - timer intervals handle time)")
     }
     
     private func updateOngoingActivities(modelContext: ModelContext) async {
-        guard let activity = currentActivity else { 
+        guard currentActivity != nil else {
             print("🔴 LiveActivityService: No active Live Activity to update")
             return 
         }
@@ -121,8 +93,9 @@ class LiveActivityService {
                     await showEventEndedState(for: recentlyEndedEvent)
                     
                     // End the activity after showing the completion state for 30 seconds
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
-                        Task {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
                             await self.endCurrentActivity()
                         }
                     }
@@ -502,7 +475,6 @@ class LiveActivityService {
             
             if let ongoingEvent = ongoingEvents.first {
                 let timeUntilEnd = ongoingEvent.endDate.timeIntervalSince(Date())
-                let timeUntilStart = ongoingEvent.startDate.timeIntervalSince(Date())
                 
                 // Check if we need more frequent updates (only for status/progress changes)
                 if timeUntilEnd > 0 && timeUntilEnd <= 300 { // Final 5 minutes
@@ -519,57 +491,29 @@ class LiveActivityService {
     
     // Schedule more frequent updates for events ending soon (for status changes)
     private func scheduleFrequentUpdates() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Cancel existing timer
-            self.updateTimer?.invalidate()
-            
-            // Update every 60 seconds when event is ending soon (for status changes)
-            self.updateTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
-                guard let self = self,
-                      let modelContext = self.modelContext else { return }
-                
-                Task { @MainActor in
-                    await self.updateOngoingActivities(modelContext: modelContext)
-                    await self.adjustUpdateFrequencyIfNeeded(modelContext: modelContext)
-                }
-            }
-            
-            // Ensure timer is added to run loop
-            if let timer = self.updateTimer {
-                RunLoop.main.add(timer, forMode: .common)
-            }
-            
-            print("🔴 LiveActivityService: Switched to frequent updates (every 60 seconds)")
-        }
+        scheduleTimer(interval: 60.0, logMessage: "🔴 LiveActivityService: Switched to frequent updates (every 60 seconds)")
     }
     
     // Schedule normal updates for events not in critical periods
     private func scheduleNormalUpdates() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Cancel existing timer
-            self.updateTimer?.invalidate()
-            
-            // Update every 2 minutes for normal frequency
-            self.updateTimer = Timer.scheduledTimer(withTimeInterval: 120.0, repeats: true) { [weak self] _ in
-                guard let self = self,
-                      let modelContext = self.modelContext else { return }
-                
-                Task { @MainActor in
-                    await self.updateOngoingActivities(modelContext: modelContext)
-                    await self.adjustUpdateFrequencyIfNeeded(modelContext: modelContext)
-                }
-            }
-            
-            // Ensure timer is added to run loop
-            if let timer = self.updateTimer {
-                RunLoop.main.add(timer, forMode: .common)
-            }
-            
-            print("🔴 LiveActivityService: Switched to normal updates (every 2 minutes)")
-        }
+        scheduleTimer(interval: 120.0, logMessage: "🔴 LiveActivityService: Switched to normal updates (every 2 minutes)")
     }
-} 
+
+    private func scheduleTimer(interval: TimeInterval, logMessage: String) {
+        updateTimer?.invalidate()
+
+        updateTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, let modelContext = self.modelContext else { return }
+                await self.updateOngoingActivities(modelContext: modelContext)
+                await self.adjustUpdateFrequencyIfNeeded(modelContext: modelContext)
+            }
+        }
+
+        if let timer = updateTimer {
+            RunLoop.main.add(timer, forMode: .common)
+        }
+
+        print(logMessage)
+    }
+}
