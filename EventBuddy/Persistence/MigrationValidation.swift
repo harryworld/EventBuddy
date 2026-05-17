@@ -60,6 +60,9 @@ struct MigrationProfileSnapshot: Codable, Equatable {
     let bio: String
     let email: String?
     let phone: String?
+    let profileImage: Data?
+    let createdAt: Date
+    let updatedAt: Date
     let title: String
     let company: String
     let avatarSystemName: String
@@ -76,6 +79,8 @@ struct MigrationFriendSnapshot: Codable, Equatable, Identifiable {
     let company: String?
     let socialMediaHandles: [String: String]
     let notes: String?
+    let createdAt: Date
+    let updatedAt: Date
     let isFavorite: Bool
 }
 
@@ -92,6 +97,8 @@ struct MigrationEventSnapshot: Codable, Equatable, Identifiable {
     let requiresTicket: Bool
     let requiresRegistration: Bool
     let url: String?
+    let createdAt: Date
+    let updatedAt: Date
     let isAttending: Bool
     let originalTimezoneIdentifier: String?
     let isCustomEvent: Bool
@@ -107,6 +114,7 @@ struct MigrationSnapshot: Codable, Equatable {
     var profileCount: Int { profile == nil ? 0 : 1 }
     var attendeeLinkCount: Int { events.reduce(0) { $0 + $1.attendeeIDs.count } }
     var wishLinkCount: Int { events.reduce(0) { $0 + $1.wishIDs.count } }
+    var isEmpty: Bool { profile == nil && friends.isEmpty && events.isEmpty }
 
     var digestSource: String {
         let friendChunks = friends
@@ -121,6 +129,8 @@ struct MigrationSnapshot: Codable, Equatable {
                     $0.company ?? "",
                     encodeStableDictionary($0.socialMediaHandles),
                     $0.notes ?? "",
+                    ISO8601DateFormatter.validation.string(from: $0.createdAt),
+                    ISO8601DateFormatter.validation.string(from: $0.updatedAt),
                     $0.isFavorite ? "1" : "0"
                 ].joined(separator: "|")
             }
@@ -142,6 +152,8 @@ struct MigrationSnapshot: Codable, Equatable {
                     $0.requiresTicket ? "1" : "0",
                     $0.requiresRegistration ? "1" : "0",
                     $0.url ?? "",
+                    ISO8601DateFormatter.validation.string(from: $0.createdAt),
+                    ISO8601DateFormatter.validation.string(from: $0.updatedAt),
                     $0.isAttending ? "1" : "0",
                     $0.originalTimezoneIdentifier ?? "",
                     $0.isCustomEvent ? "1" : "0",
@@ -158,6 +170,9 @@ struct MigrationSnapshot: Codable, Equatable {
                 $0.bio,
                 $0.email ?? "",
                 $0.phone ?? "",
+                $0.profileImage?.base64EncodedString() ?? "",
+                ISO8601DateFormatter.validation.string(from: $0.createdAt),
+                ISO8601DateFormatter.validation.string(from: $0.updatedAt),
                 $0.title,
                 $0.company,
                 $0.avatarSystemName,
@@ -187,6 +202,8 @@ struct MigrationSnapshot: Codable, Equatable {
                 notes: $0.notes,
                 isFavorite: $0.isFavorite
             )
+            friend.createdAt = $0.createdAt
+            friend.updatedAt = $0.updatedAt
             return friend
         }
 
@@ -220,23 +237,28 @@ struct MigrationSnapshot: Codable, Equatable {
                     event.addFriendWish(friend)
                 }
             }
+            event.createdAt = $0.createdAt
+            event.updatedAt = $0.updatedAt
             return event
         }
 
         let profile = profile.map {
-            Profile(
+            let profile = Profile(
                 id: $0.id,
                 name: $0.name,
                 bio: $0.bio,
                 email: $0.email,
                 phone: $0.phone,
-                profileImage: nil,
+                profileImage: $0.profileImage,
                 socialMediaAccounts: $0.socialMediaAccounts,
                 preferences: $0.preferences,
                 title: $0.title,
                 company: $0.company,
                 avatarSystemName: $0.avatarSystemName
             )
+            profile.createdAt = $0.createdAt
+            profile.updatedAt = $0.updatedAt
+            return profile
         }
 
         return (profile, friends, events)
@@ -259,6 +281,9 @@ enum MigrationFixtureData {
         bio: "Building EventBuddy migration fixtures.",
         email: "taylor@example.com",
         phone: "+1 555 000 1000",
+        profileImage: nil,
+        createdAt: date(year: 2025, month: 6, day: 7, hour: 9, minute: 0),
+        updatedAt: date(year: 2025, month: 6, day: 7, hour: 10, minute: 0),
         title: "iOS Engineer",
         company: "Build with Harry",
         avatarSystemName: "person.crop.circle.fill",
@@ -283,6 +308,8 @@ enum MigrationFixtureData {
             company: "Apple",
             socialMediaHandles: ["twitter": "averyswift"],
             notes: "Met at the labs.",
+            createdAt: date(year: 2025, month: 6, day: 8, hour: 19, minute: 0),
+            updatedAt: date(year: 2025, month: 6, day: 8, hour: 19, minute: 30),
             isFavorite: true
         ),
         MigrationFriendSnapshot(
@@ -294,6 +321,8 @@ enum MigrationFixtureData {
             company: "Figma",
             socialMediaHandles: ["instagram": "samdesigns"],
             notes: "Great conversation about prototypes.",
+            createdAt: date(year: 2025, month: 6, day: 8, hour: 19, minute: 15),
+            updatedAt: date(year: 2025, month: 6, day: 8, hour: 19, minute: 45),
             isFavorite: false
         ),
         MigrationFriendSnapshot(
@@ -305,6 +334,8 @@ enum MigrationFixtureData {
             company: "RevenueCat",
             socialMediaHandles: ["github": "jordankim"],
             notes: "Discussed sync edge cases.",
+            createdAt: date(year: 2025, month: 6, day: 9, hour: 9, minute: 0),
+            updatedAt: date(year: 2025, month: 6, day: 9, hour: 9, minute: 30),
             isFavorite: true
         )
     ]
@@ -323,6 +354,8 @@ enum MigrationFixtureData {
             requiresTicket: false,
             requiresRegistration: true,
             url: "https://example.com/swift-on-tap",
+            createdAt: date(year: 2025, month: 6, day: 7, hour: 12, minute: 0),
+            updatedAt: date(year: 2025, month: 6, day: 8, hour: 20, minute: 0),
             isAttending: true,
             originalTimezoneIdentifier: "America/Los_Angeles",
             isCustomEvent: true,
@@ -347,6 +380,8 @@ enum MigrationFixtureData {
             requiresTicket: false,
             requiresRegistration: false,
             url: "https://example.com/vision-breakfast",
+            createdAt: date(year: 2025, month: 6, day: 8, hour: 10, minute: 0),
+            updatedAt: date(year: 2025, month: 6, day: 9, hour: 10, minute: 0),
             isAttending: false,
             originalTimezoneIdentifier: "America/Los_Angeles",
             isCustomEvent: true,
@@ -370,6 +405,8 @@ enum MigrationFixtureData {
             requiresTicket: true,
             requiresRegistration: true,
             url: "https://example.com/cloudkit-lab",
+            createdAt: date(year: 2025, month: 6, day: 9, hour: 11, minute: 0),
+            updatedAt: date(year: 2025, month: 6, day: 10, hour: 16, minute: 0),
             isAttending: true,
             originalTimezoneIdentifier: "America/Los_Angeles",
             isCustomEvent: true,
@@ -401,6 +438,17 @@ enum MigrationFixtureData {
 
 enum MigrationValidationStorage {
     static let lastSyncDateKey = "EventSyncService.lastSyncDate"
+    static let legacyMigrationDidRunKey = "EventBuddy.LegacySwiftDataMigration.v1.didRun"
+
+    static func appSandboxLegacyStoreURL() throws -> URL {
+        guard let directory = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        return directory.appending(path: "default.store")
+    }
 
     static func appGroupURL() throws -> URL {
         guard let url = FileManager.default.containerURL(
@@ -438,6 +486,7 @@ enum MigrationValidationStorage {
         try removeIfExists(try sqliteStoreURL())
         try removeIfExists(try sqliteMetadataURL())
         UserDefaults.standard.removeObject(forKey: lastSyncDateKey)
+        UserDefaults.standard.removeObject(forKey: legacyMigrationDidRunKey)
     }
 
     static func removeIfExists(_ url: URL) throws {
@@ -449,12 +498,27 @@ enum MigrationValidationStorage {
         guard let url = try? legacyStoreURL() else { return false }
         return FileManager.default.fileExists(atPath: url.path)
     }
+
+    static func productionLegacyStoreURL() -> URL? {
+        let candidates = [
+            try? appSandboxLegacyStoreURL(),
+            try? legacyStoreURL()
+        ]
+        var seen = Set<String>()
+        for candidate in candidates.compactMap(\.self) {
+            guard seen.insert(candidate.path).inserted else { continue }
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+        }
+        return nil
+    }
 }
 
 @MainActor
 enum LegacySwiftDataStore {
     @Model
-    final class LegacyEvent {
+    final class Event {
         var id: UUID
         var title: String
         var eventDescription: String
@@ -474,10 +538,10 @@ enum LegacySwiftDataStore {
         var isCustomEvent: Bool
 
         @Relationship(deleteRule: .nullify)
-        var attendees: [LegacyFriend] = []
+        var attendees: [Friend] = []
 
         @Relationship(deleteRule: .nullify)
-        var friendWishes: [LegacyFriend] = []
+        var friendWishes: [Friend] = []
 
         init(snapshot: MigrationEventSnapshot) {
             self.id = snapshot.id
@@ -492,8 +556,8 @@ enum LegacySwiftDataStore {
             self.requiresTicket = snapshot.requiresTicket
             self.requiresRegistration = snapshot.requiresRegistration
             self.url = snapshot.url
-            self.createdAt = snapshot.startDate
-            self.updatedAt = snapshot.endDate
+            self.createdAt = snapshot.createdAt
+            self.updatedAt = snapshot.updatedAt
             self.isAttending = snapshot.isAttending
             self.originalTimezoneIdentifier = snapshot.originalTimezoneIdentifier
             self.isCustomEvent = snapshot.isCustomEvent
@@ -501,7 +565,7 @@ enum LegacySwiftDataStore {
     }
 
     @Model
-    final class LegacyFriend {
+    final class Friend {
         var id: UUID
         var name: String
         var email: String?
@@ -514,11 +578,11 @@ enum LegacySwiftDataStore {
         var updatedAt: Date
         var isFavorite: Bool
 
-        @Relationship(deleteRule: .nullify, inverse: \LegacyEvent.attendees)
-        var events: [LegacyEvent] = []
+        @Relationship(deleteRule: .nullify, inverse: \Event.attendees)
+        var events: [Event] = []
 
-        @Relationship(deleteRule: .nullify, inverse: \LegacyEvent.friendWishes)
-        var wishEvents: [LegacyEvent] = []
+        @Relationship(deleteRule: .nullify, inverse: \Event.friendWishes)
+        var wishEvents: [Event] = []
 
         init(snapshot: MigrationFriendSnapshot) {
             self.id = snapshot.id
@@ -529,14 +593,14 @@ enum LegacySwiftDataStore {
             self.company = snapshot.company
             self.socialMediaHandles = snapshot.socialMediaHandles
             self.notes = snapshot.notes
-            self.createdAt = Date()
-            self.updatedAt = Date()
+            self.createdAt = snapshot.createdAt
+            self.updatedAt = snapshot.updatedAt
             self.isFavorite = snapshot.isFavorite
         }
     }
 
     @Model
-    final class LegacyProfile {
+    final class Profile {
         var id: UUID
         var name: String
         var bio: String
@@ -557,11 +621,11 @@ enum LegacySwiftDataStore {
             self.bio = snapshot.bio
             self.email = snapshot.email
             self.phone = snapshot.phone
-            self.profileImage = nil
+            self.profileImage = snapshot.profileImage
             self.socialMediaAccounts = snapshot.socialMediaAccounts
             self.preferences = snapshot.preferences
-            self.createdAt = Date()
-            self.updatedAt = Date()
+            self.createdAt = snapshot.createdAt
+            self.updatedAt = snapshot.updatedAt
             self.title = snapshot.title
             self.company = snapshot.company
             self.avatarSystemName = snapshot.avatarSystemName
@@ -570,13 +634,13 @@ enum LegacySwiftDataStore {
 
     static func seedFixture() throws -> MigrationSnapshot {
         try MigrationValidationStorage.removeIfExists(MigrationValidationStorage.legacyStoreURL())
-        let container = try makeContainer()
+        let container = try makeContainer(storeURL: MigrationValidationStorage.legacyStoreURL())
         let context = container.mainContext
 
-        let profile = LegacyProfile(snapshot: MigrationFixtureData.profile)
-        let friends = MigrationFixtureData.friends.map(LegacyFriend.init(snapshot:))
+        let profile = Profile(snapshot: MigrationFixtureData.profile)
+        let friends = MigrationFixtureData.friends.map(Friend.init(snapshot:))
         let friendMap = Dictionary(uniqueKeysWithValues: friends.map { ($0.id, $0) })
-        let events = MigrationFixtureData.events.map(LegacyEvent.init(snapshot:))
+        let events = MigrationFixtureData.events.map(Event.init(snapshot:))
 
         for event in events {
             let record = MigrationFixtureData.events.first { $0.id == event.id }!
@@ -593,18 +657,22 @@ enum LegacySwiftDataStore {
         }
         try context.save()
 
-        let snapshot = try fetchSnapshot()
+        let snapshot = try fetchSnapshot(from: MigrationValidationStorage.legacyStoreURL())
         print("📦 Seeded legacy SwiftData fixture digest: \(snapshot.digest)")
         return snapshot
     }
 
     static func fetchSnapshot() throws -> MigrationSnapshot {
-        let container = try makeContainer()
+        try fetchSnapshot(from: MigrationValidationStorage.legacyStoreURL())
+    }
+
+    static func fetchSnapshot(from storeURL: URL) throws -> MigrationSnapshot {
+        let container = try makeContainer(storeURL: storeURL)
         let context = container.mainContext
 
-        let profiles = try context.fetch(SwiftData.FetchDescriptor<LegacyProfile>())
-        let friends = try context.fetch(SwiftData.FetchDescriptor<LegacyFriend>())
-        let events = try context.fetch(SwiftData.FetchDescriptor<LegacyEvent>())
+        let profiles = try context.fetch(SwiftData.FetchDescriptor<Profile>())
+        let friends = try context.fetch(SwiftData.FetchDescriptor<Friend>())
+        let events = try context.fetch(SwiftData.FetchDescriptor<Event>())
 
         let profileSnapshot = profiles.first.map {
             MigrationProfileSnapshot(
@@ -613,6 +681,9 @@ enum LegacySwiftDataStore {
                 bio: $0.bio,
                 email: $0.email,
                 phone: $0.phone,
+                profileImage: $0.profileImage,
+                createdAt: $0.createdAt,
+                updatedAt: $0.updatedAt,
                 title: $0.title,
                 company: $0.company,
                 avatarSystemName: $0.avatarSystemName,
@@ -632,6 +703,8 @@ enum LegacySwiftDataStore {
                     company: $0.company,
                     socialMediaHandles: $0.socialMediaHandles,
                     notes: $0.notes,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt,
                     isFavorite: $0.isFavorite
                 )
             }
@@ -655,6 +728,8 @@ enum LegacySwiftDataStore {
                     requiresTicket: event.requiresTicket,
                     requiresRegistration: event.requiresRegistration,
                     url: event.url,
+                    createdAt: event.createdAt,
+                    updatedAt: event.updatedAt,
                     isAttending: event.isAttending,
                     originalTimezoneIdentifier: event.originalTimezoneIdentifier,
                     isCustomEvent: event.isCustomEvent,
@@ -667,15 +742,233 @@ enum LegacySwiftDataStore {
         return MigrationSnapshot(profile: profileSnapshot, friends: friendSnapshots, events: eventSnapshots)
     }
 
-    private static func makeContainer() throws -> ModelContainer {
-        let schema = Schema([LegacyEvent.self, LegacyFriend.self, LegacyProfile.self])
+    private static func makeContainer(storeURL: URL) throws -> ModelContainer {
+        let schema = Schema([Event.self, Friend.self, Profile.self])
         let configuration = ModelConfiguration(
             "LegacyMigrationStore",
             schema: schema,
-            url: try MigrationValidationStorage.legacyStoreURL(),
+            url: storeURL,
             cloudKitDatabase: .none
         )
         return try ModelContainer(for: schema, configurations: [configuration])
+    }
+}
+
+@MainActor
+enum LegacySwiftDataMigration {
+    private static let sampleFriendID = UUID(uuidString: "12345678-1234-1234-1234-123456789ABC")!
+
+    static func migrateIfNeeded(modelContext: ModelContext) throws -> MigrationSnapshot? {
+        guard !UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationDidRunKey) else {
+            return nil
+        }
+
+        guard let legacyStoreURL = MigrationValidationStorage.productionLegacyStoreURL() else {
+            UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
+            return nil
+        }
+
+        let snapshot = try LegacySwiftDataStore.fetchSnapshot(from: legacyStoreURL)
+        guard !snapshot.isEmpty else {
+            UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
+            return nil
+        }
+
+        try modelContext.reload()
+        try merge(snapshot, into: modelContext)
+        try modelContext.save()
+        try modelContext.reload()
+
+        UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
+        print(
+            "✅ Migrated legacy SwiftData store from \(legacyStoreURL.path): " +
+            "\(snapshot.events.count) events, \(snapshot.friends.count) friends, \(snapshot.profileCount) profiles"
+        )
+        return snapshot
+    }
+
+    private static func merge(_ snapshot: MigrationSnapshot, into modelContext: ModelContext) throws {
+        try mergeProfile(snapshot.profile, into: modelContext)
+
+        var existingFriends = try modelContext.fetch(FetchDescriptor<Friend>())
+        let legacyFriendIDs = Set(snapshot.friends.map(\.id))
+        if !legacyFriendIDs.isEmpty,
+           !legacyFriendIDs.contains(sampleFriendID),
+           let sampleFriend = existingFriends.first(where: { $0.id == sampleFriendID }) {
+            modelContext.delete(sampleFriend)
+            existingFriends.removeAll { $0.id == sampleFriendID }
+        }
+
+        var friendsByID = Dictionary(uniqueKeysWithValues: existingFriends.map { ($0.id, $0) })
+        for friendSnapshot in snapshot.friends {
+            let friend = friendsByID[friendSnapshot.id] ?? makeFriend(from: friendSnapshot)
+            apply(friendSnapshot, to: friend)
+            if friendsByID[friendSnapshot.id] == nil {
+                modelContext.insert(friend)
+                friendsByID[friend.id] = friend
+            }
+        }
+
+        let existingEvents = try modelContext.fetch(FetchDescriptor<Event>())
+        var eventsByID = Dictionary(uniqueKeysWithValues: existingEvents.map { ($0.id, $0) })
+        for eventSnapshot in snapshot.events {
+            let event = eventsByID[eventSnapshot.id] ?? makeEvent(from: eventSnapshot)
+            apply(eventSnapshot, to: event, friendsByID: friendsByID)
+            if eventsByID[eventSnapshot.id] == nil {
+                modelContext.insert(event)
+                eventsByID[event.id] = event
+            }
+        }
+    }
+
+    private static func mergeProfile(_ snapshot: MigrationProfileSnapshot?, into modelContext: ModelContext) throws {
+        guard let snapshot else { return }
+
+        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+        if let existingProfile = profiles.first(where: { $0.id == snapshot.id }) {
+            apply(snapshot, to: existingProfile, includeID: false)
+            return
+        }
+
+        if let sampleProfile = profiles.first(where: isSampleProfile) {
+            apply(snapshot, to: sampleProfile, includeID: true)
+            return
+        }
+
+        let profile = makeProfile(from: snapshot)
+        modelContext.insert(profile)
+    }
+
+    private static func makeProfile(from snapshot: MigrationProfileSnapshot) -> Profile {
+        let profile = Profile(
+            id: snapshot.id,
+            name: snapshot.name,
+            bio: snapshot.bio,
+            email: snapshot.email,
+            phone: snapshot.phone,
+            profileImage: snapshot.profileImage,
+            socialMediaAccounts: snapshot.socialMediaAccounts,
+            preferences: snapshot.preferences,
+            title: snapshot.title,
+            company: snapshot.company,
+            avatarSystemName: snapshot.avatarSystemName
+        )
+        apply(snapshot, to: profile, includeID: false)
+        return profile
+    }
+
+    private static func makeFriend(from snapshot: MigrationFriendSnapshot) -> Friend {
+        let friend = Friend(
+            id: snapshot.id,
+            name: snapshot.name,
+            email: snapshot.email,
+            phone: snapshot.phone,
+            jobTitle: snapshot.jobTitle,
+            company: snapshot.company,
+            socialMediaHandles: snapshot.socialMediaHandles,
+            notes: snapshot.notes,
+            isFavorite: snapshot.isFavorite
+        )
+        apply(snapshot, to: friend)
+        return friend
+    }
+
+    private static func makeEvent(from snapshot: MigrationEventSnapshot) -> Event {
+        let event = Event(
+            id: snapshot.id,
+            title: snapshot.title,
+            eventDescription: snapshot.eventDescription,
+            location: snapshot.location,
+            address: snapshot.address,
+            startDate: snapshot.startDate,
+            endDate: snapshot.endDate,
+            eventType: snapshot.eventType,
+            notes: snapshot.notes,
+            requiresTicket: snapshot.requiresTicket,
+            requiresRegistration: snapshot.requiresRegistration,
+            url: snapshot.url,
+            isAttending: snapshot.isAttending,
+            originalTimezoneIdentifier: snapshot.originalTimezoneIdentifier,
+            isCustomEvent: snapshot.isCustomEvent
+        )
+        event.createdAt = snapshot.createdAt
+        event.updatedAt = snapshot.updatedAt
+        return event
+    }
+
+    private static func apply(_ snapshot: MigrationProfileSnapshot, to profile: Profile, includeID: Bool) {
+        if includeID {
+            profile.id = snapshot.id
+        }
+        profile.name = snapshot.name
+        profile.bio = snapshot.bio
+        profile.email = snapshot.email
+        profile.phone = snapshot.phone
+        profile.profileImage = snapshot.profileImage
+        profile.socialMediaAccounts = snapshot.socialMediaAccounts
+        profile.preferences = snapshot.preferences
+        profile.createdAt = snapshot.createdAt
+        profile.updatedAt = snapshot.updatedAt
+        profile.title = snapshot.title
+        profile.company = snapshot.company
+        profile.avatarSystemName = snapshot.avatarSystemName
+    }
+
+    private static func apply(_ snapshot: MigrationFriendSnapshot, to friend: Friend) {
+        friend.name = snapshot.name
+        friend.email = snapshot.email
+        friend.phone = snapshot.phone
+        friend.jobTitle = snapshot.jobTitle
+        friend.company = snapshot.company
+        friend.socialMediaHandles = snapshot.socialMediaHandles
+        friend.notes = snapshot.notes
+        friend.createdAt = snapshot.createdAt
+        friend.updatedAt = snapshot.updatedAt
+        friend.isFavorite = snapshot.isFavorite
+    }
+
+    private static func apply(
+        _ snapshot: MigrationEventSnapshot,
+        to event: Event,
+        friendsByID: [UUID: Friend]
+    ) {
+        event.title = snapshot.title
+        event.eventDescription = snapshot.eventDescription
+        event.location = snapshot.location
+        event.address = snapshot.address
+        event.startDate = snapshot.startDate
+        event.endDate = snapshot.endDate
+        event.eventType = snapshot.eventType
+        event.notes = snapshot.notes
+        event.requiresTicket = snapshot.requiresTicket
+        event.requiresRegistration = snapshot.requiresRegistration
+        event.url = snapshot.url
+        event.isAttending = snapshot.isAttending
+        event.originalTimezoneIdentifier = snapshot.originalTimezoneIdentifier
+        event.isCustomEvent = snapshot.isCustomEvent
+
+        event.attendees.removeAll()
+        event.friendWishes.removeAll()
+        for friendID in snapshot.attendeeIDs {
+            if let friend = friendsByID[friendID] {
+                event.addFriend(friend)
+            }
+        }
+        for friendID in snapshot.wishIDs {
+            if let friend = friendsByID[friendID] {
+                event.addFriendWish(friend)
+            }
+        }
+
+        event.createdAt = snapshot.createdAt
+        event.updatedAt = snapshot.updatedAt
+    }
+
+    private static func isSampleProfile(_ profile: Profile) -> Bool {
+        profile.name == "John Appleseed" &&
+            profile.email == "john@apple.com" &&
+            profile.company == "Apple Inc." &&
+            profile.title == "iOS Developer"
     }
 }
 
@@ -694,6 +987,8 @@ enum SQLiteMigrationValidator {
                     company: $0.company,
                     socialMediaHandles: $0.socialMediaHandles,
                     notes: $0.notes,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt,
                     isFavorite: $0.isFavorite
                 )
             }
@@ -714,6 +1009,8 @@ enum SQLiteMigrationValidator {
                     requiresTicket: $0.requiresTicket,
                     requiresRegistration: $0.requiresRegistration,
                     url: $0.url,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt,
                     isAttending: $0.isAttending,
                     originalTimezoneIdentifier: $0.originalTimezoneIdentifier,
                     isCustomEvent: $0.isCustomEvent,
@@ -731,6 +1028,9 @@ enum SQLiteMigrationValidator {
                     bio: $0.bio,
                     email: $0.email,
                     phone: $0.phone,
+                    profileImage: $0.profileImage,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt,
                     title: $0.title,
                     company: $0.company,
                     avatarSystemName: $0.avatarSystemName,

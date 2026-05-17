@@ -81,6 +81,7 @@ struct ContentView: View {
     
     private func setupServices() {
         do {
+            _ = try LegacySwiftDataMigration.migrateIfNeeded(modelContext: modelContext)
             try modelContext.reload()
         } catch {
             print("Failed to prepare persistence: \(error)")

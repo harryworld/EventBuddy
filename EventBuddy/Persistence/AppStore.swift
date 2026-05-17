@@ -68,14 +68,14 @@ final class AppStore {
             guard let event = eventMap[relation.eventID], let friend = friendMap[relation.friendID] else {
                 continue
             }
-            event.addFriend(friend)
+            linkAttendee(friend, to: event)
         }
 
         for relation in snapshot.wishes {
             guard let event = eventMap[relation.eventID], let friend = friendMap[relation.friendID] else {
                 continue
             }
-            event.addFriendWish(friend)
+            linkWish(friend, to: event)
         }
 
         events = eventMap.values.sorted { $0.startDate < $1.startDate }
@@ -230,6 +230,24 @@ final class AppStore {
         let profiles: [StoredProfile]
         let attendees: [StoredEventAttendee]
         let wishes: [StoredEventWish]
+    }
+
+    private func linkAttendee(_ friend: Friend, to event: Event) {
+        if !event.attendees.contains(where: { $0.id == friend.id }) {
+            event.attendees.append(friend)
+        }
+        if !friend.events.contains(where: { $0.id == event.id }) {
+            friend.events.append(event)
+        }
+    }
+
+    private func linkWish(_ friend: Friend, to event: Event) {
+        if !event.friendWishes.contains(where: { $0.id == friend.id }) {
+            event.friendWishes.append(friend)
+        }
+        if !friend.wishEvents.contains(where: { $0.id == event.id }) {
+            friend.wishEvents.append(event)
+        }
     }
 }
 

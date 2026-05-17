@@ -15,6 +15,11 @@ class FriendService {
         let sampleWasAdded = UserDefaults.standard.bool(forKey: sampleFriendsAddedKey)
         
         if !sampleWasAdded {
+            if hasAnyFriends(modelContext: modelContext) {
+                UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
+                return
+            }
+
             // Rule 1: If sample was not added, insert it
             insertSampleFriend(modelContext: modelContext)
             UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
@@ -49,6 +54,15 @@ class FriendService {
         )
         
         modelContext.insert(sampleFriend)
+    }
+
+    private static func hasAnyFriends(modelContext: ModelContext) -> Bool {
+        do {
+            return try !modelContext.fetch(FetchDescriptor<Friend>()).isEmpty
+        } catch {
+            print("Error checking existing friends: \(error)")
+            return false
+        }
     }
     
     // Check if sample friend exists in database
