@@ -88,7 +88,7 @@ enum CloudKitAccountAvailability: Equatable {
 }
 
 @Observable class UserSettings {
-    static let isCloudKitSyncFeatureEnabled = false
+    static let isCloudKitSyncFeatureEnabled = true
     static let cloudKitSyncEnabledKey = "EventBuddy.UserSettings.cloudKitSyncEnabled"
     static let cloudKitLastSyncedAtKey = "EventBuddy.UserSettings.cloudKitLastSyncedAt"
 
@@ -152,7 +152,7 @@ enum CloudKitAccountAvailability: Equatable {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                self?.reloadCloudKitLastSyncedAt()
+                self?.markCloudKitSyncSucceeded()
             }
         }
     }
@@ -175,7 +175,7 @@ enum CloudKitAccountAvailability: Equatable {
     }
 
     var canToggleCloudKitSync: Bool {
-        cloudKitAccountAvailability.canUseSync && !isUpdatingCloudKitSync
+        (settings.cloudKitSyncEnabled || cloudKitAccountAvailability.canUseSync) && !isUpdatingCloudKitSync
     }
 
     func reloadCloudKitLastSyncedAt() {
@@ -184,7 +184,17 @@ enum CloudKitAccountAvailability: Equatable {
         ) as? Date
     }
 
+    func markCloudKitSyncSucceeded() {
+        reloadCloudKitLastSyncedAt()
+        guard settings.cloudKitSyncEnabled else { return }
+
+        cloudKitAccountAvailability = .available
+        cloudKitSyncError = nil
+    }
+
     func refreshCloudKitAccountAvailability() async {
+        guard !isUpdatingCloudKitSync else { return }
+
         reloadCloudKitLastSyncedAt()
         cloudKitAccountAvailability = .checking
 
@@ -193,8 +203,10 @@ enum CloudKitAccountAvailability: Equatable {
                 identifier: EventBuddyDatabase.cloudKitContainerIdentifier
             )
             .accountStatus()
+            guard !isUpdatingCloudKitSync else { return }
             updateCloudKitAccountAvailability(for: status)
         } catch {
+            guard !isUpdatingCloudKitSync else { return }
             setCloudKitAccountUnavailable("iCloud account status unavailable")
         }
     }
@@ -236,9 +248,6 @@ enum CloudKitAccountAvailability: Equatable {
         isUpdatingCloudKitSync = true
         defer { isUpdatingCloudKitSync = false }
 
-        await refreshCloudKitAccountAvailability()
-        guard cloudKitAccountAvailability.canUseSync else { return }
-
         do {
             try await syncEngine.start()
             try await syncEngine.syncChanges()
@@ -246,7 +255,9 @@ enum CloudKitAccountAvailability: Equatable {
             NotificationCenter.default.post(name: .eventBuddyCloudKitLastSyncedAtDidChange, object: nil)
             cloudKitSyncError = nil
         } catch {
+            print("iCloud sync could not start: \(error)")
             settings.cloudKitSyncEnabled = false
+            syncEngine.stop()
             cloudKitSyncError = "iCloud sync could not start. Check iCloud availability and try again."
         }
     }
@@ -269,11 +280,11 @@ enum CloudKitAccountAvailability: Equatable {
         }
     }
 
-    private func setCloudKitAccountUnavailable(_ message: String) {
+    private func setCloudKitAccountUnavailable(_ message: String, disablesSync: Bool = false) {
         cloudKitAccountAvailability = .unavailable(message)
-        if settings.cloudKitSyncEnabled {
+        if disablesSync, settings.cloudKitSyncEnabled {
             settings.cloudKitSyncEnabled = false
+            syncEngine.stop()
         }
-        syncEngine.stop()
     }
-} 
+}
