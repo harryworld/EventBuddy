@@ -214,7 +214,7 @@ struct DataImportView: View {
                 .font(.headline)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("• Supports JSON backup files from EventBuddy exports")
+                Text("• Supports JSON backup files from WWDCBuddy exports")
                 Text("• Personal namecards override the current profile")
                 Text("• Existing data will be updated if newer versions are found")
                 Text("• Duplicate data will be automatically detected and skipped")

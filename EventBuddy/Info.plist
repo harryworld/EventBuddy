@@ -31,7 +31,7 @@
 		</dict>
 	</dict>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-	<string>EventBuddy would like to add events to your Calendar</string>
+	<string>WWDCBuddy would like to add events to your Calendar</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -1,6 +1,6 @@
-# EventBuddy
+# WWDCBuddy
 
-EventBuddy is an iOS app designed to help you manage events, connect with friends, and make the most of your conference and meetup experiences. Built specifically with WWDC and developer community events in mind.
+WWDCBuddy is an iOS app designed to help you manage WWDC events, connect with friends, and make the most of developer community gatherings.
 
 ## Features
 
@@ -108,4 +108,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 The MIT License is a permissive license that is short and to the point. It lets people do anything they want with your code as long as they provide attribution back to you and don't hold you liable.
 
-We welcome contributions from the community! Feel free to fork this repository, make your changes, and submit a pull request. Together, we can make EventBuddy even better.
+We welcome contributions from the community! Feel free to fork this repository, make your changes, and submit a pull request. Together, we can make WWDCBuddy even better.

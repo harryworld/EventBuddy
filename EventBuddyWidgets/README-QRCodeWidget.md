@@ -6,7 +6,7 @@ The QR Code Widget provides quick access to your profile's contact information i
 
 - **Small Widget (2x2)**: Displays a QR code with "My Contact" label
 - **Medium Widget (4x2)**: Shows QR code alongside profile information including name, title, company, email, and phone
-- **Tap to Open**: Tapping the widget opens the Profile view in the EventBuddy app
+- **Tap to Open**: Tapping the widget opens the Profile view in the WWDCBuddy app
 
 ## Widget Sizes
 
@@ -27,7 +27,7 @@ The QR Code Widget provides quick access to your profile's contact information i
 
 ## Setup Requirements
 
-1. **Profile Configuration**: Set up your profile in the EventBuddy app with:
+1. **Profile Configuration**: Set up your profile in the WWDCBuddy app with:
    - Name (required)
    - Email (optional but recommended)
    - Phone number (optional but recommended)
@@ -36,7 +36,7 @@ The QR Code Widget provides quick access to your profile's contact information i
 2. **Adding the Widget**:
    - Long press on your home screen
    - Tap the "+" button to add widgets
-   - Search for "EventBuddy" 
+   - Search for "WWDCBuddy"
    - Select "QR Contact" widget
    - Choose your preferred size (Small or Medium)
 
@@ -47,18 +47,18 @@ The QR code contains a vCard (Virtual Contact Card) with your profile informatio
 - Email address
 - Phone number
 - Job title and company
-- Social media profiles (configured in your EventBuddy profile)
+- Social media profiles (configured in your WWDCBuddy profile)
 
 ## Data Updates
 
 - The widget refreshes every 24 hours
-- Changes to your profile in the EventBuddy app will be reflected in the widget after the next refresh
+- Changes to your profile in the WWDCBuddy app will be reflected in the widget after the next refresh
 - No user interaction required - the widget automatically updates when profile data changes
 
 ## Troubleshooting
 
 **QR Code not showing?**
-- Ensure you have set up your profile in the EventBuddy app
+- Ensure you have set up your profile in the WWDCBuddy app
 - Check that your profile has at least a name configured
 - Wait a few minutes for the widget to refresh
 
@@ -73,4 +73,4 @@ The QR code contains a vCard (Virtual Contact Card) with your profile informatio
 - Generates QR codes using Core Image's CIFilter.qrCodeGenerator
 - Supports vCard format for maximum compatibility with contact apps
 - Deep linking via `eventbuddy://profile` URL scheme
-- Automatically navigates to Profile tab when tapped 
+- Automatically navigates to Profile tab when tapped

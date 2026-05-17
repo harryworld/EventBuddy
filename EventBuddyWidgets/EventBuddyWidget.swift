@@ -83,7 +83,7 @@ struct EventBuddyWidgets: Widget {
             EventBuddyWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("EventBuddy")
+        .configurationDisplayName("WWDCBuddy")
         .description("Stay updated with your upcoming events.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }

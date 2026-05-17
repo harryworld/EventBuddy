@@ -34,9 +34,9 @@ struct SettingsView: View {
                 }
             }
         } header: {
-            Text("About EventBuddy")
+            Text("About WWDCBuddy")
         } footer: {
-            Text("EventBuddy is open source and part of the BuildWithHarry series. Contributions and suggestions are welcome!")
+            Text("WWDCBuddy is open source and part of the BuildWithHarry series. Contributions and suggestions are welcome!")
         }
     }
     
@@ -110,7 +110,7 @@ struct SettingsView: View {
             Text("Contact Harry")
         } footer: {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Thanks for using EventBuddy! This is an app to help you remembering friends and enjoying all the events.")
+                Text("Thanks for using WWDCBuddy! This is an app to help you remember friends and enjoy WWDC events.")
                 Text("Feel free to DM your feedback to Harry")
             }
         }
@@ -135,11 +135,11 @@ struct SettingsView: View {
         Section {
             ShareLink(
                 item: URL(string: "https://apple.co/4mEeOD5")!,
-                subject: Text("Check out EventBuddy!"),
-                message: Text("I'm using EventBuddy to connect with friends at WWDC events. Download it here:")
+                subject: Text("Check out WWDCBuddy!"),
+                message: Text("I'm using WWDCBuddy to connect with friends at WWDC events. Download it here:")
             ) {
                 HStack {
-                    Label("Share EventBuddy", systemImage: "square.and.arrow.up")
+                    Label("Share WWDCBuddy", systemImage: "square.and.arrow.up")
                         .foregroundStyle(.primary)
                     
                     Spacer()
@@ -152,7 +152,7 @@ struct SettingsView: View {
         } header: {
             Text("Share")
         } footer: {
-            Text("Help your friends discover EventBuddy and connect at WWDC events!")
+            Text("Help your friends discover WWDCBuddy and connect at WWDC events!")
         }
     }
     
@@ -191,7 +191,7 @@ struct SettingsView: View {
         } header: {
             Text("Data")
         } footer: {
-            Text("EventBuddy v\(appVersion) (\(buildNumber))")
+            Text("WWDCBuddy v\(appVersion) (\(buildNumber))")
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 8)
         }
@@ -211,7 +211,7 @@ struct SettingsView: View {
         } header: {
             Text("Credits")
         } footer: {
-            Text("Special thanks to everyone who contributed to making EventBuddy better!")
+            Text("Special thanks to everyone who contributed to making WWDCBuddy better!")
         }
     }
     

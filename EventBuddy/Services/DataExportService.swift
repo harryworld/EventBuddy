@@ -31,7 +31,7 @@ class DataExportService {
         do {
             // Create temporary directory for export files
             let tempDir = FileManager.default.temporaryDirectory
-                .appendingPathComponent("EventBuddyExport_\(Date().timeIntervalSince1970)")
+                .appendingPathComponent("WWDCBuddyExport_\(Date().timeIntervalSince1970)")
             
             try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
             
@@ -211,7 +211,7 @@ class DataExportService {
         
         // Create a simple tar-like archive by concatenating files with headers
         // For iOS sharing, we'll create a folder structure instead of a zip
-        let exportFolderURL = directory.appendingPathComponent("EventBuddy_Export_\(timestamp)")
+        let exportFolderURL = directory.appendingPathComponent("WWDCBuddy_Export_\(timestamp)")
         try FileManager.default.createDirectory(at: exportFolderURL, withIntermediateDirectories: true)
         
         // Copy files to the export folder
@@ -236,7 +236,7 @@ class DataExportService {
             : ""
 
         let readmeContent = """
-        EventBuddy Data Export
+        WWDCBuddy Data Export
         =====================
         
         Export Date: \(ISO8601DateFormatter().string(from: Date()))

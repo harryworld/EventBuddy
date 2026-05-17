@@ -9,8 +9,8 @@ import WidgetKit
 import AppIntents
 
 struct EventBuddyWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "EventBuddy Widget Configuration" }
-    static var description: IntentDescription { "Configure your EventBuddy widget display options." }
+    static var title: LocalizedStringResource { "WWDCBuddy Widget Configuration" }
+    static var description: IntentDescription { "Configure your WWDCBuddy widget display options." }
     
     @Parameter(title: "Event Filter", default: .all)
     var eventFilter: EventFilterIntent
