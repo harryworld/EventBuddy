@@ -30,49 +30,46 @@ struct FriendListView: View {
                 // Friends list
                 List {
                     ForEach(filteredFriends) { friendRow in
-                        let friend = appStore.friend(for: friendRow)
                         NavigationLink {
                             FriendDetailByIDView(friendID: friendRow.id)
                         } label: {
-                            FriendRowView(friend: friend)
+                            FriendRowView(friendRow: friendRow)
                                 .swipeActions {
-                                    NavigationLink(destination: EditFriendView(friend: friend)) {
+                                    NavigationLink(destination: EditFriendView(friend: appStore.friend(for: friendRow))) {
                                         Label("Edit", systemImage: "pencil")
                                     }
                                     .tint(.blue)
                                     
                                     Button(role: .destructive) {
-                                        try? appStore.delete(friend)
+                                        deleteFriend(friendRow)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
                                     
                                     Button {
-                                        friend.toggleFavorite()
-                                        try? appStore.save(friend)
+                                        toggleFavorite(friendRow)
                                     } label: {
-                                        Label(friend.isFavorite ? "Unfavorite" : "Favorite", 
-                                              systemImage: friend.isFavorite ? "star.slash" : "star.fill")
+                                        Label(friendRow.isFavorite ? "Unfavorite" : "Favorite",
+                                              systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
                                     }
                                     .tint(.yellow)
                                 }
                                 .contextMenu {
-                                    NavigationLink(destination: EditFriendView(friend: friend)) {
+                                    NavigationLink(destination: EditFriendView(friend: appStore.friend(for: friendRow))) {
                                         Label("Edit Friend", systemImage: "pencil")
                                     }
                                     
                                     Button {
-                                        friend.toggleFavorite()
-                                        try? appStore.save(friend)
+                                        toggleFavorite(friendRow)
                                     } label: {
-                                        Label(friend.isFavorite ? "Remove from Favorites" : "Add to Favorites", 
-                                              systemImage: friend.isFavorite ? "star.slash" : "star.fill")
+                                        Label(friendRow.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                                              systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
                                     }
                                     
                                     Divider()
                                     
                                     Button(role: .destructive) {
-                                        try? appStore.delete(friend)
+                                        deleteFriend(friendRow)
                                     } label: {
                                         Label("Delete Friend", systemImage: "trash")
                                     }
@@ -255,8 +252,18 @@ struct FriendListView: View {
     
     private func deleteFriends(at offsets: IndexSet) {
         for index in offsets {
-            try? appStore.delete(appStore.friend(for: filteredFriends[index]))
+            deleteFriend(filteredFriends[index])
         }
+    }
+
+    private func deleteFriend(_ friendRow: StoredFriend) {
+        try? appStore.deleteFriend(id: friendRow.id)
+    }
+
+    private func toggleFavorite(_ friendRow: StoredFriend) {
+        let friend = appStore.friend(for: friendRow)
+        friend.toggleFavorite()
+        try? appStore.save(friend)
     }
     
     private func addSampleFriends() {

@@ -8,16 +8,39 @@
 import SwiftUI
 
 struct FriendRowView: View {
-    let friend: Friend
+    let name: String
+    let email: String?
+    let phone: String?
+    let jobTitle: String?
+    let company: String?
+    let isFavorite: Bool
+
+    init(friend: Friend) {
+        self.name = friend.name
+        self.email = friend.email
+        self.phone = friend.phone
+        self.jobTitle = friend.jobTitle
+        self.company = friend.company
+        self.isFavorite = friend.isFavorite
+    }
+
+    init(friendRow: StoredFriend) {
+        self.name = friendRow.name
+        self.email = friendRow.email
+        self.phone = friendRow.phone
+        self.jobTitle = friendRow.jobTitle
+        self.company = friendRow.company
+        self.isFavorite = friendRow.isFavorite
+    }
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(friend.name)
+                    Text(name)
                         .font(.headline)
                     
-                    if friend.isFavorite {
+                    if isFavorite {
                         Image(systemName: "star.fill")
                             .foregroundColor(.yellow)
                             .font(.caption)
@@ -35,7 +58,7 @@ struct FriendRowView: View {
             
             // Contact buttons
             HStack(spacing: 16) {
-                if friend.phone != nil {
+                if phone != nil {
                     Button {
                         // Phone action
                     } label: {
@@ -45,7 +68,7 @@ struct FriendRowView: View {
                     }
                 }
                 
-                if friend.email != nil {
+                if email != nil {
                     Button {
                         // Email action
                     } label: {
@@ -61,15 +84,15 @@ struct FriendRowView: View {
     
     // Build professional info from job title and company
     private var friendProfessionalInfo: String {
-        let hasJobTitle = friend.jobTitle != nil && !friend.jobTitle!.isEmpty
-        let hasCompany = friend.company != nil && !friend.company!.isEmpty
+        let hasJobTitle = jobTitle != nil && !jobTitle!.isEmpty
+        let hasCompany = company != nil && !company!.isEmpty
         
         if hasJobTitle && hasCompany {
-            return "\(friend.jobTitle!) at \(friend.company!)"
+            return "\(jobTitle!) at \(company!)"
         } else if hasJobTitle {
-            return friend.jobTitle!
+            return jobTitle!
         } else if hasCompany {
-            return friend.company!
+            return company!
         } else {
             return ""
         }
