@@ -6,6 +6,9 @@ import SQLiteData
 final class AppStore {
     @ObservationIgnored
     @Dependency(\.defaultDatabase) private var database
+    @ObservationIgnored private var deletedEventIDs: Set<UUID> = []
+    @ObservationIgnored private var deletedFriendIDs: Set<UUID> = []
+    @ObservationIgnored private var deletedProfileIDs: Set<UUID> = []
 
     var events: [Event] = []
     var friends: [Friend] = []
@@ -122,69 +125,93 @@ final class AppStore {
                 )
             }
         }
+        let eventRowIDs = Set(eventRows.map(\.id))
+        let friendRowIDs = Set(friendRows.map(\.id))
+        let profileRowIDs = Set(profileRows.map(\.id))
+        let attendeeRowIDs = Set(attendeeRows.map(\.id))
+        let wishRowIDs = Set(wishRows.map(\.id))
+        let deletedEventIDs = deletedEventIDs.subtracting(eventRowIDs)
+        let deletedFriendIDs = deletedFriendIDs.subtracting(friendRowIDs)
+        let deletedProfileIDs = deletedProfileIDs.subtracting(profileRowIDs)
 
         try database.write { db in
-            let existingEvents = Set(try StoredEvent.fetchAll(db).map(\.id))
-            let existingFriends = Set(try StoredFriend.fetchAll(db).map(\.id))
-            let existingProfiles = Set(try StoredProfile.fetchAll(db).map(\.id))
-            let existingAttendees = Set(try StoredEventAttendee.fetchAll(db).map(\.id))
-            let existingWishes = Set(try StoredEventWish.fetchAll(db).map(\.id))
+            let existingAttendees = try StoredEventAttendee.fetchAll(db)
+            let existingWishes = try StoredEventWish.fetchAll(db)
 
             for row in eventRows {
                 try StoredEvent.upsert { row.draft }.execute(db)
-            }
-            for id in existingEvents.subtracting(Set(eventRows.map(\.id))) {
-                try db.execute(sql: #"DELETE FROM "storedEvents" WHERE "id" = ?"#, arguments: [id.uuidString])
             }
 
             for row in friendRows {
                 try StoredFriend.upsert { row.draft }.execute(db)
             }
-            for id in existingFriends.subtracting(Set(friendRows.map(\.id))) {
-                try db.execute(sql: #"DELETE FROM "storedFriends" WHERE "id" = ?"#, arguments: [id.uuidString])
-            }
 
             for row in profileRows {
                 try StoredProfile.upsert { row.draft }.execute(db)
-            }
-            for id in existingProfiles.subtracting(Set(profileRows.map(\.id))) {
-                try db.execute(sql: #"DELETE FROM "storedProfiles" WHERE "id" = ?"#, arguments: [id.uuidString])
             }
 
             for row in attendeeRows {
                 try StoredEventAttendee.upsert { row.draft }.execute(db)
             }
-            for id in existingAttendees.subtracting(Set(attendeeRows.map(\.id))) {
-                try db.execute(sql: #"DELETE FROM "storedEventAttendees" WHERE "id" = ?"#, arguments: [id])
+            for row in existingAttendees {
+                let relationWasRemovedFromLoadedEvent = eventRowIDs.contains(row.eventID) && !attendeeRowIDs.contains(row.id)
+                let parentWasDeleted = deletedEventIDs.contains(row.eventID) || deletedFriendIDs.contains(row.friendID)
+                if relationWasRemovedFromLoadedEvent || parentWasDeleted {
+                    try db.execute(sql: #"DELETE FROM "storedEventAttendees" WHERE "id" = ?"#, arguments: [row.id])
+                }
             }
 
             for row in wishRows {
                 try StoredEventWish.upsert { row.draft }.execute(db)
             }
-            for id in existingWishes.subtracting(Set(wishRows.map(\.id))) {
-                try db.execute(sql: #"DELETE FROM "storedEventWishes" WHERE "id" = ?"#, arguments: [id])
+            for row in existingWishes {
+                let relationWasRemovedFromLoadedEvent = eventRowIDs.contains(row.eventID) && !wishRowIDs.contains(row.id)
+                let parentWasDeleted = deletedEventIDs.contains(row.eventID) || deletedFriendIDs.contains(row.friendID)
+                if relationWasRemovedFromLoadedEvent || parentWasDeleted {
+                    try db.execute(sql: #"DELETE FROM "storedEventWishes" WHERE "id" = ?"#, arguments: [row.id])
+                }
+            }
+
+            for id in deletedEventIDs {
+                try db.execute(sql: #"DELETE FROM "storedEvents" WHERE "id" = ?"#, arguments: [id.uuidString])
+            }
+
+            for id in deletedFriendIDs {
+                try db.execute(sql: #"DELETE FROM "storedFriends" WHERE "id" = ?"#, arguments: [id.uuidString])
+            }
+
+            for id in deletedProfileIDs {
+                try db.execute(sql: #"DELETE FROM "storedProfiles" WHERE "id" = ?"#, arguments: [id.uuidString])
             }
         }
+
+        self.deletedEventIDs.subtract(deletedEventIDs)
+        self.deletedFriendIDs.subtract(deletedFriendIDs)
+        self.deletedProfileIDs.subtract(deletedProfileIDs)
     }
 
     func insert(_ event: Event) {
         guard !events.contains(where: { $0.id == event.id }) else { return }
+        deletedEventIDs.remove(event.id)
         events.append(event)
         events.sort { $0.startDate < $1.startDate }
     }
 
     func insert(_ friend: Friend) {
         guard !friends.contains(where: { $0.id == friend.id }) else { return }
+        deletedFriendIDs.remove(friend.id)
         friends.append(friend)
         friends.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     func insert(_ profile: Profile) {
         guard !profiles.contains(where: { $0.id == profile.id }) else { return }
+        deletedProfileIDs.remove(profile.id)
         profiles.append(profile)
     }
 
     func delete(_ event: Event) {
+        deletedEventIDs.insert(event.id)
         events.removeAll { $0.id == event.id }
         for friend in friends {
             friend.events.removeAll { $0.id == event.id }
@@ -193,6 +220,7 @@ final class AppStore {
     }
 
     func delete(_ friend: Friend) {
+        deletedFriendIDs.insert(friend.id)
         friends.removeAll { $0.id == friend.id }
         for event in events {
             event.removeFriend(friend.id)
@@ -201,10 +229,12 @@ final class AppStore {
     }
 
     func delete(_ profile: Profile) {
+        deletedProfileIDs.insert(profile.id)
         profiles.removeAll { $0.id == profile.id }
     }
 
     func deleteAllEvents() {
+        deletedEventIDs.formUnion(events.map(\.id))
         events.removeAll()
         for friend in friends {
             friend.events.removeAll()
@@ -213,6 +243,7 @@ final class AppStore {
     }
 
     func deleteAllFriends() {
+        deletedFriendIDs.formUnion(friends.map(\.id))
         friends.removeAll()
         for event in events {
             event.attendees.removeAll()
@@ -221,6 +252,7 @@ final class AppStore {
     }
 
     func deleteAllProfiles() {
+        deletedProfileIDs.formUnion(profiles.map(\.id))
         profiles.removeAll()
     }
 

@@ -56,7 +56,7 @@ EventBuddy is an iOS app designed to help you manage events, connect with friend
 
 ### Technical Features
 - [x] Save data in SwiftData
-- [x] Set up SQLiteData `defaultSyncEngine` for CloudKit sync
+- [x] Set up SQLiteData `defaultSyncEngine` so distinct local datasets can merge through CloudKit sync
 - [ ] Available on iPhone and Mac
 - [ ] Use App Clips
 
