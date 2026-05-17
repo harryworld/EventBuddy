@@ -504,18 +504,11 @@ enum MigrationValidationStorage {
     }
 
     static func productionLegacyStoreURL() -> URL? {
-        let candidates = [
-            try? appSandboxLegacyStoreURL(),
-            try? legacyStoreURL()
-        ]
-        var seen = Set<String>()
-        for candidate in candidates.compactMap(\.self) {
-            guard seen.insert(candidate.path).inserted else { continue }
-            if FileManager.default.fileExists(atPath: candidate.path) {
-                return candidate
-            }
+        guard let url = try? legacyStoreURL(),
+              FileManager.default.fileExists(atPath: url.path) else {
+            return nil
         }
-        return nil
+        return url
     }
 
     static func legacyMigrationBackupRootURL() throws -> URL {
@@ -977,7 +970,7 @@ enum LegacySwiftDataMigration {
         UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
         UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
         print(
-            "✅ \(alreadyContainsLegacyData ? "Verified" : "Migrated") legacy SwiftData store from \(legacyStoreURL.path): " +
+            "✅ \(alreadyContainsLegacyData ? "Verified" : "Migrated") legacy SwiftData store from app group \(legacyStoreURL.path): " +
             "\(snapshot.events.count) events, \(snapshot.friends.count) friends, \(snapshot.profileCount) profiles"
         )
         return alreadyContainsLegacyData ? nil : snapshot
