@@ -9,6 +9,7 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 contactHarrySection
+                aboutAuthorSection
                 appearanceSection
                 shareAppSection
                 dataSection
@@ -16,6 +17,51 @@ struct SettingsView: View {
                 aboutProjectSection
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private var aboutAuthorSection: some View {
+        Section {
+            Link(destination: URL(string: "https://buildwithharry.com")!) {
+                HStack {
+                    Label("Build with Harry", systemImage: "hammer")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+
+            Link(destination: URL(string: "https://useaida.app")!) {
+                HStack {
+                    Label("Aida Website", systemImage: "globe")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+
+            Link(destination: URL(string: "https://apps.apple.com/us/app/aida-simple-fast-daily-planner/id6757127406")!) {
+                HStack {
+                    Label("Aida on App Store", systemImage: "apple.logo")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+        } header: {
+            Text("About Author")
         }
     }
     
@@ -191,7 +237,7 @@ struct SettingsView: View {
         } header: {
             Text("Data")
         } footer: {
-            Text("WWDCBuddy v\(appVersion) (\(buildNumber))")
+            Text("WWDCBuddy \(appVersion) (\(buildNumber))")
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 8)
         }
