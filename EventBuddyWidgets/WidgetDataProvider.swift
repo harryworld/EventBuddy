@@ -33,7 +33,7 @@ class WidgetDataProvider {
     private lazy var modelContext = ModelContext(store: store)
 
     private init() {
-        _ = try? EventBuddyDatabase.bootstrap(enableSyncEngine: false)
+        _ = try? EventBuddyDatabase.bootstrap(configureSyncEngine: false)
         try? modelContext.reload()
     }
     

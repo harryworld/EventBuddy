@@ -199,11 +199,11 @@ enum EventBuddyDatabase {
         return database
     }
 
-    static func bootstrap(enableSyncEngine: Bool) throws -> any DatabaseWriter {
-        let database = try makeDatabase(attachMetadatabase: enableSyncEngine)
+    static func bootstrap(configureSyncEngine: Bool, startSyncEngine: Bool = true) throws -> any DatabaseWriter {
+        let database = try makeDatabase(attachMetadatabase: configureSyncEngine)
         try prepareDependencies {
             $0.defaultDatabase = database
-            if enableSyncEngine {
+            if configureSyncEngine {
                 $0.defaultSyncEngine = try SyncEngine(
                     for: database,
                     tables: StoredEvent.self,
@@ -211,7 +211,8 @@ enum EventBuddyDatabase {
                     StoredProfile.self,
                     StoredEventAttendee.self,
                     StoredEventWish.self,
-                    containerIdentifier: cloudKitContainerIdentifier
+                    containerIdentifier: cloudKitContainerIdentifier,
+                    startImmediately: startSyncEngine
                 )
             }
         }

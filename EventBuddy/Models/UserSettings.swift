@@ -1,4 +1,6 @@
 import Foundation
+import CloudKit
+import SQLiteData
 import SwiftUI
 
 enum AppTheme: String, CaseIterable, Identifiable {
@@ -64,20 +66,79 @@ struct PrivacySettings {
     var contactInfoVisibility: PrivacyLevel = .friendsOnly
 }
 
+enum CloudKitAccountAvailability: Equatable {
+    case checking
+    case available
+    case unavailable(String)
+
+    var canUseSync: Bool {
+        self == .available
+    }
+
+    var description: String {
+        switch self {
+        case .checking:
+            return "Checking..."
+        case .available:
+            return "Available"
+        case let .unavailable(message):
+            return message
+        }
+    }
+}
+
 @Observable class UserSettings {
+    static let cloudKitSyncEnabledKey = "EventBuddy.UserSettings.cloudKitSyncEnabled"
+    static let cloudKitLastSyncedAtKey = "EventBuddy.UserSettings.cloudKitLastSyncedAt"
+
+    @ObservationIgnored private let userDefaults: UserDefaults
+
     var notificationsEnabled: Bool = true
     var eventReminders: Bool = true
     var friendRequestNotifications: Bool = true
     var eventInviteNotifications: Bool = true
     var appTheme: AppTheme = .system
     var privacySettings: PrivacySettings = PrivacySettings()
-    var dataSync: Bool = false
-    
+    var cloudKitSyncEnabled: Bool {
+        didSet {
+            userDefaults.set(cloudKitSyncEnabled, forKey: Self.cloudKitSyncEnabledKey)
+        }
+    }
+    var cloudKitLastSyncedAt: Date? {
+        didSet {
+            if let cloudKitLastSyncedAt {
+                userDefaults.set(cloudKitLastSyncedAt, forKey: Self.cloudKitLastSyncedAtKey)
+            } else {
+                userDefaults.removeObject(forKey: Self.cloudKitLastSyncedAtKey)
+            }
+        }
+    }
+
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        self.cloudKitSyncEnabled = Self.storedCloudKitSyncEnabled(in: userDefaults)
+        self.cloudKitLastSyncedAt = userDefaults.object(forKey: Self.cloudKitLastSyncedAtKey) as? Date
+    }
+
+    static func storedCloudKitSyncEnabled(in userDefaults: UserDefaults = .standard) -> Bool {
+        if let storedValue = userDefaults.object(forKey: cloudKitSyncEnabledKey) as? Bool {
+            return storedValue
+        }
+        return true
+    }
+
     // Add other settings as needed
 }
 
+@MainActor
 @Observable class SettingsStore {
+    @ObservationIgnored
+    @Dependency(\.defaultSyncEngine) private var syncEngine
+
     var settings: UserSettings
+    var cloudKitAccountAvailability: CloudKitAccountAvailability = .checking
+    var cloudKitSyncError: String?
+    var isUpdatingCloudKitSync = false
     
     init() {
         self.settings = UserSettings()
@@ -85,5 +146,98 @@ struct PrivacySettings {
     
     func resetToDefaults() {
         settings = UserSettings()
+    }
+
+    var cloudKitLastSyncedDescription: String {
+        guard let date = settings.cloudKitLastSyncedAt else {
+            return "Not yet"
+        }
+        return date.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    var canToggleCloudKitSync: Bool {
+        cloudKitAccountAvailability.canUseSync && !isUpdatingCloudKitSync
+    }
+
+    func refreshCloudKitAccountAvailability() async {
+        cloudKitAccountAvailability = .checking
+
+        do {
+            let status = try await CKContainer(
+                identifier: EventBuddyDatabase.cloudKitContainerIdentifier
+            )
+            .accountStatus()
+            updateCloudKitAccountAvailability(for: status)
+        } catch {
+            setCloudKitAccountUnavailable("iCloud account status unavailable")
+        }
+    }
+
+    func setCloudKitSyncEnabled(_ isEnabled: Bool) {
+        guard settings.cloudKitSyncEnabled != isEnabled else { return }
+        cloudKitSyncError = nil
+
+        guard !isEnabled || cloudKitAccountAvailability.canUseSync else {
+            settings.cloudKitSyncEnabled = false
+            cloudKitSyncError = cloudKitAccountAvailability.description
+            syncEngine.stop()
+            return
+        }
+
+        settings.cloudKitSyncEnabled = isEnabled
+
+        if isEnabled {
+            Task {
+                await syncCloudKitIfEnabled()
+            }
+        } else {
+            syncEngine.stop()
+        }
+    }
+
+    func syncCloudKitIfEnabled() async {
+        guard settings.cloudKitSyncEnabled, !isUpdatingCloudKitSync else { return }
+
+        isUpdatingCloudKitSync = true
+        defer { isUpdatingCloudKitSync = false }
+
+        await refreshCloudKitAccountAvailability()
+        guard cloudKitAccountAvailability.canUseSync else { return }
+
+        do {
+            try await syncEngine.start()
+            try await syncEngine.syncChanges()
+            settings.cloudKitLastSyncedAt = Date()
+            cloudKitSyncError = nil
+        } catch {
+            settings.cloudKitSyncEnabled = false
+            cloudKitSyncError = "iCloud sync could not start. Check iCloud availability and try again."
+        }
+    }
+
+    private func updateCloudKitAccountAvailability(for status: CKAccountStatus) {
+        switch status {
+        case .available:
+            cloudKitAccountAvailability = .available
+            cloudKitSyncError = nil
+        case .noAccount:
+            setCloudKitAccountUnavailable("Sign in to iCloud")
+        case .restricted:
+            setCloudKitAccountUnavailable("iCloud is restricted")
+        case .couldNotDetermine:
+            setCloudKitAccountUnavailable("Could not determine iCloud status")
+        case .temporarilyUnavailable:
+            setCloudKitAccountUnavailable("iCloud is temporarily unavailable")
+        @unknown default:
+            setCloudKitAccountUnavailable("iCloud account unavailable")
+        }
+    }
+
+    private func setCloudKitAccountUnavailable(_ message: String) {
+        cloudKitAccountAvailability = .unavailable(message)
+        if settings.cloudKitSyncEnabled {
+            settings.cloudKitSyncEnabled = false
+        }
+        syncEngine.stop()
     }
 } 

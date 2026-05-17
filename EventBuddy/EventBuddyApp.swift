@@ -26,7 +26,11 @@ struct EventBuddyApp: App {
             try? validationMode.prepareForLaunch()
         }
 
-        _ = try? EventBuddyDatabase.bootstrap(enableSyncEngine: validationMode?.shouldEnableSyncEngine ?? true)
+        let shouldConfigureSyncEngine = validationMode?.shouldEnableSyncEngine ?? true
+        _ = try? EventBuddyDatabase.bootstrap(
+            configureSyncEngine: shouldConfigureSyncEngine,
+            startSyncEngine: false
+        )
         _appEnvironment = State(initialValue: AppEnvironment())
         _liveActivityService = State(initialValue: LiveActivityService())
     }

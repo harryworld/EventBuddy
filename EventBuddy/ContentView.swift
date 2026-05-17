@@ -14,7 +14,7 @@ struct ContentView: View {
     @State private var showingSyncError = false
     @State private var navigationCoordinator = NavigationCoordinator()
     
-    private let settingsStore = SettingsStore()
+    @State private var settingsStore = SettingsStore()
     
     // Flag to determine if we're in preview mode
     private var isPreview: Bool {
@@ -120,6 +120,8 @@ struct ContentView: View {
                         showingSyncError = true
                     }
                 }
+
+                await settingsStore.syncCloudKitIfEnabled()
             } else {
                 // In preview mode, use the old sample data
                 await MainActor.run {
