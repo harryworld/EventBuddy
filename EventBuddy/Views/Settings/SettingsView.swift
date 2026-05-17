@@ -241,7 +241,7 @@ struct SettingsView: View {
                 
                 Spacer()
                 
-                Text("Hwang & ChatGPT")
+                Text("Codex")
                     .foregroundStyle(.secondary)
             }
         } header: {
