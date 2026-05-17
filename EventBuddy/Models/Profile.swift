@@ -35,7 +35,7 @@ final class Profile {
         self.id = id
         self.name = name
         self.bio = bio
-        self.email = email
+        self.email = Self.normalizedEmail(email)
         self.phone = phone
         self.profileImage = profileImage
         self.socialMediaAccounts = socialMediaAccounts
@@ -50,6 +50,13 @@ final class Profile {
     // Update the updatedAt timestamp
     func markAsUpdated() {
         updatedAt = Date()
+    }
+
+    static func normalizedEmail(_ email: String?) -> String? {
+        guard let email else { return nil }
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedEmail.isEmpty else { return nil }
+        return trimmedEmail.lowercased()
     }
 }
 

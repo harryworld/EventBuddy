@@ -354,7 +354,7 @@ class DataImportService {
         if let profile = profiles.first {
             profile.name = dto.name
             profile.bio = dto.bio
-            profile.email = dto.email
+            profile.email = Profile.normalizedEmail(dto.email)
             profile.phone = dto.phone
             profile.profileImage = dto.profileImage
             profile.socialMediaAccounts = dto.socialMediaAccounts
@@ -369,7 +369,7 @@ class DataImportService {
                 id: UUID(uuidString: dto.id) ?? UUID(),
                 name: dto.name,
                 bio: dto.bio,
-                email: dto.email,
+                email: Profile.normalizedEmail(dto.email),
                 phone: dto.phone,
                 profileImage: dto.profileImage,
                 socialMediaAccounts: dto.socialMediaAccounts,
@@ -391,7 +391,7 @@ class DataImportService {
 
         if let profile = profiles.first {
             profile.name = displayName(for: contact)
-            profile.email = contact.emailAddresses.first.map { String($0.value) }
+            profile.email = Profile.normalizedEmail(contact.emailAddresses.first.map { String($0.value) })
             profile.phone = contact.phoneNumbers.first?.value.stringValue
             profile.profileImage = contact.imageData ?? profile.profileImage
             profile.socialMediaAccounts = socialMediaAccounts
@@ -403,7 +403,7 @@ class DataImportService {
             let profile = Profile(
                 name: displayName(for: contact),
                 bio: "",
-                email: contact.emailAddresses.first.map { String($0.value) },
+                email: Profile.normalizedEmail(contact.emailAddresses.first.map { String($0.value) }),
                 phone: contact.phoneNumbers.first?.value.stringValue,
                 profileImage: contact.imageData,
                 socialMediaAccounts: socialMediaAccounts,

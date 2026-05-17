@@ -210,8 +210,6 @@ class DataExportService {
         dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
         let timestamp = dateFormatter.string(from: Date())
         
-        let archiveURL = directory.appendingPathComponent("EventBuddy_Export_\(timestamp).zip")
-        
         // Create a simple tar-like archive by concatenating files with headers
         // For iOS sharing, we'll create a folder structure instead of a zip
         let exportFolderURL = directory.appendingPathComponent("EventBuddy_Export_\(timestamp)")
@@ -452,4 +450,4 @@ enum ExportError: LocalizedError {
             return "Failed to write export files"
         }
     }
-} 
+}

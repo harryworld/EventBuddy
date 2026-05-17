@@ -20,9 +20,12 @@ struct ProfileEditView: View {
                     TextField("Name", text: $profile.name)
                     TextField("Email", text: Binding(
                         get: { profile.email ?? "" },
-                        set: { profile.email = $0.isEmpty ? nil : $0 }
+                        set: { profile.email = Profile.normalizedEmail($0) }
                     ))
                         .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                     TextField("Phone", text: Binding(
                         get: { profile.phone ?? "" },
                         set: { profile.phone = $0.isEmpty ? nil : $0 }
