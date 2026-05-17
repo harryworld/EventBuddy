@@ -941,9 +941,11 @@ enum LegacySwiftDataMigration {
 
         let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(appStore: appStore)
         let alreadyAudited = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
+        let alreadyMigrated = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
         let alreadyContainsLegacyData = sqliteBefore.containsMigratedData(from: snapshot)
 
-        guard !alreadyAudited || !alreadyContainsLegacyData else {
+        if alreadyAudited || alreadyMigrated {
+            print("✅ Skipping legacy SwiftData migration; migration was already completed.")
             return nil
         }
 

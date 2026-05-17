@@ -278,17 +278,22 @@ final class Event: Identifiable, Hashable {
     
     // Check if this event needs updating based on a DTO
     func needsUpdate(from dto: EventDTO) -> Bool {
-        guard let dtoUpdatedAt = parseISO8601Date(dto.updatedAt) else {
+        guard let dtoStartDate = parseISO8601Date(dto.startDate),
+              let dtoEndDate = parseISO8601Date(dto.endDate),
+              let dtoUpdatedAt = parseISO8601Date(dto.updatedAt) else {
             return false
         }
         
         let dtoOriginalTimezone = extractTimezoneFromISO8601(dto.startDate)
         
-        return dtoUpdatedAt > updatedAt ||
-               title != dto.title ||
+        guard dtoUpdatedAt > updatedAt else { return false }
+
+        return title != dto.title ||
                eventDescription != dto.eventDescription ||
                location != dto.location ||
                address != dto.address ||
+               startDate != dtoStartDate ||
+               endDate != dtoEndDate ||
                eventType != dto.eventType ||
                notes != dto.notes ||
                requiresTicket != dto.requiresTicket ||
