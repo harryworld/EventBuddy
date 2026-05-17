@@ -438,7 +438,8 @@ enum MigrationFixtureData {
 
 enum MigrationValidationStorage {
     static let lastSyncDateKey = "EventSyncService.lastSyncDate"
-    static let legacyMigrationDidRunKey = "EventBuddy.LegacySwiftDataMigration.v1.didRun"
+    static let legacyMigrationDidRunKey = "EventBuddy.LegacySwiftDataMigration.v2.didRun"
+    static let legacyMigrationV1DidRunKey = "EventBuddy.LegacySwiftDataMigration.v1.didRun"
 
     static func appSandboxLegacyStoreURL() throws -> URL {
         guard let directory = FileManager.default.urls(
@@ -487,6 +488,7 @@ enum MigrationValidationStorage {
         try removeIfExists(try sqliteMetadataURL())
         UserDefaults.standard.removeObject(forKey: lastSyncDateKey)
         UserDefaults.standard.removeObject(forKey: legacyMigrationDidRunKey)
+        UserDefaults.standard.removeObject(forKey: legacyMigrationV1DidRunKey)
     }
 
     static func removeIfExists(_ url: URL) throws {
@@ -674,7 +676,7 @@ enum LegacySwiftDataStore {
         let friends = try context.fetch(SwiftData.FetchDescriptor<Friend>())
         let events = try context.fetch(SwiftData.FetchDescriptor<Event>())
 
-        let profileSnapshot = profiles.first.map {
+        let profileSnapshot = selectedProfile(from: profiles).map {
             MigrationProfileSnapshot(
                 id: $0.id,
                 name: $0.name,
@@ -740,6 +742,28 @@ enum LegacySwiftDataStore {
             .sorted { $0.startDate < $1.startDate }
 
         return MigrationSnapshot(profile: profileSnapshot, friends: friendSnapshots, events: eventSnapshots)
+    }
+
+    private static func selectedProfile(from profiles: [Profile]) -> Profile? {
+        profiles.sorted { lhs, rhs in
+            if isPlaceholderProfile(lhs) != isPlaceholderProfile(rhs) {
+                return !isPlaceholderProfile(lhs)
+            }
+            return lhs.updatedAt > rhs.updatedAt
+        }.first
+    }
+
+    private static func isPlaceholderProfile(_ profile: Profile) -> Bool {
+        (profile.name == "John Appleseed" &&
+            profile.email == "john@apple.com" &&
+            profile.company == "Apple Inc." &&
+            profile.title == "iOS Developer") ||
+        (profile.name == "Your Name" &&
+            profile.bio == "Add your bio here" &&
+            profile.email == nil &&
+            profile.phone == nil &&
+            profile.company.isEmpty &&
+            profile.title.isEmpty)
     }
 
     private static func makeContainer(storeURL: URL) throws -> ModelContainer {
@@ -830,8 +854,8 @@ enum LegacySwiftDataMigration {
             return
         }
 
-        if let sampleProfile = profiles.first(where: isSampleProfile) {
-            apply(snapshot, to: sampleProfile, includeID: true)
+        if let placeholderProfile = profiles.first(where: isPlaceholderProfile) {
+            apply(snapshot, to: placeholderProfile, includeID: true)
             return
         }
 
@@ -964,11 +988,17 @@ enum LegacySwiftDataMigration {
         event.updatedAt = snapshot.updatedAt
     }
 
-    private static func isSampleProfile(_ profile: Profile) -> Bool {
-        profile.name == "John Appleseed" &&
+    private static func isPlaceholderProfile(_ profile: Profile) -> Bool {
+        (profile.name == "John Appleseed" &&
             profile.email == "john@apple.com" &&
             profile.company == "Apple Inc." &&
-            profile.title == "iOS Developer"
+            profile.title == "iOS Developer") ||
+        (profile.name == "Your Name" &&
+            profile.bio == "Add your bio here" &&
+            profile.email == nil &&
+            profile.phone == nil &&
+            profile.company.isEmpty &&
+            profile.title.isEmpty)
     }
 }
 
