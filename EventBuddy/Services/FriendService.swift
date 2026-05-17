@@ -11,23 +11,23 @@ class FriendService {
     private static let sampleFriendsAddedKey = "EventBuddy.SampleFriendsAdded"
     
     // Add sample friends for demonstration purposes
-    static func addSampleFriends(modelContext: ModelContext) {
+    static func addSampleFriends(appStore: AppStore) {
         let sampleWasAdded = UserDefaults.standard.bool(forKey: sampleFriendsAddedKey)
         
         if !sampleWasAdded {
-            if hasAnyFriends(modelContext: modelContext) {
+            if hasAnyFriends(appStore: appStore) {
                 UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
                 return
             }
 
             // Rule 1: If sample was not added, insert it
-            insertSampleFriend(modelContext: modelContext)
+            insertSampleFriend(appStore: appStore)
             UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
         } else {
             // Rule 2: If sample was added before, check if it still exists
-            if sampleFriendExists(modelContext: modelContext) {
+            if sampleFriendExists(appStore: appStore) {
                 // Rule 3: If exists, update the sample instead of deleting and inserting
-                updateSampleFriend(modelContext: modelContext)
+                updateSampleFriend(appStore: appStore)
             } else {
                 // Rule 4: If not exists, ignore it
                 return
@@ -36,7 +36,7 @@ class FriendService {
     }
     
     // Insert the sample friend
-    private static func insertSampleFriend(modelContext: ModelContext) {
+    private static func insertSampleFriend(appStore: AppStore) {
         let sampleFriend = Friend(
             id: sampleFriendId,
             name: "John Appleseed",
@@ -53,12 +53,16 @@ class FriendService {
             isFavorite: true
         )
         
-        modelContext.insert(sampleFriend)
+        do {
+            try appStore.save(sampleFriend)
+        } catch {
+            print("Error saving sample friend: \(error)")
+        }
     }
 
-    private static func hasAnyFriends(modelContext: ModelContext) -> Bool {
+    private static func hasAnyFriends(appStore: AppStore) -> Bool {
         do {
-            return try !modelContext.fetch(FetchDescriptor<Friend>()).isEmpty
+            return try appStore.hasFriends()
         } catch {
             print("Error checking existing friends: \(error)")
             return false
@@ -66,16 +70,9 @@ class FriendService {
     }
     
     // Check if sample friend exists in database
-    private static func sampleFriendExists(modelContext: ModelContext) -> Bool {
-        let descriptor = FetchDescriptor<Friend>(
-            predicate: #Predicate<Friend> { friend in
-                friend.id == sampleFriendId
-            }
-        )
-        
+    private static func sampleFriendExists(appStore: AppStore) -> Bool {
         do {
-            let existingFriends = try modelContext.fetch(descriptor)
-            return !existingFriends.isEmpty
+            return try appStore.friend(id: sampleFriendId) != nil
         } catch {
             print("Error checking if sample friend exists: \(error)")
             return false
@@ -83,16 +80,9 @@ class FriendService {
     }
     
     // Update sample friend
-    private static func updateSampleFriend(modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Friend>(
-            predicate: #Predicate<Friend> { friend in
-                friend.id == sampleFriendId
-            }
-        )
-        
+    private static func updateSampleFriend(appStore: AppStore) {
         do {
-            let existingFriends = try modelContext.fetch(descriptor)
-            if let friend = existingFriends.first {
+            if let friend = try appStore.friend(id: sampleFriendId) {
                 friend.update(
                     name: "John Appleseed",
                     email: "john@apple.com",
@@ -108,8 +98,7 @@ class FriendService {
                     isFavorite: true
                 )
                 
-                // Save the changes to persist them
-                try modelContext.save()
+                try appStore.save(friend)
             }
         } catch {
             print("Error updating sample friend: \(error)")

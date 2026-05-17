@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DataExportTestView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
     
     @State private var isCreatingData = false
@@ -107,6 +107,7 @@ struct DataExportTestView: View {
             
             // Create relationships
             createRelationships(events: events, friends: friends)
+            try? appStore.save(events, friends: friends)
             
             await MainActor.run {
                 isCreatingData = false
@@ -128,10 +129,6 @@ struct DataExportTestView: View {
             Friend(name: "Ivy Chen", email: "ivy@example.com", phone: "+1-555-0109", jobTitle: "Frontend Developer", company: "Airbnb", socialMediaHandles: ["codepen": "ivychen"], notes: "React specialist"),
             Friend(name: "Jack Anderson", email: "jack@example.com", phone: "+1-555-0110", jobTitle: "Backend Developer", company: "Uber", socialMediaHandles: ["stackoverflow": "jackanderson"], notes: "API design guru")
         ]
-        
-        for friend in sampleFriends {
-            modelContext.insert(friend)
-        }
         
         return sampleFriends
     }
@@ -201,10 +198,6 @@ struct DataExportTestView: View {
             )
         ]
         
-        for event in sampleEvents {
-            modelContext.insert(event)
-        }
-        
         return sampleEvents
     }
     
@@ -243,5 +236,4 @@ struct DataExportTestView: View {
 
 #Preview {
     DataExportTestView()
-        .modelContainer(for: [Event.self, Friend.self])
-} 
+}

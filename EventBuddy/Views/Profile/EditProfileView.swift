@@ -2,45 +2,66 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileEditView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
-    @Bindable var profile: Profile
+    let profile: Profile
+    @State private var name: String
+    @State private var bio: String
+    @State private var email: String
+    @State private var phone: String
+    @State private var title: String
+    @State private var company: String
+    @State private var avatarSystemName: String
+    @State private var socialMediaAccounts: [String: String]
     @State private var newSocialService: String = "twitter"
     @State private var newSocialUsername: String = ""
     @State private var showingSocialLinkSheet = false
     
     var onSave: () -> Void
+
+    init(profile: Profile, onSave: @escaping () -> Void) {
+        self.profile = profile
+        self.onSave = onSave
+        _name = State(initialValue: profile.name)
+        _bio = State(initialValue: profile.bio)
+        _email = State(initialValue: profile.email ?? "")
+        _phone = State(initialValue: profile.phone ?? "")
+        _title = State(initialValue: profile.title)
+        _company = State(initialValue: profile.company)
+        _avatarSystemName = State(initialValue: profile.avatarSystemName)
+        _socialMediaAccounts = State(initialValue: profile.socialMediaAccounts)
+    }
     
     var body: some View {
         NavigationStack {
             Form {
                 Section("Basic Information") {
-                    TextField("Name", text: $profile.name)
+                    TextField("Name", text: $name)
                     TextField("Email", text: Binding(
-                        get: { profile.email ?? "" },
-                        set: { profile.email = Profile.normalizedEmail($0) }
+                        get: { email },
+                        set: { email = Profile.normalizedEmail($0) ?? "" }
                     ))
                         .keyboardType(.emailAddress)
                         .textContentType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     TextField("Phone", text: Binding(
-                        get: { profile.phone ?? "" },
-                        set: { profile.phone = $0.isEmpty ? nil : $0 }
+                        get: { phone },
+                        set: { phone = $0 }
                     ))
                         .keyboardType(.phonePad)
-                    TextField("iOS Developer passionate about SwiftUI", text: $profile.bio, axis: .vertical)
+                    TextField("iOS Developer passionate about SwiftUI", text: $bio, axis: .vertical)
                         .lineLimit(3...6)
                 }
                 
                 Section("Professional Information") {
-                    TextField("Job Title", text: $profile.title)
-                    TextField("Company", text: $profile.company)
+                    TextField("Job Title", text: $title)
+                    TextField("Company", text: $company)
                 }
                 
                 Section("Avatar") {
-                    Picker("Avatar", selection: $profile.avatarSystemName) {
+                    Picker("Avatar", selection: $avatarSystemName) {
                         ForEach(avatarOptions, id: \.self) { option in
                             Label {
                                 Text(avatarNames[option] ?? "")
@@ -53,8 +74,8 @@ struct ProfileEditView: View {
                 }
                 
                 Section("Social Links") {
-                    ForEach(Array(profile.socialMediaAccounts.keys.sorted()), id: \.self) { service in
-                        if let username = profile.socialMediaAccounts[service], !username.isEmpty {
+                    ForEach(Array(socialMediaAccounts.keys.sorted()), id: \.self) { service in
+                        if let username = socialMediaAccounts[service], !username.isEmpty {
                             HStack {
                                 Image(systemName: socialMediaIcon(for: service))
                                     .foregroundColor(.blue)
@@ -162,7 +183,7 @@ struct ProfileEditView: View {
     ]
     
     private let socialServices = [
-        "twitter", "linkedin", "github", "instagram", 
+        "twitter", "linkedin", "github", "instagram",
         "facebook", "threads", "youtube"
     ]
     
@@ -180,25 +201,33 @@ struct ProfileEditView: View {
     }
     
     private func deleteSocialLink(at offsets: IndexSet) {
-        let sortedKeys = Array(profile.socialMediaAccounts.keys.sorted())
+        let sortedKeys = Array(socialMediaAccounts.keys.sorted())
         for index in offsets {
             let keyToRemove = sortedKeys[index]
-            profile.socialMediaAccounts.removeValue(forKey: keyToRemove)
+            socialMediaAccounts.removeValue(forKey: keyToRemove)
         }
     }
     
     private func addSocialLink() {
         let cleanUsername = newSocialUsername.hasPrefix("@") ? String(newSocialUsername.dropFirst()) : newSocialUsername
-        profile.socialMediaAccounts[newSocialService] = cleanUsername
+        socialMediaAccounts[newSocialService] = cleanUsername
         newSocialUsername = ""
         newSocialService = "twitter"
     }
     
     private func saveProfile() {
+        profile.name = name
+        profile.bio = bio
+        profile.email = email.isEmpty ? nil : Profile.normalizedEmail(email)
+        profile.phone = phone.isEmpty ? nil : phone
+        profile.title = title
+        profile.company = company
+        profile.avatarSystemName = avatarSystemName
+        profile.socialMediaAccounts = socialMediaAccounts
         profile.markAsUpdated()
         
         do {
-            try modelContext.save()
+            try appStore.save(profile)
         } catch {
             print("Error saving profile: \(error)")
         }
@@ -209,5 +238,4 @@ struct ProfileEditView: View {
     let environment = AppEnvironment()
     return ProfileEditView(profile: Profile.preview, onSave: {})
         .environment(environment.store)
-        .environment(\.modelContext, environment.modelContext)
-} 
+}

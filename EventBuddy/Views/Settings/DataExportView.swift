@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DataExportView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
     
     @State private var exportService: DataExportService?
@@ -63,7 +63,7 @@ struct DataExportView: View {
             }
             .onAppear {
                 if exportService == nil {
-                    exportService = DataExportService(modelContext: modelContext)
+                    exportService = DataExportService(appStore: appStore)
                 }
             }
             .sheet(isPresented: $showingShareSheet) {
@@ -280,5 +280,4 @@ struct DataExportShareSheet: UIViewControllerRepresentable {
 
 #Preview {
     DataExportView()
-        .modelContainer(for: [Event.self, Friend.self])
 }

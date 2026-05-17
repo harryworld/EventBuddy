@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MigrationValidationView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppStore.self) private var appStore
 
     let mode: MigrationValidationMode
 
@@ -185,7 +185,7 @@ struct MigrationValidationView: View {
                 let snapshot = try LegacySwiftDataStore.seedFixture()
                 phase = .legacy(snapshot)
             case .sqliteMigrated:
-                let comparison = try SQLiteMigrationValidator.migrateLegacyStoreToSQLite(modelContext: modelContext)
+                let comparison = try SQLiteMigrationValidator.migrateLegacyStoreToSQLite(appStore: appStore)
                 phase = .sqlite(comparison)
             }
         } catch {

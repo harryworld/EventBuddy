@@ -31,7 +31,11 @@ struct EventBuddyApp: App {
             configureSyncEngine: shouldConfigureSyncEngine,
             startSyncEngine: false
         )
-        _appEnvironment = State(initialValue: AppEnvironment())
+        _appEnvironment = State(
+            initialValue: AppEnvironment(
+                saveDidComplete: validationMode == nil ? CloudKitSyncPusher.schedulePushAfterLocalChange : {}
+            )
+        )
         _liveActivityService = State(initialValue: LiveActivityService())
     }
 
@@ -39,7 +43,6 @@ struct EventBuddyApp: App {
         WindowGroup {
             rootView
                 .environment(appEnvironment.store)
-                .environment(\.modelContext, appEnvironment.modelContext)
                 .environment(liveActivityService)
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     guard validationMode == nil else { return }
@@ -47,9 +50,8 @@ struct EventBuddyApp: App {
                     
                     // Check for ongoing events and start Live Activity when app becomes foreground
                     Task { @MainActor in
-                        try? appEnvironment.modelContext.reload()
-                        liveActivityService.setModelContext(appEnvironment.modelContext)
-                        await liveActivityService.checkAndStartLiveActivityForOngoingEvents(modelContext: appEnvironment.modelContext)
+                        liveActivityService.setAppStore(appEnvironment.appStore)
+                        await liveActivityService.checkAndStartLiveActivityForOngoingEvents(appStore: appEnvironment.appStore)
                         // Force an immediate update to refresh the display
                         await liveActivityService.forceUpdate()
                     }
@@ -63,8 +65,8 @@ struct EventBuddyApp: App {
                     
                     // Start Live Activity for ongoing events when app goes to background
                     Task { @MainActor in
-                        liveActivityService.setModelContext(appEnvironment.modelContext)
-                        await liveActivityService.handleAppEnteringBackground(modelContext: appEnvironment.modelContext)
+                        liveActivityService.setAppStore(appEnvironment.appStore)
+                        await liveActivityService.handleAppEnteringBackground(appStore: appEnvironment.appStore)
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
@@ -73,7 +75,7 @@ struct EventBuddyApp: App {
                     
                     // Double-check Live Activity is running for ongoing events
                     Task { @MainActor in
-                        await liveActivityService.handleAppEnteringBackground(modelContext: appEnvironment.modelContext)
+                        await liveActivityService.handleAppEnteringBackground(appStore: appEnvironment.appStore)
                     }
                     
                     // Refresh widgets when app goes to background

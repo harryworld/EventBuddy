@@ -6,7 +6,7 @@ import UIKit
 @Observable
 class LiveActivityService {
     private var currentActivity: Activity<EventBuddyWidgetsAttributes>?
-    private var modelContext: ModelContext?
+    private var appStore: AppStore?
     private var updateTimer: Timer?
     
     init() {
@@ -25,8 +25,8 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] notification in
             Task { @MainActor [weak self] in
-                guard let self, let modelContext = self.modelContext else { return }
-                await self.checkAndStartLiveActivityForOngoingEvents(modelContext: modelContext)
+                guard let self, let appStore = self.appStore else { return }
+                await self.checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
             }
         }
         
@@ -37,8 +37,8 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, let modelContext = self.modelContext else { return }
-                await self.handleAppEnteringBackground(modelContext: modelContext)
+                guard let self, let appStore = self.appStore else { return }
+                await self.handleAppEnteringBackground(appStore: appStore)
             }
         }
         
@@ -48,7 +48,7 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, self.modelContext != nil else { return }
+                guard let self, self.appStore != nil else { return }
                 print("🔴 LiveActivityService: App entering foreground - refreshing Live Activity")
                 await self.forceUpdate()
             }
@@ -59,7 +59,7 @@ class LiveActivityService {
         scheduleTimer(interval: 120.0, logMessage: "🔴 LiveActivityService: Started periodic updates (every 2 minutes - timer intervals handle time)")
     }
     
-    private func updateOngoingActivities(modelContext: ModelContext) async {
+    private func updateOngoingActivities(appStore: AppStore) async {
         guard currentActivity != nil else {
             print("🔴 LiveActivityService: No active Live Activity to update")
             return 
@@ -67,11 +67,8 @@ class LiveActivityService {
         
         print("🔴 LiveActivityService: Updating Live Activity state...")
         
-        // Fetch current events and find ongoing ones
-        let descriptor = FetchDescriptor<Event>()
-        
         do {
-            let events = try modelContext.fetch(descriptor)
+            let events = try appStore.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             // If there's an ongoing event, update the activity
@@ -109,35 +106,30 @@ class LiveActivityService {
         }
     }
     
-    // Set the model context for this service
-    func setModelContext(_ context: ModelContext) {
-        self.modelContext = context
+    func setAppStore(_ appStore: AppStore) {
+        self.appStore = appStore
         
-        // Immediately update any active Live Activity when model context is set
         if currentActivity != nil {
             Task { @MainActor in
-                await checkAndStartLiveActivityForOngoingEvents(modelContext: context)
+                await checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
             }
         }
     }
     
     // Force an immediate update of the Live Activity
     func forceUpdate() async {
-        guard let modelContext = self.modelContext else { return }
+        guard let appStore = self.appStore else { return }
         
         print("🔴 LiveActivityService: Force updating Live Activity")
-        await updateOngoingActivities(modelContext: modelContext)
+        await updateOngoingActivities(appStore: appStore)
     }
     
     // Handle app entering background - ensure Live Activity is active for ongoing events
-    func handleAppEnteringBackground(modelContext: ModelContext) async {
+    func handleAppEnteringBackground(appStore: AppStore) async {
         print("🔴 LiveActivityService: App entering background - checking ongoing events")
         
-        // Fetch all events from the model context
-        let descriptor = FetchDescriptor<Event>()
-        
         do {
-            let events = try modelContext.fetch(descriptor)
+            let events = try appStore.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             // Also check for events starting soon (within 30 minutes) that user is attending
@@ -221,14 +213,11 @@ class LiveActivityService {
     }
     
     // Check for ongoing events and start Live Activity if needed
-    func checkAndStartLiveActivityForOngoingEvents(modelContext: ModelContext) async {
+    func checkAndStartLiveActivityForOngoingEvents(appStore: AppStore) async {
         print("🔴 LiveActivityService: Checking for ongoing events...")
         
-        // Fetch all events from the model context
-        let descriptor = FetchDescriptor<Event>()
-        
         do {
-            let events = try modelContext.fetch(descriptor)
+            let events = try appStore.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             print("🔴 LiveActivityService: Found \(ongoingEvents.count) ongoing events user is attending")
@@ -441,8 +430,8 @@ class LiveActivityService {
     }
     
     // Handle attendance status change - check if Live Activity should be started or stopped
-    func handleAttendanceChange(modelContext: ModelContext) async {
-        await checkAndStartLiveActivityForOngoingEvents(modelContext: modelContext)
+    func handleAttendanceChange(appStore: AppStore) async {
+        await checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
     }
     
     func endCurrentActivity() async {
@@ -464,13 +453,11 @@ class LiveActivityService {
     }
     
     // Adjust update frequency based on how close we are to event ending
-    private func adjustUpdateFrequencyIfNeeded(modelContext: ModelContext) async {
+    private func adjustUpdateFrequencyIfNeeded(appStore: AppStore) async {
         guard currentActivity != nil else { return }
         
-        let descriptor = FetchDescriptor<Event>()
-        
         do {
-            let events = try modelContext.fetch(descriptor)
+            let events = try appStore.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             if let ongoingEvent = ongoingEvents.first {
@@ -504,9 +491,9 @@ class LiveActivityService {
 
         updateTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, let modelContext = self.modelContext else { return }
-                await self.updateOngoingActivities(modelContext: modelContext)
-                await self.adjustUpdateFrequencyIfNeeded(modelContext: modelContext)
+                guard let self, let appStore = self.appStore else { return }
+                await self.updateOngoingActivities(appStore: appStore)
+                await self.adjustUpdateFrequencyIfNeeded(appStore: appStore)
             }
         }
 

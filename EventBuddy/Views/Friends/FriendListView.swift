@@ -1,8 +1,10 @@
+import SQLiteData
 import SwiftUI
 
 struct FriendListView: View {
     @Environment(AppStore.self) private var appStore
-    @Environment(\.modelContext) private var modelContext
+    @FetchAll(StoredFriend.order(by: \.name), animation: .default)
+    private var storedFriends: [StoredFriend]
     
     @State private var searchText = ""
     @State private var selectedFilter: FriendFilter = .all
@@ -27,9 +29,10 @@ struct FriendListView: View {
 
                 // Friends list
                 List {
-                    ForEach(filteredFriends) { friend in
+                    ForEach(filteredFriends) { friendRow in
+                        let friend = appStore.friend(for: friendRow)
                         NavigationLink {
-                            FriendDetailView(friend: friend)
+                            FriendDetailByIDView(friendID: friendRow.id)
                         } label: {
                             FriendRowView(friend: friend)
                                 .swipeActions {
@@ -39,15 +42,14 @@ struct FriendListView: View {
                                     .tint(.blue)
                                     
                                     Button(role: .destructive) {
-                                        modelContext.delete(friend)
-                                        try? modelContext.save()
+                                        try? appStore.delete(friend)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
                                     
                                     Button {
                                         friend.toggleFavorite()
-                                        try? modelContext.save()
+                                        try? appStore.save(friend)
                                     } label: {
                                         Label(friend.isFavorite ? "Unfavorite" : "Favorite", 
                                               systemImage: friend.isFavorite ? "star.slash" : "star.fill")
@@ -61,7 +63,7 @@ struct FriendListView: View {
                                     
                                     Button {
                                         friend.toggleFavorite()
-                                        try? modelContext.save()
+                                        try? appStore.save(friend)
                                     } label: {
                                         Label(friend.isFavorite ? "Remove from Favorites" : "Add to Favorites", 
                                               systemImage: friend.isFavorite ? "star.slash" : "star.fill")
@@ -70,8 +72,7 @@ struct FriendListView: View {
                                     Divider()
                                     
                                     Button(role: .destructive) {
-                                        modelContext.delete(friend)
-                                        try? modelContext.save()
+                                        try? appStore.delete(friend)
                                     } label: {
                                         Label("Delete Friend", systemImage: "trash")
                                     }
@@ -215,8 +216,8 @@ struct FriendListView: View {
         }
     }
 
-    private var filteredFriends: [Friend] {
-        let searchFiltered = appStore.friends.filter { friend in
+    private var filteredFriends: [StoredFriend] {
+        let searchFiltered = storedFriends.filter { friend in
             if searchText.isEmpty {
                 return true
             } else {
@@ -227,7 +228,7 @@ struct FriendListView: View {
         }
         
         // Apply filter selection
-        let filtered: [Friend]
+        let filtered: [StoredFriend]
         switch selectedFilter {
         case .all:
             filtered = searchFiltered
@@ -254,14 +255,14 @@ struct FriendListView: View {
     
     private func deleteFriends(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(filteredFriends[index])
+            try? appStore.delete(appStore.friend(for: filteredFriends[index]))
         }
     }
     
     private func addSampleFriends() {
         // Call FriendService
         do {
-            try modelContext.delete(model: Friend.self)
+            try appStore.deleteFriends()
             
             let friends = [
                 Friend(
@@ -315,11 +316,24 @@ struct FriendListView: View {
             friends[1].isFavorite = true
             friends[2].isFavorite = true
             
-            for friend in friends {
-                modelContext.insert(friend)
-            }
+            try appStore.save([], friends: friends)
         } catch {
             print("Error adding sample friends: \(error)")
+        }
+    }
+}
+
+private struct FriendDetailByIDView: View {
+    @Environment(AppStore.self) private var appStore
+    let friendID: UUID
+
+    var body: some View {
+        Group {
+            if let friend = try? appStore.friend(id: friendID) {
+                FriendDetailView(friend: friend)
+            } else {
+                ContentUnavailableView("Friend Not Found", systemImage: "person.crop.circle.badge.exclamationmark")
+            }
         }
     }
 }
@@ -328,5 +342,4 @@ struct FriendListView: View {
     let environment = AppEnvironment()
     return FriendListView()
         .environment(environment.store)
-        .environment(\.modelContext, environment.modelContext)
 }

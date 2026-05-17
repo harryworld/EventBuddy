@@ -8,17 +8,9 @@ class NavigationCoordinator {
     var shouldNavigateToEvent: Bool = false
     var shouldScrollToEvent: Bool = false
     
-    func navigateToEvent(with id: UUID, modelContext: ModelContext) {
-        // Fetch the event from the database
-        let descriptor = FetchDescriptor<Event>(
-            predicate: #Predicate<Event> { event in
-                event.id == id
-            }
-        )
-        
+    func navigateToEvent(with id: UUID, appStore: AppStore) {
         do {
-            let events = try modelContext.fetch(descriptor)
-            if let event = events.first {
+            if let event = try appStore.event(id: id) {
                 selectedTab = 0 // Events tab
                 eventToShow = event
                 shouldScrollToEvent = true

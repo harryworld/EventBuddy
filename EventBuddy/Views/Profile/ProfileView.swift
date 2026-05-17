@@ -1,10 +1,12 @@
 import SwiftUI
 import Contacts
 import UIKit
+import SQLiteData
 
 struct ProfileView: View {
     @Environment(AppStore.self) private var appStore
-    @Environment(\.modelContext) private var modelContext
+    @FetchAll(StoredProfile.all, animation: .default)
+    private var storedProfiles: [StoredProfile]
     
     @State private var showingEditSheet = false
     @State private var qrCodeContact: CNContact?
@@ -13,7 +15,10 @@ struct ProfileView: View {
     @State private var isShowingNameDrop = false
     
     private var currentProfile: Profile {
-        appStore.profiles.first ?? createDefaultProfile()
+        if let profileRow = storedProfiles.first {
+            return appStore.profile(for: profileRow)
+        }
+        return createDefaultProfile()
     }
     
     var body: some View {
@@ -333,10 +338,8 @@ struct ProfileView: View {
             avatarSystemName: "person.crop.circle.fill"
         )
         
-        modelContext.insert(defaultProfile)
-        
         do {
-            try modelContext.save()
+            try appStore.save(defaultProfile)
         } catch {
             print("Error saving default profile: \(error)")
         }
@@ -347,8 +350,7 @@ struct ProfileView: View {
 
 #Preview {
     let environment = AppEnvironment()
-    environment.store.profiles = [Profile.preview]
+    try? environment.store.save(Profile.preview)
     return ProfileView()
         .environment(environment.store)
-        .environment(\.modelContext, environment.modelContext)
 }

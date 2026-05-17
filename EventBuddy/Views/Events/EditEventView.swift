@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct EditEventView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @Bindable var event: Event
     
@@ -152,7 +152,7 @@ struct EditEventView: View {
         event.originalTimezoneIdentifier = selectedTimezone
         event.updatedAt = Date()
         
-        try? modelContext.save()
+        try? appStore.save(event)
     }
 }
 
@@ -161,5 +161,4 @@ struct EditEventView: View {
     event.isCustomEvent = true
     
     return EditEventView(event: event)
-        .modelContainer(for: Event.self, inMemory: true)
-} 
+}

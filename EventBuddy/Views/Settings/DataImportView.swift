@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 struct DataImportView: View {
     private static let vCardContentType = UTType(filenameExtension: "vcf") ?? UTType(importedAs: "public.vcard")
 
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
     
     @State private var importService: DataImportService?
@@ -67,7 +67,7 @@ struct DataImportView: View {
             }
             .onAppear {
                 if importService == nil {
-                    importService = DataImportService(modelContext: modelContext)
+                    importService = DataImportService(appStore: appStore)
                 }
             }
             .fileImporter(
@@ -446,5 +446,4 @@ struct ImportSummaryView: View {
 
 #Preview {
     DataImportView()
-        .modelContainer(for: [Event.self, Friend.self])
 }

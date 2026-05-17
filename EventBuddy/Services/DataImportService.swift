@@ -5,15 +5,15 @@ import Contacts
 @MainActor
 @Observable
 class DataImportService {
-    private let modelContext: ModelContext
+    private let appStore: AppStore
     
     var isImporting = false
     var importError: String?
     var importProgress: Double = 0.0
     var importSummary: ImportSummary?
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(appStore: AppStore) {
+        self.appStore = appStore
     }
     
     // MARK: - Main Import Function
@@ -192,14 +192,20 @@ class DataImportService {
             summary: &summary
         )
 
+        let profile: Profile?
         if let profileDTO = backup.profile {
-            try overrideProfile(from: profileDTO, summary: &summary)
+            profile = try overrideProfile(from: profileDTO, summary: &summary)
         } else if let personalNamecardURL {
-            try overrideProfile(fromVCardAt: personalNamecardURL, summary: &summary)
+            profile = try overrideProfile(fromVCardAt: personalNamecardURL, summary: &summary)
+        } else {
+            profile = nil
         }
         
-        // Save all changes
-        try modelContext.save()
+        try appStore.save(
+            Array(eventIdMap.values),
+            friends: Array(friendIdMap.values),
+            profiles: profile.map { [$0] } ?? []
+        )
         
         self.importSummary = summary
         
@@ -213,9 +219,9 @@ class DataImportService {
     private func importPersonalNamecard(from url: URL) async throws -> ImportResult {
         importProgress = 0.1
         var summary = ImportSummary()
-        try overrideProfile(fromVCardAt: url, summary: &summary)
+        let profile = try overrideProfile(fromVCardAt: url, summary: &summary)
         importProgress = 0.9
-        try modelContext.save()
+        try appStore.save(profile)
 
         self.importSummary = summary
 
@@ -246,7 +252,6 @@ class DataImportService {
             } else {
                 // Create new friend
                 let friend = createFriend(from: dto)
-                modelContext.insert(friend)
                 friendIdMap[dto.id] = friend
                 summary.friendsCreated += 1
             }
@@ -275,7 +280,6 @@ class DataImportService {
             } else {
                 // Create new event
                 let event = createEvent(from: dto)
-                modelContext.insert(event)
                 eventIdMap[dto.id] = event
                 summary.eventsCreated += 1
             }
@@ -320,14 +324,12 @@ class DataImportService {
     // MARK: - Helper Functions
     
     private func fetchExistingEvents() throws -> [String: Event] {
-        let descriptor = FetchDescriptor<Event>()
-        let events = try modelContext.fetch(descriptor)
+        let events = try appStore.events()
         return Dictionary(uniqueKeysWithValues: events.map { ($0.id.uuidString, $0) })
     }
     
     private func fetchExistingFriends() throws -> [String: Friend] {
-        let descriptor = FetchDescriptor<Friend>()
-        let friends = try modelContext.fetch(descriptor)
+        let friends = try appStore.friends()
         return Dictionary(uniqueKeysWithValues: friends.map { ($0.id.uuidString, $0) })
     }
 
@@ -335,7 +337,7 @@ class DataImportService {
         url.pathExtension.localizedCaseInsensitiveCompare("vcf") == .orderedSame
     }
 
-    private func overrideProfile(fromVCardAt url: URL, summary: inout ImportSummary) throws {
+    private func overrideProfile(fromVCardAt url: URL, summary: inout ImportSummary) throws -> Profile {
         let data = try Data(contentsOf: url)
         importProgress = 0.3
         let contacts = try CNContactVCardSerialization.contacts(with: data)
@@ -344,11 +346,11 @@ class DataImportService {
         }
 
         importProgress = 0.5
-        try overrideProfile(with: contact, summary: &summary)
+        return try overrideProfile(with: contact, summary: &summary)
     }
 
-    private func overrideProfile(from dto: ProfileExportDTO, summary: inout ImportSummary) throws {
-        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+    private func overrideProfile(from dto: ProfileExportDTO, summary: inout ImportSummary) throws -> Profile {
+        let profiles = try appStore.profiles()
 
         if let profile = profiles.first {
             profile.name = dto.name
@@ -363,6 +365,7 @@ class DataImportService {
             profile.avatarSystemName = dto.avatarSystemName
             profile.updatedAt = Date()
             summary.profilesUpdated += 1
+            return profile
         } else {
             let profile = Profile(
                 id: UUID(uuidString: dto.id) ?? UUID(),
@@ -379,13 +382,13 @@ class DataImportService {
             )
             profile.createdAt = dto.createdAt
             profile.updatedAt = dto.updatedAt
-            modelContext.insert(profile)
             summary.profilesCreated += 1
+            return profile
         }
     }
 
-    private func overrideProfile(with contact: CNContact, summary: inout ImportSummary) throws {
-        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+    private func overrideProfile(with contact: CNContact, summary: inout ImportSummary) throws -> Profile {
+        let profiles = try appStore.profiles()
         let socialMediaAccounts = socialMediaAccounts(from: contact)
 
         if let profile = profiles.first {
@@ -398,6 +401,7 @@ class DataImportService {
             profile.company = contact.organizationName
             profile.markAsUpdated()
             summary.profilesUpdated += 1
+            return profile
         } else {
             let profile = Profile(
                 name: displayName(for: contact),
@@ -415,8 +419,8 @@ class DataImportService {
                 company: contact.organizationName,
                 avatarSystemName: "person.crop.circle.fill"
             )
-            modelContext.insert(profile)
             summary.profilesCreated += 1
+            return profile
         }
     }
 

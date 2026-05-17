@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct AddEventView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @State private var title = ""
     @State private var eventDescription = ""
@@ -135,11 +135,10 @@ struct AddEventView: View {
             originalTimezoneIdentifier: selectedTimezone
         )
         
-        modelContext.insert(newEvent)
+        try? appStore.save(newEvent)
     }
 }
 
 #Preview {
     AddEventView()
-        .modelContainer(for: Event.self, inMemory: true)
-} 
+}

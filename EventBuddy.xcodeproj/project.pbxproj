@@ -73,11 +73,10 @@
 			membershipExceptions = (
 				Models/Event.swift,
 				Models/Friend.swift,
-				Models/ModelConfiguration.swift,
 				Models/Profile.swift,
 				Persistence/AppStore.swift,
-				Persistence/ModelContext.swift,
 				Persistence/SQLiteSchema.swift,
+				Persistence/AppEnvironment.swift,
 				Services/LiveActivityService.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
@@ -289,17 +288,6 @@
 			targetProxy = 06E75D0F2DEDB9B0000EEE35 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCBuildConfiguration section */
 		068753B22DD6D5A30048FD00 /* Debug */ = {
@@ -582,6 +570,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0A1B2C3D4E5F60718293A403 /* SQLiteData */ = {

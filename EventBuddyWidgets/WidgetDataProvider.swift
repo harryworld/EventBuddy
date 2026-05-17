@@ -29,12 +29,10 @@ enum WidgetTimeScope: String, CaseIterable {
 class WidgetDataProvider {
     static let shared = WidgetDataProvider()
     
-    private let store = AppStore()
-    private lazy var modelContext = ModelContext(store: store)
+    private let appStore = AppStore()
 
     private init() {
         _ = try? EventBuddyDatabase.bootstrap(configureSyncEngine: false)
-        try? modelContext.reload()
     }
     
     func getUpcomingEvents(
@@ -42,7 +40,6 @@ class WidgetDataProvider {
         timeScope: WidgetTimeScope = .future,
         limit: Int = 5
     ) -> [Event] {
-        try? modelContext.reload()
         let now = Date()
         let calendar = Calendar.current
         
@@ -56,17 +53,10 @@ class WidgetDataProvider {
             endDate = calendar.date(byAdding: .day, value: 30, to: now) ?? now
         }
         
-        let predicate = #Predicate<Event> { event in
-            event.startDate >= now && event.startDate <= endDate
-        }
-        
-        let descriptor = FetchDescriptor<Event>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.startDate, order: .forward)]
-        )
-        
         do {
-            let allEvents = try modelContext.fetch(descriptor)
+            let allEvents = try appStore.events()
+                .filter { $0.startDate >= now && $0.startDate <= endDate }
+                .sorted { $0.startDate < $1.startDate }
             
             let filteredEvents: [Event]
             switch filter {
@@ -88,12 +78,8 @@ class WidgetDataProvider {
     }
     
     func getCurrentProfile() -> Profile? {
-        try? modelContext.reload()
-        let descriptor = FetchDescriptor<Profile>()
-        
         do {
-            let profiles = try modelContext.fetch(descriptor)
-            return profiles.first
+            return try appStore.profiles().first
         } catch {
             print("Error fetching profile for widget: \(error)")
             return nil

@@ -134,6 +134,7 @@ enum CloudKitAccountAvailability: Equatable {
 @Observable class SettingsStore {
     @ObservationIgnored
     @Dependency(\.defaultSyncEngine) private var syncEngine
+    @ObservationIgnored private var cloudKitLastSyncedObserver: NSObjectProtocol?
 
     var settings: UserSettings
     var cloudKitAccountAvailability: CloudKitAccountAvailability = .checking
@@ -142,6 +143,21 @@ enum CloudKitAccountAvailability: Equatable {
     
     init() {
         self.settings = UserSettings()
+        self.cloudKitLastSyncedObserver = NotificationCenter.default.addObserver(
+            forName: .eventBuddyCloudKitLastSyncedAtDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.reloadCloudKitLastSyncedAt()
+            }
+        }
+    }
+
+    deinit {
+        if let cloudKitLastSyncedObserver {
+            NotificationCenter.default.removeObserver(cloudKitLastSyncedObserver)
+        }
     }
     
     func resetToDefaults() {
@@ -159,7 +175,14 @@ enum CloudKitAccountAvailability: Equatable {
         cloudKitAccountAvailability.canUseSync && !isUpdatingCloudKitSync
     }
 
+    func reloadCloudKitLastSyncedAt() {
+        settings.cloudKitLastSyncedAt = UserDefaults.standard.object(
+            forKey: UserSettings.cloudKitLastSyncedAtKey
+        ) as? Date
+    }
+
     func refreshCloudKitAccountAvailability() async {
+        reloadCloudKitLastSyncedAt()
         cloudKitAccountAvailability = .checking
 
         do {
@@ -208,6 +231,7 @@ enum CloudKitAccountAvailability: Equatable {
             try await syncEngine.start()
             try await syncEngine.syncChanges()
             settings.cloudKitLastSyncedAt = Date()
+            NotificationCenter.default.post(name: .eventBuddyCloudKitLastSyncedAtDidChange, object: nil)
             cloudKitSyncError = nil
         } catch {
             settings.cloudKitSyncEnabled = false

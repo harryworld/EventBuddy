@@ -6,14 +6,14 @@ import Contacts
 @MainActor
 @Observable
 class DataExportService {
-    private let modelContext: ModelContext
+    private let appStore: AppStore
     
     var isExporting = false
     var exportError: String?
     var exportProgress: Double = 0.0
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(appStore: AppStore) {
+        self.appStore = appStore
     }
     
     // MARK: - Main Export Function
@@ -77,15 +77,9 @@ class DataExportService {
     private func exportJSONBackup(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("eventbuddy_backup.json")
         
-        // Fetch all data
-        let eventDescriptor = FetchDescriptor<Event>()
-        let events = try modelContext.fetch(eventDescriptor)
-        
-        let friendDescriptor = FetchDescriptor<Friend>()
-        let friends = try modelContext.fetch(friendDescriptor)
-
-        let profileDescriptor = FetchDescriptor<Profile>()
-        let profile = try modelContext.fetch(profileDescriptor).first
+        let events = try appStore.events()
+        let friends = try appStore.friends()
+        let profile = try appStore.profiles().first
         
         // Create backup structure
         let backup = DataBackup(
@@ -112,8 +106,7 @@ class DataExportService {
     private func exportEventsCSV(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("events.csv")
         
-        let eventDescriptor = FetchDescriptor<Event>()
-        let events = try modelContext.fetch(eventDescriptor)
+        let events = try appStore.events()
         
         var csvContent = "ID,Title,Description,Location,Address,Start Date,End Date,Event Type,Notes,Requires Ticket,Requires Registration,URL,Is Attending,Is Custom Event,Created At,Updated At,Attendee Count,Wish Count\n"
         
@@ -151,8 +144,7 @@ class DataExportService {
     private func exportFriendsCSV(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("friends.csv")
         
-        let friendDescriptor = FetchDescriptor<Friend>()
-        let friends = try modelContext.fetch(friendDescriptor)
+        let friends = try appStore.friends()
         
         var csvContent = "ID,Name,Email,Phone,Job Title,Company,Notes,Is Favorite,Created At,Updated At,Events Count,Wish Events Count,Social Media\n"
         
@@ -185,8 +177,7 @@ class DataExportService {
     }
 
     private func exportPersonalNamecard(to directory: URL) async throws -> URL? {
-        let profileDescriptor = FetchDescriptor<Profile>()
-        guard let profile = try modelContext.fetch(profileDescriptor).first else {
+        guard let profile = try appStore.profiles().first else {
             return nil
         }
 

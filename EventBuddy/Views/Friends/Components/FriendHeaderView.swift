@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FriendHeaderView: View {
     let friend: Friend
-    let modelContext: ModelContext
+    let appStore: AppStore
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -15,7 +15,7 @@ struct FriendHeaderView: View {
                 
                 Button {
                     friend.toggleFavorite()
-                    try? modelContext.save()
+                    try? appStore.save(friend)
                 } label: {
                     Image(systemName: friend.isFavorite ? "star.fill" : "star")
                         .font(.title)
@@ -44,4 +44,4 @@ struct FriendHeaderView: View {
         
         return components.isEmpty ? nil : components.joined(separator: " ")
     }
-} 
+}

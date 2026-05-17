@@ -69,7 +69,7 @@ The QR code contains a vCard (Virtual Contact Card) with your profile informatio
 ## Technical Details
 
 - Built using iOS WidgetKit framework
-- Uses SwiftData for profile data access
+- Uses SQLiteData-backed profile data access
 - Generates QR codes using Core Image's CIFilter.qrCodeGenerator
 - Supports vCard format for maximum compatibility with contact apps
 - Deep linking via `eventbuddy://profile` URL scheme

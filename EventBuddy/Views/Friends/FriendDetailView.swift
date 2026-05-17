@@ -3,8 +3,8 @@ import SwiftUI
 struct FriendDetailView: View {
     let friend: Friend
     
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @State private var showDeleteConfirmation = false
     @State private var showEditSheet = false
@@ -15,7 +15,7 @@ struct FriendDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                FriendHeaderView(friend: friend, modelContext: modelContext)
+                FriendHeaderView(friend: friend, appStore: appStore)
                 
                 Divider()
                 
@@ -30,7 +30,7 @@ struct FriendDetailView: View {
                 
                 FriendSocialMediaView(
                     friend: friend,
-                    modelContext: modelContext,
+                    appStore: appStore,
                     showAddSocialSheet: $showAddSocialSheet
                 )
                 
@@ -87,7 +87,7 @@ struct FriendDetailView: View {
     }
     
     private func deleteFriend() {
-        modelContext.delete(friend)
+        try? appStore.delete(friend)
     }
     
     private func addSocialLink() {
@@ -96,7 +96,7 @@ struct FriendDetailView: View {
         friend.socialMediaHandles[newSocialPlatform.lowercased()] = newSocialUsername.trimmingCharacters(in: .whitespacesAndNewlines)
         friend.updatedAt = Date()
         
-        try? modelContext.save()
+        try? appStore.save(friend)
         
         // Reset form
         newSocialPlatform = ""
@@ -109,5 +109,4 @@ struct FriendDetailView: View {
     NavigationStack {
         FriendDetailView(friend: Friend.preview)
     }
-    .modelContainer(for: [Friend.self, Event.self], inMemory: true)
-} 
+}

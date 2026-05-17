@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 class EventSyncService {
-    private let modelContext: ModelContext
+    private let appStore: AppStore
     private let eventsURL = "https://eventbuddy.buildwithharry.com/events.json"
     
     // Sync frequency control
@@ -31,8 +31,8 @@ class EventSyncService {
     var syncError: String?
     var isManualSyncBlocked = false // New property to track when manual sync is blocked
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(appStore: AppStore) {
+        self.appStore = appStore
         // Restore last sync date from UserDefaults
         self.lastSyncDate = UserDefaults.standard.object(forKey: lastSyncDateKey) as? Date
         print("Restored last sync date: \(lastSyncDate?.description ?? "None")")
@@ -234,9 +234,7 @@ class EventSyncService {
     }
     
     private func synchronizeEvents(from eventDTOs: [EventDTO]) async throws {
-        // Get existing events from local storage
-        let descriptor = FetchDescriptor<Event>()
-        let existingEvents = try modelContext.fetch(descriptor)
+        let existingEvents = try appStore.events()
         
         // Create a dictionary for quick lookup
         var existingEventsDict: [UUID: Event] = [:]
@@ -271,22 +269,14 @@ class EventSyncService {
             }
         }
         
-        // Add new events
-        for event in eventsToAdd {
-            modelContext.insert(event)
-        }
-        
-        // Save changes
-        try modelContext.save()
+        try appStore.save(eventsToAdd + eventsToUpdate)
         
         print("Sync completed: \(eventsToAdd.count) added, \(eventsToUpdate.count) updated")
     }
     
     private func hasNoLocalEvents() async -> Bool {
         do {
-            let descriptor = FetchDescriptor<Event>()
-            let existingEvents = try modelContext.fetch(descriptor)
-            return existingEvents.isEmpty
+            return try appStore.events().isEmpty
         } catch {
             return true
         }
@@ -298,13 +288,9 @@ class EventSyncService {
         }
 
         do {
-            for eventDTO in eventsResponse.events {
-                if let event = eventDTO.toEvent() {
-                    modelContext.insert(event)
-                }
-            }
+            let events = eventsResponse.events.compactMap { $0.toEvent() }
 
-            try modelContext.save()
+            try appStore.save(events)
             print("Loaded \(eventsResponse.events.count) fallback events from bundle")
         } catch {
             print("Failed to save fallback events: \(error)")

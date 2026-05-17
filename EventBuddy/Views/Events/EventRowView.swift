@@ -190,5 +190,4 @@ struct EventRowView: View {
         EventRowView(event: Event.wwdcKeynoteWatchParty)
     }
     .listStyle(.insetGrouped)
-    .modelContainer(for: Event.self, inMemory: true)
 }

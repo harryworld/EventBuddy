@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct AddFriendView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @State private var name = ""
     @State private var email = ""
@@ -119,12 +119,10 @@ struct AddFriendView: View {
             notes: notes.isEmpty ? nil : notes
         )
         
-        // Save to model context
-        modelContext.insert(friend)
+        try? appStore.save(friend)
     }
 }
 
 #Preview {
     AddFriendView()
-        .modelContainer(for: Friend.self, inMemory: true)
-} 
+}

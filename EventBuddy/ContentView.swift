@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(AppStore.self) private var appStore
-    @Environment(\.modelContext) private var modelContext
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
     @State private var navigationCoordinator = NavigationCoordinator()
@@ -81,12 +80,11 @@ struct ContentView: View {
     
     private func setupServices() {
         do {
-            _ = try LegacySwiftDataMigration.migrateIfNeeded(modelContext: modelContext)
-            try modelContext.reload()
+            _ = try LegacySwiftDataMigration.migrateIfNeeded(appStore: appStore)
         } catch {
             print("Failed to prepare persistence: \(error)")
         }
-        eventSyncService = EventSyncService(modelContext: modelContext)
+        eventSyncService = EventSyncService(appStore: appStore)
         loadInitialData()
     }
     
@@ -96,11 +94,11 @@ struct ContentView: View {
         Task {
             // Load friends sample data
             await MainActor.run {
-                FriendService.addSampleFriends(modelContext: modelContext)
+                FriendService.addSampleFriends(appStore: appStore)
                 
                 // Add sample profile if none exists
-                if ProfileService.getCurrentProfile(modelContext: modelContext) == nil {
-                    ProfileService.addSampleProfile(modelContext: modelContext)
+                if ProfileService.getCurrentProfile(appStore: appStore) == nil {
+                    ProfileService.addSampleProfile(appStore: appStore)
                 }
             }
             
@@ -125,7 +123,7 @@ struct ContentView: View {
             } else {
                 // In preview mode, use the old sample data
                 await MainActor.run {
-                    EventService.addSampleWWDCEvents(modelContext: modelContext)
+                    EventService.addSampleWWDCEvents(appStore: appStore)
                 }
             }
         }
@@ -137,7 +135,7 @@ struct ContentView: View {
         switch url.host {
         case "event":
             if let eventId = UUID(uuidString: url.lastPathComponent) {
-                navigationCoordinator.navigateToEvent(with: eventId, modelContext: modelContext)
+                navigationCoordinator.navigateToEvent(with: eventId, appStore: appStore)
             }
         case "events":
             navigationCoordinator.navigateToEventsTab()
@@ -153,7 +151,6 @@ struct ContentView: View {
     let environment = AppEnvironment()
     return ContentView()
         .environment(environment.store)
-        .environment(\.modelContext, environment.modelContext)
 }
 
 extension View {

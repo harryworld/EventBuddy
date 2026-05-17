@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditFriendView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
     
     @Bindable var friend: Friend
@@ -180,11 +181,13 @@ struct EditFriendView: View {
         friend.company = company.isEmpty ? nil : company
         friend.notes = notes.isEmpty ? nil : notes
         friend.updatedAt = Date()
-        
+
         // Update social media handles - filter out empty values
         friend.socialMediaHandles = socialMediaHandles.compactMapValues { value in
             value.isEmpty ? nil : value
         }
+
+        try? appStore.save(friend)
     }
     
     private var additionalSocialPlatforms: Set<String> {
@@ -207,5 +210,4 @@ struct EditFriendView: View {
 
 #Preview {
     EditFriendView(friend: Friend.preview)
-        .modelContainer(for: Friend.self, inMemory: true)
-} 
+}

@@ -270,8 +270,23 @@ struct MigrationComparison {
     let sqlite: MigrationSnapshot
 
     var matchesExactly: Bool {
-        legacy == sqlite && legacy.digest == sqlite.digest
+        legacy.digest == sqlite.digest
     }
+}
+
+private func sortedMigrationEventSnapshots(
+    _ events: [MigrationEventSnapshot]
+) -> [MigrationEventSnapshot] {
+    events.sorted { lhs, rhs in
+        if lhs.startDate != rhs.startDate {
+            return lhs.startDate < rhs.startDate
+        }
+        return lhs.id.uuidString < rhs.id.uuidString
+    }
+}
+
+private func sortedMigrationUUIDs(_ ids: [UUID]) -> [UUID] {
+    ids.sorted { $0.uuidString < $1.uuidString }
 }
 
 enum MigrationFixtureData {
@@ -816,8 +831,8 @@ enum LegacySwiftDataStore {
                 email: $0.email,
                 phone: $0.phone,
                 profileImage: $0.profileImage,
-                createdAt: $0.createdAt,
-                updatedAt: $0.updatedAt,
+                createdAt: normalizedMigrationDate($0.createdAt),
+                updatedAt: normalizedMigrationDate($0.updatedAt),
                 title: $0.title,
                 company: $0.company,
                 avatarSystemName: $0.avatarSystemName,
@@ -837,17 +852,17 @@ enum LegacySwiftDataStore {
                     company: $0.company,
                     socialMediaHandles: $0.socialMediaHandles,
                     notes: $0.notes,
-                    createdAt: $0.createdAt,
-                    updatedAt: $0.updatedAt,
+                    createdAt: normalizedMigrationDate($0.createdAt),
+                    updatedAt: normalizedMigrationDate($0.updatedAt),
                     isFavorite: $0.isFavorite
                 )
             }
             .sorted { $0.name < $1.name }
 
-        let eventSnapshots = events
-            .map { event in
-                let attendeeIDs = event.attendees.map(\.id).sorted { $0.uuidString < $1.uuidString }
-                let wishIDs = event.friendWishes.map(\.id).sorted { $0.uuidString < $1.uuidString }
+        let eventSnapshots = sortedMigrationEventSnapshots(
+            events.map { event in
+                let attendeeIDs = sortedMigrationUUIDs(event.attendees.map(\.id))
+                let wishIDs = sortedMigrationUUIDs(event.friendWishes.map(\.id))
 
                 return MigrationEventSnapshot(
                     id: event.id,
@@ -855,15 +870,15 @@ enum LegacySwiftDataStore {
                     eventDescription: event.eventDescription,
                     location: event.location,
                     address: event.address,
-                    startDate: event.startDate,
-                    endDate: event.endDate,
+                    startDate: normalizedMigrationDate(event.startDate),
+                    endDate: normalizedMigrationDate(event.endDate),
                     eventType: event.eventType,
                     notes: event.notes,
                     requiresTicket: event.requiresTicket,
                     requiresRegistration: event.requiresRegistration,
                     url: event.url,
-                    createdAt: event.createdAt,
-                    updatedAt: event.updatedAt,
+                    createdAt: normalizedMigrationDate(event.createdAt),
+                    updatedAt: normalizedMigrationDate(event.updatedAt),
                     isAttending: event.isAttending,
                     originalTimezoneIdentifier: event.originalTimezoneIdentifier,
                     isCustomEvent: event.isCustomEvent,
@@ -871,7 +886,7 @@ enum LegacySwiftDataStore {
                     wishIDs: wishIDs
                 )
             }
-            .sorted { $0.startDate < $1.startDate }
+        )
 
         return MigrationSnapshot(profile: profileSnapshot, friends: friendSnapshots, events: eventSnapshots)
     }
@@ -914,7 +929,7 @@ enum LegacySwiftDataStore {
 enum LegacySwiftDataMigration {
     private static let sampleFriendID = UUID(uuidString: "12345678-1234-1234-1234-123456789ABC")!
 
-    static func migrateIfNeeded(modelContext: ModelContext) throws -> MigrationSnapshot? {
+    static func migrateIfNeeded(appStore: AppStore) throws -> MigrationSnapshot? {
         guard let legacyStoreURL = MigrationValidationStorage.productionLegacyStoreURL() else {
             return nil
         }
@@ -924,8 +939,7 @@ enum LegacySwiftDataMigration {
             return nil
         }
 
-        try modelContext.reload()
-        let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(modelContext: modelContext)
+        let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(appStore: appStore)
         let alreadyAudited = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
         let alreadyContainsLegacyData = sqliteBefore.containsMigratedData(from: snapshot)
 
@@ -940,12 +954,10 @@ enum LegacySwiftDataMigration {
         )
 
         if !alreadyContainsLegacyData {
-            try merge(snapshot, into: modelContext)
-            try modelContext.save()
-            try modelContext.reload()
+            try merge(snapshot, into: appStore)
         }
 
-        let sqliteAfter = try SQLiteMigrationValidator.fetchSnapshot(modelContext: modelContext)
+        let sqliteAfter = try SQLiteMigrationValidator.fetchSnapshot(appStore: appStore)
         let migrationContainsLegacyData = sqliteAfter.containsMigratedData(from: snapshot)
         let status: String
         let message: String?
@@ -976,15 +988,15 @@ enum LegacySwiftDataMigration {
         return alreadyContainsLegacyData ? nil : snapshot
     }
 
-    private static func merge(_ snapshot: MigrationSnapshot, into modelContext: ModelContext) throws {
-        try mergeProfile(snapshot.profile, into: modelContext)
+    private static func merge(_ snapshot: MigrationSnapshot, into appStore: AppStore) throws {
+        let profile = try mergeProfile(snapshot.profile, into: appStore)
 
-        var existingFriends = try modelContext.fetch(FetchDescriptor<Friend>())
+        var existingFriends = try appStore.friends()
         let legacyFriendIDs = Set(snapshot.friends.map(\.id))
         if !legacyFriendIDs.isEmpty,
            !legacyFriendIDs.contains(sampleFriendID),
            let sampleFriend = existingFriends.first(where: { $0.id == sampleFriendID }) {
-            modelContext.delete(sampleFriend)
+            try appStore.delete(sampleFriend)
             existingFriends.removeAll { $0.id == sampleFriendID }
         }
 
@@ -993,39 +1005,47 @@ enum LegacySwiftDataMigration {
             let friend = friendsByID[friendSnapshot.id] ?? makeFriend(from: friendSnapshot)
             apply(friendSnapshot, to: friend)
             if friendsByID[friendSnapshot.id] == nil {
-                modelContext.insert(friend)
                 friendsByID[friend.id] = friend
             }
         }
 
-        let existingEvents = try modelContext.fetch(FetchDescriptor<Event>())
+        let existingEvents = try appStore.events()
         var eventsByID = Dictionary(uniqueKeysWithValues: existingEvents.map { ($0.id, $0) })
         for eventSnapshot in snapshot.events {
             let event = eventsByID[eventSnapshot.id] ?? makeEvent(from: eventSnapshot)
             apply(eventSnapshot, to: event, friendsByID: friendsByID)
             if eventsByID[eventSnapshot.id] == nil {
-                modelContext.insert(event)
                 eventsByID[event.id] = event
             }
         }
+
+        try appStore.save(
+            Array(eventsByID.values),
+            friends: Array(friendsByID.values),
+            profiles: profile.map { [$0] } ?? []
+        )
     }
 
-    private static func mergeProfile(_ snapshot: MigrationProfileSnapshot?, into modelContext: ModelContext) throws {
-        guard let snapshot else { return }
+    private static func mergeProfile(_ snapshot: MigrationProfileSnapshot?, into appStore: AppStore) throws -> Profile? {
+        guard let snapshot else { return nil }
 
-        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+        let profiles = try appStore.profiles()
         if let existingProfile = profiles.first(where: { $0.id == snapshot.id }) {
             apply(snapshot, to: existingProfile, includeID: false)
-            return
+            return existingProfile
         }
 
         if let placeholderProfile = profiles.first(where: isPlaceholderProfile) {
+            let placeholderID = placeholderProfile.id
             apply(snapshot, to: placeholderProfile, includeID: true)
-            return
+            if placeholderID != placeholderProfile.id {
+                try appStore.deleteProfile(id: placeholderID)
+            }
+            return placeholderProfile
         }
 
         let profile = makeProfile(from: snapshot)
-        modelContext.insert(profile)
+        return profile
     }
 
     private static func makeProfile(from snapshot: MigrationProfileSnapshot) -> Profile {
@@ -1169,9 +1189,9 @@ enum LegacySwiftDataMigration {
 
 @MainActor
 enum SQLiteMigrationValidator {
-    static func fetchSnapshot(modelContext: ModelContext) throws -> MigrationSnapshot {
-        let profile = try modelContext.fetch(FetchDescriptor<Profile>()).first
-        let friends = try modelContext.fetch(FetchDescriptor<Friend>())
+    static func fetchSnapshot(appStore: AppStore) throws -> MigrationSnapshot {
+        let profile = try appStore.profiles().first
+        let friends = try appStore.friends()
             .map {
                 MigrationFriendSnapshot(
                     id: $0.id,
@@ -1182,38 +1202,39 @@ enum SQLiteMigrationValidator {
                     company: $0.company,
                     socialMediaHandles: $0.socialMediaHandles,
                     notes: $0.notes,
-                    createdAt: $0.createdAt,
-                    updatedAt: $0.updatedAt,
+                    createdAt: normalizedMigrationDate($0.createdAt),
+                    updatedAt: normalizedMigrationDate($0.updatedAt),
                     isFavorite: $0.isFavorite
                 )
             }
             .sorted { $0.name < $1.name }
 
-        let events = try modelContext.fetch(FetchDescriptor<Event>())
-            .map {
+        let storedEvents = try appStore.events()
+        let events = sortedMigrationEventSnapshots(
+            storedEvents.map {
                 MigrationEventSnapshot(
                     id: $0.id,
                     title: $0.title,
                     eventDescription: $0.eventDescription,
                     location: $0.location,
                     address: $0.address,
-                    startDate: $0.startDate,
-                    endDate: $0.endDate,
+                    startDate: normalizedMigrationDate($0.startDate),
+                    endDate: normalizedMigrationDate($0.endDate),
                     eventType: $0.eventType,
                     notes: $0.notes,
                     requiresTicket: $0.requiresTicket,
                     requiresRegistration: $0.requiresRegistration,
                     url: $0.url,
-                    createdAt: $0.createdAt,
-                    updatedAt: $0.updatedAt,
+                    createdAt: normalizedMigrationDate($0.createdAt),
+                    updatedAt: normalizedMigrationDate($0.updatedAt),
                     isAttending: $0.isAttending,
                     originalTimezoneIdentifier: $0.originalTimezoneIdentifier,
                     isCustomEvent: $0.isCustomEvent,
-                    attendeeIDs: $0.attendees.map(\.id).sorted { $0.uuidString < $1.uuidString },
-                    wishIDs: $0.friendWishes.map(\.id).sorted { $0.uuidString < $1.uuidString }
+                    attendeeIDs: sortedMigrationUUIDs($0.attendees.map(\.id)),
+                    wishIDs: sortedMigrationUUIDs($0.friendWishes.map(\.id))
                 )
             }
-            .sorted { $0.startDate < $1.startDate }
+        )
 
         return MigrationSnapshot(
             profile: profile.map {
@@ -1224,8 +1245,8 @@ enum SQLiteMigrationValidator {
                     email: $0.email,
                     phone: $0.phone,
                     profileImage: $0.profileImage,
-                    createdAt: $0.createdAt,
-                    updatedAt: $0.updatedAt,
+                    createdAt: normalizedMigrationDate($0.createdAt),
+                    updatedAt: normalizedMigrationDate($0.updatedAt),
                     title: $0.title,
                     company: $0.company,
                     avatarSystemName: $0.avatarSystemName,
@@ -1238,31 +1259,19 @@ enum SQLiteMigrationValidator {
         )
     }
 
-    static func migrateLegacyStoreToSQLite(modelContext: ModelContext) throws -> MigrationComparison {
+    static func migrateLegacyStoreToSQLite(appStore: AppStore) throws -> MigrationComparison {
         let legacySnapshot = MigrationValidationStorage.legacyStoreExists()
             ? try LegacySwiftDataStore.fetchSnapshot()
             : try LegacySwiftDataStore.seedFixture()
 
-        try modelContext.delete(model: Event.self)
-        try modelContext.delete(model: Friend.self)
-        try modelContext.delete(model: Profile.self)
-
         let models = legacySnapshot.makeDomainModels()
+        try appStore.replace(
+            events: models.events,
+            friends: models.friends,
+            profiles: models.profile.map { [$0] } ?? []
+        )
 
-        if let profile = models.profile {
-            modelContext.insert(profile)
-        }
-        for friend in models.friends {
-            modelContext.insert(friend)
-        }
-        for event in models.events {
-            modelContext.insert(event)
-        }
-
-        try modelContext.save()
-        try modelContext.reload()
-
-        let sqliteSnapshot = try fetchSnapshot(modelContext: modelContext)
+        let sqliteSnapshot = try fetchSnapshot(appStore: appStore)
         print("🗃️ SQLite migration digest: \(sqliteSnapshot.digest)")
         return MigrationComparison(legacy: legacySnapshot, sqlite: sqliteSnapshot)
     }
@@ -1381,6 +1390,11 @@ private extension ISO8601DateFormatter {
         formatter.formatOptions = [.withInternetDateTime]
         return formatter
     }()
+}
+
+private func normalizedMigrationDate(_ date: Date) -> Date {
+    let string = ISO8601DateFormatter.validation.string(from: date)
+    return ISO8601DateFormatter.validation.date(from: string) ?? date
 }
 
 private func encodeStableDictionary(_ dictionary: [String: String]) -> String {

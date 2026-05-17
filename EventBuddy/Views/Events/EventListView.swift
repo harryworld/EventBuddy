@@ -1,10 +1,12 @@
+import SQLiteData
 import SwiftUI
 
 struct EventListView: View {
     @Environment(AppStore.self) private var appStore
-    @Environment(\.modelContext) private var modelContext
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
     @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
+    @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
+    private var storedEvents: [StoredEvent]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
@@ -75,8 +77,8 @@ struct EventListView: View {
             .sheet(isPresented: $showingAddEventSheet) {
                 AddEventView()
             }
-            .navigationDestination(for: Event.self) { event in
-                EventDetailView(event: event)
+            .navigationDestination(for: UUID.self) { eventID in
+                EventDetailByIDView(eventID: eventID)
             }
             .onAppear {
                 handleDeepLinkNavigation()
@@ -295,12 +297,12 @@ struct EventListView: View {
                                     .foregroundStyle(.secondary)
                                     .padding(.horizontal)
                                 
-                                ForEach(dayEvents) { event in
-                                    NavigationLink(value: event) {
-                                        EventRowView(event: event)
+                                ForEach(dayEvents) { eventRow in
+                                    NavigationLink(value: eventRow.id) {
+                                        EventNavigationRow(eventRow: eventRow)
                                     }
                                     .buttonStyle(.plain)
-                                    .id(event.id)
+                                    .id(eventRow.id)
                                 }
                             }
                         }
@@ -319,7 +321,7 @@ struct EventListView: View {
                     
                     // After scrolling, wait a moment then navigate to detail
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                        navigationPath.append(eventToShow)
+                        navigationPath.append(eventToShow.id)
                         navigationCoordinator?.resetNavigation()
                     }
                 }
@@ -328,8 +330,8 @@ struct EventListView: View {
         }
     }
     
-    private var filteredEvents: [Event] {
-        var result = appStore.events
+    private var filteredEvents: [StoredEvent] {
+        var result = storedEvents
         
         // Filter by time (hide past events unless showing historical events)
         if !showHistoricalEvents {
@@ -375,13 +377,16 @@ struct EventListView: View {
     }
     
     // Group events by date
-    private var groupedEventsByDate: [Date: [Event]] {
+    private var groupedEventsByDate: [Date: [StoredEvent]] {
         let calendar = Calendar.current
-        
-        return Dictionary(grouping: filteredEvents) { event in
+
+        var grouped: [Date: [StoredEvent]] = [:]
+        for event in filteredEvents {
             let components = calendar.dateComponents([.year, .month, .day], from: event.startDate)
-            return calendar.date(from: components) ?? event.startDate
+            let date = calendar.date(from: components) ?? event.startDate
+            grouped[date, default: []].append(event)
         }
+        return grouped
     }
     
     private func formatDateHeader(_ date: Date) -> String {
@@ -391,12 +396,12 @@ struct EventListView: View {
     }
     
     private func deleteEvent(_ event: Event) {
-        modelContext.delete(event)
+        try? appStore.delete(event)
     }
     
     private func addSampleEvents() {
         Task {
-            EventService.addSampleWWDCEvents(modelContext: modelContext)
+            EventService.addSampleWWDCEvents(appStore: appStore)
         }
     }
     
@@ -418,10 +423,34 @@ struct EventListView: View {
         }
         
         // Navigate to the specific event
-        navigationPath.append(eventToShow)
+            navigationPath.append(eventToShow.id)
         
         // Reset the navigation state
         coordinator.resetNavigation()
+    }
+}
+
+private struct EventNavigationRow: View {
+    @Environment(AppStore.self) private var appStore
+    let eventRow: StoredEvent
+
+    var body: some View {
+        EventRowView(event: appStore.event(for: eventRow))
+    }
+}
+
+private struct EventDetailByIDView: View {
+    @Environment(AppStore.self) private var appStore
+    let eventID: UUID
+
+    var body: some View {
+        Group {
+            if let event = try? appStore.event(id: eventID) {
+                EventDetailView(event: event)
+            } else {
+                ContentUnavailableView("Event Not Found", systemImage: "calendar.badge.exclamationmark")
+            }
+        }
     }
 }
 
@@ -429,5 +458,4 @@ struct EventListView: View {
     let environment = AppEnvironment()
     return EventListView()
         .environment(environment.store)
-        .environment(\.modelContext, environment.modelContext)
 }

@@ -5,9 +5,9 @@ import SwiftUI
 class EventService {
     
     // Add sample WWDC events based on cross-referenced data from official sources
-    static func addSampleWWDCEvents(modelContext: ModelContext) {
+    static func addSampleWWDCEvents(appStore: AppStore) {
         // Clear existing events first
-        clearExistingEvents(modelContext: modelContext)
+        clearExistingEvents(appStore: appStore)
         
         let events = [
             // SATURDAY, June 7th
@@ -1374,27 +1374,16 @@ class EventService {
             )
         ]
         
-        // Insert all events
-        for event in events {
-            modelContext.insert(event)
-        }
-        
-        // Save the context
         do {
-            try modelContext.save()
+            try appStore.save(events)
         } catch {
             print("Failed to save events: \(error)")
         }
     }
     
-    private static func clearExistingEvents(modelContext: ModelContext) {
+    private static func clearExistingEvents(appStore: AppStore) {
         do {
-            let descriptor = FetchDescriptor<Event>()
-            let existingEvents = try modelContext.fetch(descriptor)
-            for event in existingEvents {
-                modelContext.delete(event)
-            }
-            try modelContext.save()
+            try appStore.deleteEvents()
         } catch {
             print("Failed to clear existing events: \(error)")
         }
@@ -1406,4 +1395,3 @@ class EventService {
         return calendar.date(from: components) ?? Date()
     }
 }
-
