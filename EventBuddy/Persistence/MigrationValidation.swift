@@ -439,6 +439,7 @@ enum MigrationFixtureData {
 enum MigrationValidationStorage {
     static let lastSyncDateKey = "EventSyncService.lastSyncDate"
     static let legacyMigrationDidRunKey = "EventBuddy.LegacySwiftDataMigration.v2.didRun"
+    static let legacyMigrationAuditDidRunKey = "EventBuddy.LegacySwiftDataMigration.v3.auditDidRun"
     static let legacyMigrationV1DidRunKey = "EventBuddy.LegacySwiftDataMigration.v1.didRun"
 
     static func appSandboxLegacyStoreURL() throws -> URL {
@@ -488,6 +489,7 @@ enum MigrationValidationStorage {
         try removeIfExists(try sqliteMetadataURL())
         UserDefaults.standard.removeObject(forKey: lastSyncDateKey)
         UserDefaults.standard.removeObject(forKey: legacyMigrationDidRunKey)
+        UserDefaults.standard.removeObject(forKey: legacyMigrationAuditDidRunKey)
         UserDefaults.standard.removeObject(forKey: legacyMigrationV1DidRunKey)
     }
 
@@ -514,6 +516,143 @@ enum MigrationValidationStorage {
             }
         }
         return nil
+    }
+
+    static func legacyMigrationBackupRootURL() throws -> URL {
+        let url = try appGroupURL().appendingPathComponent("LegacySwiftDataMigrationBackups", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+}
+
+private struct LegacyMigrationBackupHandle {
+    let createdAt: Date
+    let directoryURL: URL
+    let backupURL: URL
+    let manifestURL: URL
+    let sourceStorePath: String
+    let appVersion: String
+    let buildNumber: String
+    let legacySnapshot: MigrationSnapshot
+    let sqliteBefore: MigrationSnapshot
+
+    func finish(
+        sqliteAfter: MigrationSnapshot,
+        status: String,
+        message: String?
+    ) throws {
+        let manifest = LegacyMigrationAuditManifest(
+            createdAt: createdAt,
+            completedAt: Date(),
+            appVersion: appVersion,
+            buildNumber: buildNumber,
+            sourceStorePath: sourceStorePath,
+            backupFileName: backupURL.lastPathComponent,
+            legacy: MigrationSnapshotSummary(snapshot: legacySnapshot),
+            sqliteBefore: MigrationSnapshotSummary(snapshot: sqliteBefore),
+            sqliteAfter: MigrationSnapshotSummary(snapshot: sqliteAfter),
+            status: status,
+            message: message
+        )
+        try LegacyMigrationBackupStore.write(manifest, to: manifestURL)
+    }
+}
+
+private enum LegacyMigrationBackupStore {
+    static func start(
+        legacySnapshot: MigrationSnapshot,
+        sqliteBefore: MigrationSnapshot,
+        sourceStoreURL: URL
+    ) throws -> LegacyMigrationBackupHandle {
+        let createdAt = Date()
+        let appVersion = Bundle.main.eventBuddyMigrationVersionString
+        let buildNumber = Bundle.main.eventBuddyMigrationBuildString
+        let directoryURL = try MigrationValidationStorage.legacyMigrationBackupRootURL()
+            .appendingPathComponent(
+                "SwiftData-\("\(appVersion)-\(buildNumber)".fileSystemSafeForMigration)-\(timestamp.string(from: createdAt))",
+                isDirectory: true
+            )
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+
+        let backupURL = directoryURL.appendingPathComponent("eventbuddy_backup.json")
+        try write(legacySnapshot.dataBackup(exportDate: createdAt), to: backupURL)
+
+        let manifestURL = directoryURL.appendingPathComponent("migration_audit.json")
+        let manifest = LegacyMigrationAuditManifest(
+            createdAt: createdAt,
+            completedAt: nil,
+            appVersion: appVersion,
+            buildNumber: buildNumber,
+            sourceStorePath: sourceStoreURL.path,
+            backupFileName: backupURL.lastPathComponent,
+            legacy: MigrationSnapshotSummary(snapshot: legacySnapshot),
+            sqliteBefore: MigrationSnapshotSummary(snapshot: sqliteBefore),
+            sqliteAfter: nil,
+            status: "started",
+            message: nil
+        )
+        try write(manifest, to: manifestURL)
+
+        return LegacyMigrationBackupHandle(
+            createdAt: createdAt,
+            directoryURL: directoryURL,
+            backupURL: backupURL,
+            manifestURL: manifestURL,
+            sourceStorePath: sourceStoreURL.path,
+            appVersion: appVersion,
+            buildNumber: buildNumber,
+            legacySnapshot: legacySnapshot,
+            sqliteBefore: sqliteBefore
+        )
+    }
+
+    static func write<T: Encodable>(_ value: T, to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(value)
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static let timestamp: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return formatter
+    }()
+}
+
+private struct LegacyMigrationAuditManifest: Codable {
+    let createdAt: Date
+    let completedAt: Date?
+    let appVersion: String
+    let buildNumber: String
+    let sourceStorePath: String
+    let backupFileName: String
+    let legacy: MigrationSnapshotSummary
+    let sqliteBefore: MigrationSnapshotSummary
+    let sqliteAfter: MigrationSnapshotSummary?
+    let status: String
+    let message: String?
+}
+
+private struct MigrationSnapshotSummary: Codable {
+    let profiles: Int
+    let events: Int
+    let friends: Int
+    let attendeeLinks: Int
+    let wishLinks: Int
+    let digest: String
+
+    init(snapshot: MigrationSnapshot) {
+        self.profiles = snapshot.profileCount
+        self.events = snapshot.events.count
+        self.friends = snapshot.friends.count
+        self.attendeeLinks = snapshot.attendeeLinkCount
+        self.wishLinks = snapshot.wishLinkCount
+        self.digest = snapshot.digest
     }
 }
 
@@ -783,32 +922,65 @@ enum LegacySwiftDataMigration {
     private static let sampleFriendID = UUID(uuidString: "12345678-1234-1234-1234-123456789ABC")!
 
     static func migrateIfNeeded(modelContext: ModelContext) throws -> MigrationSnapshot? {
-        guard !UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationDidRunKey) else {
-            return nil
-        }
-
         guard let legacyStoreURL = MigrationValidationStorage.productionLegacyStoreURL() else {
-            UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
             return nil
         }
 
         let snapshot = try LegacySwiftDataStore.fetchSnapshot(from: legacyStoreURL)
         guard !snapshot.isEmpty else {
-            UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
             return nil
         }
 
         try modelContext.reload()
-        try merge(snapshot, into: modelContext)
-        try modelContext.save()
-        try modelContext.reload()
+        let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(modelContext: modelContext)
+        let alreadyAudited = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
+        let alreadyContainsLegacyData = sqliteBefore.containsMigratedData(from: snapshot)
+
+        guard !alreadyAudited || !alreadyContainsLegacyData else {
+            return nil
+        }
+
+        let backup = try LegacyMigrationBackupStore.start(
+            legacySnapshot: snapshot,
+            sqliteBefore: sqliteBefore,
+            sourceStoreURL: legacyStoreURL
+        )
+
+        if !alreadyContainsLegacyData {
+            try merge(snapshot, into: modelContext)
+            try modelContext.save()
+            try modelContext.reload()
+        }
+
+        let sqliteAfter = try SQLiteMigrationValidator.fetchSnapshot(modelContext: modelContext)
+        let migrationContainsLegacyData = sqliteAfter.containsMigratedData(from: snapshot)
+        let status: String
+        let message: String?
+
+        if migrationContainsLegacyData {
+            status = alreadyContainsLegacyData ? "verified" : "migrated"
+            message = nil
+        } else {
+            status = "failed"
+            message = "SQLiteData snapshot is missing one or more legacy SwiftData records."
+        }
+
+        try? backup.finish(sqliteAfter: sqliteAfter, status: status, message: message)
+
+        guard migrationContainsLegacyData else {
+            throw LegacySwiftDataMigrationError.missingMigratedData(
+                legacyFriends: snapshot.friends.count,
+                sqliteFriends: sqliteAfter.friends.count
+            )
+        }
 
         UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
+        UserDefaults.standard.set(true, forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
         print(
-            "✅ Migrated legacy SwiftData store from \(legacyStoreURL.path): " +
+            "✅ \(alreadyContainsLegacyData ? "Verified" : "Migrated") legacy SwiftData store from \(legacyStoreURL.path): " +
             "\(snapshot.events.count) events, \(snapshot.friends.count) friends, \(snapshot.profileCount) profiles"
         )
-        return snapshot
+        return alreadyContainsLegacyData ? nil : snapshot
     }
 
     private static func merge(_ snapshot: MigrationSnapshot, into modelContext: ModelContext) throws {
@@ -1103,6 +1275,113 @@ enum SQLiteMigrationValidator {
     }
 }
 
+private enum LegacySwiftDataMigrationError: LocalizedError {
+    case missingMigratedData(legacyFriends: Int, sqliteFriends: Int)
+
+    var errorDescription: String? {
+        switch self {
+        case let .missingMigratedData(legacyFriends, sqliteFriends):
+            return "SQLiteData migration verification failed: expected \(legacyFriends) friends from the legacy store, found \(sqliteFriends) after migration."
+        }
+    }
+}
+
+private extension MigrationSnapshot {
+    func containsMigratedData(from legacy: MigrationSnapshot) -> Bool {
+        if let legacyProfile = legacy.profile, profile != legacyProfile {
+            return false
+        }
+
+        let friendsByID = Dictionary(uniqueKeysWithValues: friends.map { ($0.id, $0) })
+        for legacyFriend in legacy.friends {
+            guard friendsByID[legacyFriend.id] == legacyFriend else {
+                return false
+            }
+        }
+
+        let eventsByID = Dictionary(uniqueKeysWithValues: events.map { ($0.id, $0) })
+        for legacyEvent in legacy.events {
+            guard eventsByID[legacyEvent.id] == legacyEvent else {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    func dataBackup(exportDate: Date) -> DataBackup {
+        DataBackup(
+            exportDate: exportDate,
+            version: "1.0",
+            events: events.map {
+                EventExportDTO(
+                    id: $0.id.uuidString,
+                    title: $0.title,
+                    eventDescription: $0.eventDescription,
+                    location: $0.location,
+                    address: $0.address,
+                    startDate: $0.startDate,
+                    endDate: $0.endDate,
+                    eventType: $0.eventType,
+                    notes: $0.notes,
+                    requiresTicket: $0.requiresTicket,
+                    requiresRegistration: $0.requiresRegistration,
+                    url: $0.url,
+                    isAttending: $0.isAttending,
+                    isCustomEvent: $0.isCustomEvent,
+                    originalTimezoneIdentifier: $0.originalTimezoneIdentifier,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt
+                )
+            },
+            friends: friends.map {
+                FriendExportDTO(
+                    id: $0.id.uuidString,
+                    name: $0.name,
+                    email: $0.email,
+                    phone: $0.phone,
+                    jobTitle: $0.jobTitle,
+                    company: $0.company,
+                    socialMediaHandles: $0.socialMediaHandles,
+                    notes: $0.notes,
+                    isFavorite: $0.isFavorite,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt
+                )
+            },
+            profile: profile.map {
+                ProfileExportDTO(
+                    id: $0.id.uuidString,
+                    name: $0.name,
+                    bio: $0.bio,
+                    email: $0.email,
+                    phone: $0.phone,
+                    profileImage: $0.profileImage,
+                    socialMediaAccounts: $0.socialMediaAccounts,
+                    preferences: $0.preferences,
+                    title: $0.title,
+                    company: $0.company,
+                    avatarSystemName: $0.avatarSystemName,
+                    createdAt: $0.createdAt,
+                    updatedAt: $0.updatedAt
+                )
+            },
+            relationships: RelationshipData(
+                eventAttendees: events.flatMap { event in
+                    event.attendeeIDs.map {
+                        EventAttendeeRelation(eventId: event.id.uuidString, friendId: $0.uuidString)
+                    }
+                },
+                eventWishes: events.flatMap { event in
+                    event.wishIDs.map {
+                        EventWishRelation(eventId: event.id.uuidString, friendId: $0.uuidString)
+                    }
+                }
+            )
+        )
+    }
+}
+
 private extension ISO8601DateFormatter {
     static let validation: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
@@ -1116,4 +1395,22 @@ private func encodeStableDictionary(_ dictionary: [String: String]) -> String {
         .sorted { $0.key < $1.key }
         .map { "\($0.key)=\($0.value)" }
         .joined(separator: ",")
+}
+
+private extension Bundle {
+    var eventBuddyMigrationVersionString: String {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+    }
+
+    var eventBuddyMigrationBuildString: String {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+    }
+}
+
+private extension String {
+    var fileSystemSafeForMigration: String {
+        components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: "-")
+    }
 }

@@ -89,21 +89,21 @@ enum EventBuddyDatabase {
         }
 
         let database: any DatabaseWriter
+        let migrationBackup: SQLiteDataStoreMigrationBackup.Handle?
         switch context {
         case .live:
             let databaseURL = try databaseURL()
+            migrationBackup = try SQLiteDataStoreMigrationBackup.createIfNeeded(databaseURL: databaseURL)
             database = try DatabaseQueue(path: databaseURL.path, configuration: configuration)
             logger.info("Open database at \(databaseURL.path, privacy: .public)")
         default:
+            migrationBackup = nil
             let queue = try DatabaseQueue(configuration: configuration)
             logger.info("Open transient database for non-live context")
             database = queue
         }
 
         var migrator = DatabaseMigrator()
-        #if DEBUG
-        migrator.eraseDatabaseOnSchemaChange = true
-        #endif
 
         migrator.registerMigration("Create SQLiteData tables") { db in
             try #sql(
@@ -195,6 +195,7 @@ enum EventBuddyDatabase {
         }
 
         try migrator.migrate(database)
+        try migrationBackup?.finish(database: database)
         return database
     }
 
@@ -236,3 +237,191 @@ enum EventBuddyDatabase {
 }
 
 private let logger = Logger(subsystem: "EventBuddy", category: "Database")
+
+private enum SQLiteDataStoreMigrationBackup {
+    private static let lastBackupBuildKey = "EventBuddy.SQLiteDataStoreMigrationBackup.lastBuild"
+
+    struct Handle {
+        let createdAt: Date
+        let directoryURL: URL
+        let manifestURL: URL
+        let sourceDatabasePath: String
+        let copiedFiles: [String]
+        let appVersion: String
+        let buildNumber: String
+        let preMigrationCounts: SQLiteDataStoreCounts?
+
+        func finish(database: any DatabaseWriter) throws {
+            let postMigrationCounts = try? database.read { db in
+                try SQLiteDataStoreMigrationBackup.counts(in: db)
+            }
+            let manifest = SQLiteDataStoreBackupManifest(
+                createdAt: createdAt,
+                completedAt: Date(),
+                appVersion: appVersion,
+                buildNumber: buildNumber,
+                sourceDatabasePath: sourceDatabasePath,
+                copiedFiles: copiedFiles,
+                preMigrationCounts: preMigrationCounts,
+                postMigrationCounts: postMigrationCounts,
+                status: "completed"
+            )
+            try SQLiteDataStoreMigrationBackup.write(manifest, to: manifestURL)
+        }
+    }
+
+    static func createIfNeeded(databaseURL: URL) throws -> Handle? {
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: databaseURL.path) else { return nil }
+
+        let appVersion = Bundle.main.eventBuddyVersionString
+        let buildNumber = Bundle.main.eventBuddyBuildString
+        let buildIdentifier = "\(appVersion)-\(buildNumber)"
+        guard UserDefaults.standard.string(forKey: lastBackupBuildKey) != buildIdentifier else {
+            return nil
+        }
+
+        let createdAt = Date()
+        let directoryURL = try backupRootURL()
+            .appendingPathComponent("SQLiteData-\(buildIdentifier.fileSystemSafe)-\(Self.timestamp.string(from: createdAt))")
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+
+        let copiedFiles = try copyDatabaseFiles(from: databaseURL, to: directoryURL)
+        let backupDatabaseURL = directoryURL.appendingPathComponent(databaseURL.lastPathComponent)
+        let preMigrationCounts = try? counts(inDatabaseAt: backupDatabaseURL)
+        let manifestURL = directoryURL.appendingPathComponent("migration_audit.json")
+
+        let manifest = SQLiteDataStoreBackupManifest(
+            createdAt: createdAt,
+            completedAt: nil,
+            appVersion: appVersion,
+            buildNumber: buildNumber,
+            sourceDatabasePath: databaseURL.path,
+            copiedFiles: copiedFiles,
+            preMigrationCounts: preMigrationCounts,
+            postMigrationCounts: nil,
+            status: "started"
+        )
+        try write(manifest, to: manifestURL)
+
+        UserDefaults.standard.set(buildIdentifier, forKey: lastBackupBuildKey)
+
+        return Handle(
+            createdAt: createdAt,
+            directoryURL: directoryURL,
+            manifestURL: manifestURL,
+            sourceDatabasePath: databaseURL.path,
+            copiedFiles: copiedFiles,
+            appVersion: appVersion,
+            buildNumber: buildNumber,
+            preMigrationCounts: preMigrationCounts
+        )
+    }
+
+    private static func backupRootURL() throws -> URL {
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: EventBuddyDatabase.appGroupIdentifier
+        ) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        let url = containerURL.appendingPathComponent("SQLiteDataMigrationBackups", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private static func copyDatabaseFiles(from databaseURL: URL, to directoryURL: URL) throws -> [String] {
+        let fileManager = FileManager.default
+        var copiedFiles: [String] = []
+
+        for suffix in ["", "-wal", "-shm"] {
+            let sourceURL = URL(fileURLWithPath: databaseURL.path + suffix)
+            guard fileManager.fileExists(atPath: sourceURL.path) else { continue }
+
+            let destinationURL = directoryURL.appendingPathComponent(sourceURL.lastPathComponent)
+            if fileManager.fileExists(atPath: destinationURL.path) {
+                try fileManager.removeItem(at: destinationURL)
+            }
+            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+            copiedFiles.append(destinationURL.lastPathComponent)
+        }
+
+        return copiedFiles
+    }
+
+    private static func counts(inDatabaseAt databaseURL: URL) throws -> SQLiteDataStoreCounts {
+        let queue = try DatabaseQueue(path: databaseURL.path)
+        return try queue.read { db in
+            try counts(in: db)
+        }
+    }
+
+    private static func counts(in db: Database) throws -> SQLiteDataStoreCounts {
+        try SQLiteDataStoreCounts(
+            events: countRows(in: "storedEvents", db: db),
+            friends: countRows(in: "storedFriends", db: db),
+            profiles: countRows(in: "storedProfiles", db: db),
+            attendeeLinks: countRows(in: "storedEventAttendees", db: db),
+            wishLinks: countRows(in: "storedEventWishes", db: db)
+        )
+    }
+
+    private static func countRows(in tableName: String, db: Database) throws -> Int {
+        guard try db.tableExists(tableName) else { return 0 }
+        return try Int.fetchOne(db, sql: #"SELECT COUNT(*) FROM "\#(tableName)""#) ?? 0
+    }
+
+    private static func write(_ manifest: SQLiteDataStoreBackupManifest, to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(manifest)
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static let timestamp: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return formatter
+    }()
+}
+
+private struct SQLiteDataStoreBackupManifest: Codable {
+    let createdAt: Date
+    let completedAt: Date?
+    let appVersion: String
+    let buildNumber: String
+    let sourceDatabasePath: String
+    let copiedFiles: [String]
+    let preMigrationCounts: SQLiteDataStoreCounts?
+    let postMigrationCounts: SQLiteDataStoreCounts?
+    let status: String
+}
+
+private struct SQLiteDataStoreCounts: Codable {
+    let events: Int
+    let friends: Int
+    let profiles: Int
+    let attendeeLinks: Int
+    let wishLinks: Int
+}
+
+private extension Bundle {
+    var eventBuddyVersionString: String {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+    }
+
+    var eventBuddyBuildString: String {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+    }
+}
+
+private extension String {
+    var fileSystemSafe: String {
+        components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: "-")
+    }
+}
