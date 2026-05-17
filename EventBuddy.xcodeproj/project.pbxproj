@@ -74,9 +74,9 @@
 				Models/Event.swift,
 				Models/Friend.swift,
 				Models/Profile.swift,
+				Persistence/AppEnvironment.swift,
 				Persistence/AppStore.swift,
 				Persistence/SQLiteSchema.swift,
-				Persistence/AppEnvironment.swift,
 				Services/LiveActivityService.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
@@ -418,7 +418,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -453,7 +453,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -488,7 +488,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = EventBuddyWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
@@ -517,7 +517,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = EventBuddyWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
