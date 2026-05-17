@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 import PhotosUI
 
 struct ProfileEditView: View {
@@ -207,13 +206,8 @@ struct ProfileEditView: View {
 }
 
 #Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Profile.self, configurations: config)
-    let context = container.mainContext
-    
-    let sampleProfile = Profile.preview
-    context.insert(sampleProfile)
-    
-    return ProfileEditView(profile: sampleProfile, onSave: {})
-        .modelContainer(container)
+    let environment = AppEnvironment()
+    return ProfileEditView(profile: Profile.preview, onSave: {})
+        .environment(environment.store)
+        .environment(\.modelContext, environment.modelContext)
 } 

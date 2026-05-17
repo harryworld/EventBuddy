@@ -1,6 +1,4 @@
 import Foundation
-import SwiftData
-import SwiftUI
 
 // Notification name for attendance changes
 extension Notification.Name {
@@ -135,8 +133,8 @@ private func extractTimezoneFromISO8601(_ dateString: String) -> String? {
     return "America/Los_Angeles"
 }
 
-@Model
-final class Event {
+@Observable
+final class Event: Identifiable, Hashable {
     var id: UUID
     var title: String
     var eventDescription: String
@@ -155,11 +153,9 @@ final class Event {
     var originalTimezoneIdentifier: String?
     var isCustomEvent: Bool = true
     
-    @Relationship(deleteRule: .nullify)
     var attendees: [Friend] = []
     
     // New properties for friend wishes
-    @Relationship(deleteRule: .nullify)
     var friendWishes: [Friend] = []
     
     init(id: UUID = UUID(), 
@@ -195,15 +191,31 @@ final class Event {
         self.originalTimezoneIdentifier = originalTimezoneIdentifier ?? "America/Los_Angeles"
         self.isCustomEvent = isCustomEvent
     }
+
+    static func == (lhs: Event, rhs: Event) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     
     func addFriend(_ friend: Friend) {
         if !attendees.contains(where: { $0.id == friend.id }) {
             attendees.append(friend)
+            if !friend.events.contains(where: { $0.id == id }) {
+                friend.events.append(self)
+            }
+            updatedAt = Date()
         }
     }
     
     func removeFriend(_ friendId: UUID) {
+        if let friend = attendees.first(where: { $0.id == friendId }) {
+            friend.events.removeAll { $0.id == id }
+        }
         attendees.removeAll { $0.id == friendId }
+        updatedAt = Date()
     }
     
     func isFriendAttending(_ friendId: UUID) -> Bool {
@@ -316,11 +328,17 @@ final class Event {
     func addFriendWish(_ friend: Friend) {
         if !friendWishes.contains(where: { $0.id == friend.id }) {
             friendWishes.append(friend)
+            if !friend.wishEvents.contains(where: { $0.id == id }) {
+                friend.wishEvents.append(self)
+            }
             updatedAt = Date()
         }
     }
     
     func removeFriendWish(_ friendId: UUID) {
+        if let friend = friendWishes.first(where: { $0.id == friendId }) {
+            friend.wishEvents.removeAll { $0.id == id }
+        }
         friendWishes.removeAll { $0.id == friendId }
         updatedAt = Date()
     }

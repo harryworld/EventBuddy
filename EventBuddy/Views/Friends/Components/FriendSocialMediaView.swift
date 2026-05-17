@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct FriendSocialMediaView: View {
     let friend: Friend

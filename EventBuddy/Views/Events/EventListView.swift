@@ -1,12 +1,10 @@
 import SwiftUI
-import SwiftData
 
 struct EventListView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.modelContext) private var modelContext
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
     @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
-
-    @Query(sort: \Event.startDate) private var events: [Event]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
@@ -331,7 +329,7 @@ struct EventListView: View {
     }
     
     private var filteredEvents: [Event] {
-        var result = events
+        var result = appStore.events
         
         // Filter by time (hide past events unless showing historical events)
         if !showHistoricalEvents {
@@ -428,6 +426,8 @@ struct EventListView: View {
 }
 
 #Preview {
-    EventListView()
-        .modelContainer(for: Event.self, inMemory: true)
+    let environment = AppEnvironment()
+    return EventListView()
+        .environment(environment.store)
+        .environment(\.modelContext, environment.modelContext)
 }

@@ -1,10 +1,8 @@
 import Foundation
-import SwiftData
-import SwiftUI
 import Contacts
 
-@Model
-final class Profile {
+@Observable
+final class Profile: Identifiable, Hashable {
     var id: UUID
     var name: String
     var bio: String
@@ -57,6 +55,14 @@ final class Profile {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedEmail.isEmpty else { return nil }
         return trimmedEmail.lowercased()
+    }
+
+    static func == (lhs: Profile, rhs: Profile) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

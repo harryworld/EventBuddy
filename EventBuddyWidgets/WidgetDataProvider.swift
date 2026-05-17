@@ -1,4 +1,3 @@
-import SwiftData
 import WidgetKit
 import Foundation
 
@@ -30,12 +29,12 @@ enum WidgetTimeScope: String, CaseIterable {
 class WidgetDataProvider {
     static let shared = WidgetDataProvider()
     
-    private lazy var modelContainer: ModelContainer = {
-        EventBuddySchema.sharedModelContainer
-    }()
-    
-    private var modelContext: ModelContext {
-        modelContainer.mainContext
+    private let store = AppStore()
+    private lazy var modelContext = ModelContext(store: store)
+
+    private init() {
+        _ = try? EventBuddyDatabase.bootstrap(enableSyncEngine: false)
+        try? modelContext.reload()
     }
     
     func getUpcomingEvents(
@@ -43,6 +42,7 @@ class WidgetDataProvider {
         timeScope: WidgetTimeScope = .future,
         limit: Int = 5
     ) -> [Event] {
+        try? modelContext.reload()
         let now = Date()
         let calendar = Calendar.current
         
@@ -88,6 +88,7 @@ class WidgetDataProvider {
     }
     
     func getCurrentProfile() -> Profile? {
+        try? modelContext.reload()
         let descriptor = FetchDescriptor<Profile>()
         
         do {
@@ -98,4 +99,4 @@ class WidgetDataProvider {
             return nil
         }
     }
-} 
+}

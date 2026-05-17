@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct EventRowView: View {
     let event: Event

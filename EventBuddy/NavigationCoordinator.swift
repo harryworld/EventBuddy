@@ -1,6 +1,6 @@
 import SwiftUI
-import SwiftData
 
+@MainActor
 @Observable
 class NavigationCoordinator {
     var selectedTab: Int = 0
@@ -50,4 +50,4 @@ class NavigationCoordinator {
         shouldNavigateToEvent = false
         shouldScrollToEvent = false
     }
-} 
+}

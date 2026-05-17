@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 import MapKit
 import CoreLocation
 import EventKit
@@ -471,17 +470,17 @@ struct SharedAddFriendSection: View {
 
 // MARK: - Shared Friend Search Section
 struct SharedFriendSearchSection: View {
+    @Environment(AppStore.self) private var appStore
     @Bindable var event: Event
     let modelContext: ModelContext
     let isWishMode: Bool
-    @Query private var allFriends: [Friend]
     @Binding var filterText: String
     
     private var filteredFriends: [Friend] {
         if filterText.isEmpty {
             return []
         } else {
-            return allFriends.filter { friend in
+            return appStore.friends.filter { friend in
                 friend.name.localizedCaseInsensitiveContains(filterText) &&
                 !currentFriendsList.contains { $0.id == friend.id }
             }
@@ -836,9 +835,10 @@ struct SectionContainer<Content: View>: View {
 }
 
 #Preview {
+    let environment = AppEnvironment()
     NavigationStack {
         EventDetailView(event: Event.preview)
     }
-    .modelContainer(for: [Event.self, Friend.self], inMemory: true)
+    .environment(environment.store)
+    .environment(\.modelContext, environment.modelContext)
 } 
-

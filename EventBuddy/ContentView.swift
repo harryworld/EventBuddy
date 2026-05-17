@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
+    @Environment(AppStore.self) private var appStore
     @Environment(\.modelContext) private var modelContext
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
@@ -80,6 +80,12 @@ struct ContentView: View {
     }
     
     private func setupServices() {
+        do {
+            _ = try LegacySwiftDataMigration.migrateIfNeeded(modelContext: modelContext)
+            try modelContext.reload()
+        } catch {
+            print("Failed to prepare persistence: \(error)")
+        }
         eventSyncService = EventSyncService(modelContext: modelContext)
         loadInitialData()
     }
@@ -142,8 +148,10 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .modelContainer(for: [Event.self, Friend.self, Profile.self], inMemory: true)
+    let environment = AppEnvironment()
+    return ContentView()
+        .environment(environment.store)
+        .environment(\.modelContext, environment.modelContext)
 }
 
 extension View {

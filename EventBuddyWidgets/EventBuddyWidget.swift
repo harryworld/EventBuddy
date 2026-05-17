@@ -1,6 +1,5 @@
 import WidgetKit
 import SwiftUI
-import SwiftData
 
 // MARK: - Widget Entry
 struct EventBuddyEntry: TimelineEntry {

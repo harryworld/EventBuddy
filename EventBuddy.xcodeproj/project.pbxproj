@@ -10,6 +10,8 @@
 		06E75CFE2DEDB9AF000EEE35 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFD2DEDB9AF000EEE35 /* WidgetKit.framework */; };
 		06E75D002DEDB9AF000EEE35 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFF2DEDB9AF000EEE35 /* SwiftUI.framework */; };
 		06E75D112DEDB9B0000EEE35 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0A1B2C3D4E5F60718293A401 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A403 /* SQLiteData */; };
+		0A1B2C3D4E5F60718293A402 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A404 /* SQLiteData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +75,9 @@
 				Models/Friend.swift,
 				Models/ModelConfiguration.swift,
 				Models/Profile.swift,
+				Persistence/AppStore.swift,
+				Persistence/ModelContext.swift,
+				Persistence/SQLiteSchema.swift,
 				Services/LiveActivityService.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
@@ -105,6 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A1B2C3D4E5F60718293A401 /* SQLiteData in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A1B2C3D4E5F60718293A402 /* SQLiteData in Frameworks */,
 				06E75D002DEDB9AF000EEE35 /* SwiftUI.framework in Frameworks */,
 				06E75CFE2DEDB9AF000EEE35 /* WidgetKit.framework in Frameworks */,
 			);
@@ -171,6 +178,7 @@
 			);
 			name = EventBuddy;
 			packageProductDependencies = (
+				0A1B2C3D4E5F60718293A403 /* SQLiteData */,
 			);
 			productName = EventBuddy;
 			productReference = 068753A92DD6D5A00048FD00 /* EventBuddy.app */;
@@ -193,6 +201,7 @@
 			);
 			name = EventBuddyWidgetsExtension;
 			packageProductDependencies = (
+				0A1B2C3D4E5F60718293A404 /* SQLiteData */,
 			);
 			productName = EventBuddyWidgetsExtension;
 			productReference = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */;
@@ -225,6 +234,9 @@
 			);
 			mainGroup = 068753A02DD6D5A00048FD00;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 068753AA2DD6D5A00048FD00 /* Products */;
 			projectDirPath = "";
@@ -277,6 +289,17 @@
 			targetProxy = 06E75D0F2DEDB9B0000EEE35 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCBuildConfiguration section */
 		068753B22DD6D5A30048FD00 /* Debug */ = {
@@ -557,6 +580,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A1B2C3D4E5F60718293A403 /* SQLiteData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */;
+			productName = SQLiteData;
+		};
+		0A1B2C3D4E5F60718293A404 /* SQLiteData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */;
+			productName = SQLiteData;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 068753A12DD6D5A00048FD00 /* Project object */;
 }

@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct AddFriendView: View {
     @Environment(\.dismiss) private var dismiss
