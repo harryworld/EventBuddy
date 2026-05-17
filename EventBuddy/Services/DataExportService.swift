@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import UniformTypeIdentifiers
 import Compression
+import Contacts
 
 @MainActor
 @Observable
@@ -47,10 +48,19 @@ class DataExportService {
             
             let friendsCSVURL = try await exportFriendsCSV(to: tempDir)
             exportProgress = 0.8
+
+            let personalNamecardURL = try await exportPersonalNamecard(to: tempDir)
+            exportProgress = 0.9
             
             // Create archive
+            var exportFiles = [jsonURL, eventsCSVURL, friendsCSVURL]
+            if let personalNamecardURL {
+                exportFiles.append(personalNamecardURL)
+            }
+
             let archiveURL = try createArchive(
-                files: [jsonURL, eventsCSVURL, friendsCSVURL],
+                files: exportFiles,
+                includesPersonalNamecard: personalNamecardURL != nil,
                 in: tempDir
             )
             exportProgress = 1.0
@@ -74,6 +84,9 @@ class DataExportService {
         
         let friendDescriptor = FetchDescriptor<Friend>()
         let friends = try modelContext.fetch(friendDescriptor)
+
+        let profileDescriptor = FetchDescriptor<Profile>()
+        let profile = try modelContext.fetch(profileDescriptor).first
         
         // Create backup structure
         let backup = DataBackup(
@@ -81,6 +94,7 @@ class DataExportService {
             version: "1.0",
             events: events.map { $0.toExportDTO() },
             friends: friends.map { $0.toExportDTO() },
+            profile: profile?.toExportDTO(),
             relationships: createRelationshipData(events: events, friends: friends)
         )
         
@@ -170,10 +184,28 @@ class DataExportService {
         try csvContent.write(to: fileURL, atomically: true, encoding: .utf8)
         return fileURL
     }
+
+    private func exportPersonalNamecard(to directory: URL) async throws -> URL? {
+        let profileDescriptor = FetchDescriptor<Profile>()
+        guard let profile = try modelContext.fetch(profileDescriptor).first else {
+            return nil
+        }
+
+        let fileURL = directory.appendingPathComponent("personal_namecard.vcf")
+        let contact = profile.createContact()
+        let data = try CNContactVCardSerialization.data(with: [contact])
+        try data.write(to: fileURL, options: .atomic)
+
+        return fileURL
+    }
     
     // MARK: - Archive Creation
     
-    private func createArchive(files: [URL], in directory: URL) throws -> URL {
+    private func createArchive(
+        files: [URL],
+        includesPersonalNamecard: Bool,
+        in directory: URL
+    ) throws -> URL {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
         let timestamp = dateFormatter.string(from: Date())
@@ -192,6 +224,20 @@ class DataExportService {
         }
         
         // Create a README file
+        var includedFiles = [
+            "- eventbuddy_backup.json: Complete backup in JSON format",
+            "- events.csv: All events in CSV format",
+            "- friends.csv: All friends in CSV format"
+        ]
+
+        if includesPersonalNamecard {
+            includedFiles.append("- personal_namecard.vcf: Your personal contact card in vCard format")
+        }
+
+        let namecardImportNote = includesPersonalNamecard
+            ? "\nThe vCard file can be imported into Contacts or shared as your personal namecard."
+            : ""
+
         let readmeContent = """
         EventBuddy Data Export
         =====================
@@ -200,12 +246,10 @@ class DataExportService {
         Version: 1.0
         
         Files included:
-        - eventbuddy_backup.json: Complete backup in JSON format
-        - events.csv: All events in CSV format
-        - friends.csv: All friends in CSV format
+        \(includedFiles.joined(separator: "\n"))
         
-        The JSON file contains all data including relationships between events and friends.
-        The CSV files are provided for easy import into spreadsheet applications.
+        The JSON file contains all data including your profile and relationships between events and friends.
+        The CSV files are provided for easy import into spreadsheet applications.\(namecardImportNote)
         """
         
         let readmeURL = exportFolderURL.appendingPathComponent("README.txt")
@@ -258,6 +302,7 @@ struct DataBackup: Codable {
     let version: String
     let events: [EventExportDTO]
     let friends: [FriendExportDTO]
+    let profile: ProfileExportDTO?
     let relationships: RelationshipData
 }
 
@@ -291,6 +336,22 @@ struct FriendExportDTO: Codable {
     let socialMediaHandles: [String: String]
     let notes: String?
     let isFavorite: Bool
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct ProfileExportDTO: Codable {
+    let id: String
+    let name: String
+    let bio: String
+    let email: String?
+    let phone: String?
+    let profileImage: Data?
+    let socialMediaAccounts: [String: String]
+    let preferences: [String: Bool]
+    let title: String
+    let company: String
+    let avatarSystemName: String
     let createdAt: Date
     let updatedAt: Date
 }
@@ -348,6 +409,26 @@ extension Friend {
             socialMediaHandles: socialMediaHandles,
             notes: notes,
             isFavorite: isFavorite,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
+    }
+}
+
+extension Profile {
+    func toExportDTO() -> ProfileExportDTO {
+        return ProfileExportDTO(
+            id: id.uuidString,
+            name: name,
+            bio: bio,
+            email: email,
+            phone: phone,
+            profileImage: profileImage,
+            socialMediaAccounts: socialMediaAccounts,
+            preferences: preferences,
+            title: title,
+            company: company,
+            avatarSystemName: avatarSystemName,
             createdAt: createdAt,
             updatedAt: updatedAt
         )

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import UniformTypeIdentifiers
+import Contacts
 
 @MainActor
 @Observable
@@ -52,16 +53,26 @@ class DataImportService {
                 throw ImportError.fileNotFound
             }
             
+            if !isDirectory.boolValue && isVCardFile(url) {
+                let result = try await importPersonalNamecard(from: url)
+                importProgress = 1.0
+                return result
+            }
+
             let jsonURL: URL
+            let personalNamecardURL: URL?
             if isDirectory.boolValue {
                 // Look for the JSON backup file in the directory
                 jsonURL = url.appendingPathComponent("eventbuddy_backup.json")
                 guard FileManager.default.fileExists(atPath: jsonURL.path) else {
                     throw ImportError.invalidFormat("No backup file found in the selected folder")
                 }
+                let namecardURL = url.appendingPathComponent("personal_namecard.vcf")
+                personalNamecardURL = FileManager.default.fileExists(atPath: namecardURL.path) ? namecardURL : nil
             } else {
                 // Direct JSON file
                 jsonURL = url
+                personalNamecardURL = nil
             }
             
             importProgress = 0.1
@@ -81,7 +92,10 @@ class DataImportService {
             importProgress = 0.4
             
             // Import data with conflict resolution
-            let result = try await importBackupData(backup)
+            let result = try await importBackupData(
+                backup,
+                personalNamecardURL: personalNamecardURL
+            )
             importProgress = 1.0
             
             return result
@@ -141,7 +155,10 @@ class DataImportService {
     
     // MARK: - Data Import
     
-    private func importBackupData(_ backup: DataBackup) async throws -> ImportResult {
+    private func importBackupData(
+        _ backup: DataBackup,
+        personalNamecardURL: URL?
+    ) async throws -> ImportResult {
         var summary = ImportSummary()
         
         // Create lookup dictionaries for existing data
@@ -175,12 +192,34 @@ class DataImportService {
             friendIdMap: friendIdMap,
             summary: &summary
         )
+
+        if let profileDTO = backup.profile {
+            try overrideProfile(from: profileDTO, summary: &summary)
+        } else if let personalNamecardURL {
+            try overrideProfile(fromVCardAt: personalNamecardURL, summary: &summary)
+        }
         
         // Save all changes
         try modelContext.save()
         
         self.importSummary = summary
         
+        return ImportResult(
+            success: true,
+            summary: summary,
+            importDate: Date()
+        )
+    }
+
+    private func importPersonalNamecard(from url: URL) async throws -> ImportResult {
+        importProgress = 0.1
+        var summary = ImportSummary()
+        try overrideProfile(fromVCardAt: url, summary: &summary)
+        importProgress = 0.9
+        try modelContext.save()
+
+        self.importSummary = summary
+
         return ImportResult(
             success: true,
             summary: summary,
@@ -292,6 +331,185 @@ class DataImportService {
         let friends = try modelContext.fetch(descriptor)
         return Dictionary(uniqueKeysWithValues: friends.map { ($0.id.uuidString, $0) })
     }
+
+    private func isVCardFile(_ url: URL) -> Bool {
+        url.pathExtension.localizedCaseInsensitiveCompare("vcf") == .orderedSame
+    }
+
+    private func overrideProfile(fromVCardAt url: URL, summary: inout ImportSummary) throws {
+        let data = try Data(contentsOf: url)
+        importProgress = 0.3
+        let contacts = try CNContactVCardSerialization.contacts(with: data)
+        guard let contact = contacts.first else {
+            throw ImportError.invalidFormat("No contact found in the selected namecard")
+        }
+
+        importProgress = 0.5
+        try overrideProfile(with: contact, summary: &summary)
+    }
+
+    private func overrideProfile(from dto: ProfileExportDTO, summary: inout ImportSummary) throws {
+        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+
+        if let profile = profiles.first {
+            profile.name = dto.name
+            profile.bio = dto.bio
+            profile.email = dto.email
+            profile.phone = dto.phone
+            profile.profileImage = dto.profileImage
+            profile.socialMediaAccounts = dto.socialMediaAccounts
+            profile.preferences = dto.preferences
+            profile.title = dto.title
+            profile.company = dto.company
+            profile.avatarSystemName = dto.avatarSystemName
+            profile.updatedAt = Date()
+            summary.profilesUpdated += 1
+        } else {
+            let profile = Profile(
+                id: UUID(uuidString: dto.id) ?? UUID(),
+                name: dto.name,
+                bio: dto.bio,
+                email: dto.email,
+                phone: dto.phone,
+                profileImage: dto.profileImage,
+                socialMediaAccounts: dto.socialMediaAccounts,
+                preferences: dto.preferences,
+                title: dto.title,
+                company: dto.company,
+                avatarSystemName: dto.avatarSystemName
+            )
+            profile.createdAt = dto.createdAt
+            profile.updatedAt = dto.updatedAt
+            modelContext.insert(profile)
+            summary.profilesCreated += 1
+        }
+    }
+
+    private func overrideProfile(with contact: CNContact, summary: inout ImportSummary) throws {
+        let profiles = try modelContext.fetch(FetchDescriptor<Profile>())
+        let socialMediaAccounts = socialMediaAccounts(from: contact)
+
+        if let profile = profiles.first {
+            profile.name = displayName(for: contact)
+            profile.email = contact.emailAddresses.first.map { String($0.value) }
+            profile.phone = contact.phoneNumbers.first?.value.stringValue
+            profile.profileImage = contact.imageData ?? profile.profileImage
+            profile.socialMediaAccounts = socialMediaAccounts
+            profile.title = contact.jobTitle
+            profile.company = contact.organizationName
+            profile.markAsUpdated()
+            summary.profilesUpdated += 1
+        } else {
+            let profile = Profile(
+                name: displayName(for: contact),
+                bio: "",
+                email: contact.emailAddresses.first.map { String($0.value) },
+                phone: contact.phoneNumbers.first?.value.stringValue,
+                profileImage: contact.imageData,
+                socialMediaAccounts: socialMediaAccounts,
+                preferences: [
+                    "darkMode": false,
+                    "notificationsEnabled": true,
+                    "shareLocation": false
+                ],
+                title: contact.jobTitle,
+                company: contact.organizationName,
+                avatarSystemName: "person.crop.circle.fill"
+            )
+            modelContext.insert(profile)
+            summary.profilesCreated += 1
+        }
+    }
+
+    private func displayName(for contact: CNContact) -> String {
+        if let formattedName = CNContactFormatter.string(from: contact, style: .fullName),
+           !formattedName.isEmpty {
+            return formattedName
+        }
+
+        let nameParts = [
+            contact.givenName,
+            contact.middleName,
+            contact.familyName
+        ].filter { !$0.isEmpty }
+
+        if !nameParts.isEmpty {
+            return nameParts.joined(separator: " ")
+        }
+
+        if !contact.nickname.isEmpty {
+            return contact.nickname
+        }
+
+        if !contact.organizationName.isEmpty {
+            return contact.organizationName
+        }
+
+        return "Your Name"
+    }
+
+    private func socialMediaAccounts(from contact: CNContact) -> [String: String] {
+        var accounts: [String: String] = [:]
+
+        for socialProfile in contact.socialProfiles {
+            let profile = socialProfile.value
+            let username = cleanUsername(
+                profile.username.isEmpty
+                    ? usernameFromURL(profile.urlString)
+                    : profile.username
+            )
+
+            guard !username.isEmpty else { continue }
+
+            let service = socialMediaServiceKey(
+                service: profile.service,
+                label: socialProfile.label
+            )
+            accounts[service] = username
+        }
+
+        return accounts
+    }
+
+    private func socialMediaServiceKey(service: String, label: String?) -> String {
+        let normalized = "\(service) \(label ?? "")".lowercased()
+
+        if normalized.contains("twitter") || normalized.contains("x-socialprofile") {
+            return "twitter"
+        } else if normalized.contains("linkedin") {
+            return "linkedin"
+        } else if normalized.contains("github") {
+            return "github"
+        } else if normalized.contains("instagram") {
+            return "instagram"
+        } else if normalized.contains("facebook") {
+            return "facebook"
+        } else if normalized.contains("threads") {
+            return "threads"
+        } else if normalized.contains("youtube") {
+            return "youtube"
+        }
+
+        let fallback = service.isEmpty ? (label ?? "social") : service
+        return fallback
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "")
+    }
+
+    private func usernameFromURL(_ urlString: String) -> String {
+        guard let url = URL(string: urlString),
+              let lastPathComponent = url.pathComponents.last,
+              lastPathComponent != "/" else {
+            return ""
+        }
+
+        return lastPathComponent
+    }
+
+    private func cleanUsername(_ username: String) -> String {
+        let trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.hasPrefix("@") ? String(trimmed.dropFirst()) : trimmed
+    }
     
     private func createFriend(from dto: FriendExportDTO) -> Friend {
         let friend = Friend(
@@ -379,6 +597,8 @@ struct ImportResult {
 }
 
 struct ImportSummary {
+    var profilesCreated = 0
+    var profilesUpdated = 0
     var eventsCreated = 0
     var eventsUpdated = 0
     var eventsSkipped = 0
@@ -387,9 +607,10 @@ struct ImportSummary {
     var friendsSkipped = 0
     var relationshipsCreated = 0
     
+    var totalProfiles: Int { profilesCreated + profilesUpdated }
     var totalEvents: Int { eventsCreated + eventsUpdated + eventsSkipped }
     var totalFriends: Int { friendsCreated + friendsUpdated + friendsSkipped }
-    var totalChanges: Int { eventsCreated + eventsUpdated + friendsCreated + friendsUpdated + relationshipsCreated }
+    var totalChanges: Int { profilesCreated + profilesUpdated + eventsCreated + eventsUpdated + friendsCreated + friendsUpdated + relationshipsCreated }
 }
 
 // MARK: - Error Types
@@ -415,4 +636,4 @@ enum ImportError: LocalizedError {
             return "Permission denied to access the selected file"
         }
     }
-} 
+}

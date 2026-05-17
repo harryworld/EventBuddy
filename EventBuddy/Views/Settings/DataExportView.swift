@@ -110,6 +110,7 @@ struct DataExportView: View {
                 exportItemRow(icon: "doc.text", title: "Complete JSON backup", description: "All data with relationships")
                 exportItemRow(icon: "tablecells", title: "Events CSV file", description: "Spreadsheet-friendly format")
                 exportItemRow(icon: "person.2", title: "Friends CSV file", description: "Contact information")
+                exportItemRow(icon: "person.crop.rectangle", title: "Personal namecard", description: "vCard contact file")
                 exportItemRow(icon: "info.circle", title: "README file", description: "Export information")
             }
             .padding()
@@ -244,9 +245,11 @@ struct DataExportView: View {
             return "Creating JSON backup..."
         case 0.5..<0.7:
             return "Exporting events to CSV..."
-        case 0.7..<0.9:
+        case 0.7..<0.85:
             return "Exporting friends to CSV..."
-        case 0.9..<1.0:
+        case 0.85..<0.95:
+            return "Exporting personal namecard..."
+        case 0.95..<1.0:
             return "Creating archive..."
         default:
             return "Finalizing export..."
@@ -279,4 +282,4 @@ struct DataExportShareSheet: UIViewControllerRepresentable {
 #Preview {
     DataExportView()
         .modelContainer(for: [Event.self, Friend.self])
-} 
+}

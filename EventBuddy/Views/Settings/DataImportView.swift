@@ -3,6 +3,8 @@ import SwiftData
 import UniformTypeIdentifiers
 
 struct DataImportView: View {
+    private static let vCardContentType = UTType(filenameExtension: "vcf") ?? UTType(importedAs: "public.vcard")
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
@@ -25,7 +27,7 @@ struct DataImportView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     
-                    Text("Restore your events, friends, and relationships from a backup file")
+                    Text("Restore your profile, events, friends, and relationships from a backup file")
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -74,6 +76,7 @@ struct DataImportView: View {
                 allowedContentTypes: [
                     .json,
                     .folder,
+                    Self.vCardContentType,
                     UTType(filenameExtension: "json") ?? .json,
                     .plainText
                 ],
@@ -105,7 +108,7 @@ struct DataImportView: View {
             } label: {
                 HStack {
                     Image(systemName: "square.and.arrow.down")
-                    Text("Select Backup File")
+                    Text("Select Import File")
                 }
                 .font(.headline)
                 .foregroundColor(.white)
@@ -115,12 +118,13 @@ struct DataImportView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
-            Text("Select a backup file to import:")
+            Text("Select a backup or namecard file to import:")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
             VStack(alignment: .leading, spacing: 8) {
                 importItemRow(icon: "doc.text", title: "JSON backup file", description: "eventbuddy_backup.json")
+                importItemRow(icon: "person.crop.rectangle", title: "Personal namecard", description: "personal_namecard.vcf")
                 importItemRow(icon: "folder", title: "Export folder", description: "Complete export directory")
             }
             .padding()
@@ -166,6 +170,10 @@ struct DataImportView: View {
                         .foregroundStyle(.secondary)
                 }
                 
+                if result.summary.totalProfiles > 0 {
+                    Text("• \(result.summary.profilesCreated) profiles created")
+                    Text("• \(result.summary.profilesUpdated) profiles updated")
+                }
                 Text("• \(result.summary.eventsCreated) events created")
                 Text("• \(result.summary.friendsCreated) friends created")
                 Text("• \(result.summary.relationshipsCreated) relationships created")
@@ -208,6 +216,7 @@ struct DataImportView: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("• Supports JSON backup files from EventBuddy exports")
+                Text("• Personal namecards override the current profile")
                 Text("• Existing data will be updated if newer versions are found")
                 Text("• Duplicate data will be automatically detected and skipped")
                 Text("• All relationships between events and friends are preserved")
@@ -276,11 +285,11 @@ struct DataImportView: View {
     private func progressMessage(for progress: Double) -> String {
         switch progress {
         case 0.0..<0.2:
-            return "Reading backup file..."
+            return "Reading selected file..."
         case 0.2..<0.4:
-            return "Validating data integrity..."
+            return "Validating import data..."
         case 0.4..<0.6:
-            return "Importing friends..."
+            return "Importing profile and friends..."
         case 0.6..<0.8:
             return "Importing events..."
         case 0.8..<1.0:
@@ -318,6 +327,16 @@ struct ImportSummaryView: View {
                     .frame(maxWidth: .infinity)
                     
                     // Summary sections
+                    if result.summary.totalProfiles > 0 {
+                        summarySection(
+                            title: "Profile",
+                            icon: "person.crop.rectangle",
+                            created: result.summary.profilesCreated,
+                            updated: result.summary.profilesUpdated,
+                            skipped: 0
+                        )
+                    }
+
                     if result.summary.totalEvents > 0 {
                         summarySection(
                             title: "Events",
@@ -429,4 +448,4 @@ struct ImportSummaryView: View {
 #Preview {
     DataImportView()
         .modelContainer(for: [Event.self, Friend.self])
-} 
+}
