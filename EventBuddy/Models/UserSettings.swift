@@ -88,6 +88,7 @@ enum CloudKitAccountAvailability: Equatable {
 }
 
 @Observable class UserSettings {
+    static let isCloudKitSyncFeatureEnabled = false
     static let cloudKitSyncEnabledKey = "EventBuddy.UserSettings.cloudKitSyncEnabled"
     static let cloudKitLastSyncedAtKey = "EventBuddy.UserSettings.cloudKitLastSyncedAt"
 
@@ -121,10 +122,12 @@ enum CloudKitAccountAvailability: Equatable {
     }
 
     static func storedCloudKitSyncEnabled(in userDefaults: UserDefaults = .standard) -> Bool {
+        guard isCloudKitSyncFeatureEnabled else { return false }
+
         if let storedValue = userDefaults.object(forKey: cloudKitSyncEnabledKey) as? Bool {
             return storedValue
         }
-        return true
+        return false
     }
 
     // Add other settings as needed
@@ -197,6 +200,13 @@ enum CloudKitAccountAvailability: Equatable {
     }
 
     func setCloudKitSyncEnabled(_ isEnabled: Bool) {
+        guard UserSettings.isCloudKitSyncFeatureEnabled else {
+            settings.cloudKitSyncEnabled = false
+            cloudKitSyncError = nil
+            syncEngine.stop()
+            return
+        }
+
         guard settings.cloudKitSyncEnabled != isEnabled else { return }
         cloudKitSyncError = nil
 
@@ -219,7 +229,9 @@ enum CloudKitAccountAvailability: Equatable {
     }
 
     func syncCloudKitIfEnabled() async {
-        guard settings.cloudKitSyncEnabled, !isUpdatingCloudKitSync else { return }
+        guard UserSettings.isCloudKitSyncFeatureEnabled, settings.cloudKitSyncEnabled, !isUpdatingCloudKitSync else {
+            return
+        }
 
         isUpdatingCloudKitSync = true
         defer { isUpdatingCloudKitSync = false }

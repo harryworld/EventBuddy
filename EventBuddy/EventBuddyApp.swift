@@ -26,7 +26,7 @@ struct EventBuddyApp: App {
             try? validationMode.prepareForLaunch()
         }
 
-        let shouldConfigureSyncEngine = validationMode?.shouldEnableSyncEngine ?? true
+        let shouldConfigureSyncEngine = validationMode?.shouldEnableSyncEngine ?? UserSettings.isCloudKitSyncFeatureEnabled
         _ = try? EventBuddyDatabase.bootstrap(
             configureSyncEngine: shouldConfigureSyncEngine,
             startSyncEngine: false

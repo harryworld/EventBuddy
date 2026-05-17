@@ -204,40 +204,6 @@ struct SettingsView: View {
     
     private var dataSection: some View {
         Section {
-            Toggle(isOn: Binding(
-                get: { settingsStore.settings.cloudKitSyncEnabled },
-                set: { settingsStore.setCloudKitSyncEnabled($0) }
-            )) {
-                Label("iCloud Sync", systemImage: "arrow.triangle.2.circlepath.icloud")
-            }
-            .disabled(!settingsStore.canToggleCloudKitSync)
-
-            HStack {
-                Label("iCloud Account", systemImage: "person.crop.circle.badge.checkmark")
-                    .foregroundStyle(.primary)
-
-                Spacer()
-
-                Text(settingsStore.cloudKitAccountAvailability.description)
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack {
-                Label("Last Synced", systemImage: "clock.arrow.circlepath")
-                    .foregroundStyle(.primary)
-
-                Spacer()
-
-                Text(settingsStore.isUpdatingCloudKitSync ? "Syncing..." : settingsStore.cloudKitLastSyncedDescription)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let cloudKitSyncError = settingsStore.cloudKitSyncError {
-                Text(cloudKitSyncError)
-                    .foregroundStyle(.red)
-                    .font(.footnote)
-            }
-
             NavigationLink {
                 DataExportView()
             } label: {
@@ -264,9 +230,6 @@ struct SettingsView: View {
             Text("WWDCBuddy \(appVersion) (\(buildNumber))")
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 8)
-        }
-        .task {
-            await settingsStore.refreshCloudKitAccountAvailability()
         }
     }
     
