@@ -90,7 +90,8 @@ class EventSyncService {
         syncError = nil
         
         do {
-            let eventsResponse = try await fetchEventsFromJSON()
+            let remoteEventsResponse = try await fetchEventsFromJSON()
+            let eventsResponse = loadLatestEventsResponse(remoteEventsResponse: remoteEventsResponse)
             try await synchronizeEvents(from: eventsResponse.events)
             lastSyncDate = Date()
             print("Sync completed successfully at \(formatCurrentTime())")
@@ -192,6 +193,46 @@ class EventSyncService {
         let decoder = JSONDecoder()
         return try decoder.decode(EventsResponse.self, from: data)
     }
+
+    private func loadLatestEventsResponse(remoteEventsResponse: EventsResponse) -> EventsResponse {
+        guard let bundledEventsResponse = loadBundledEventsResponse(),
+              isBundledEventsResponse(bundledEventsResponse, newerThan: remoteEventsResponse) else {
+            return remoteEventsResponse
+        }
+
+        print("Using bundled events version \(bundledEventsResponse.version) because it is newer than remote version \(remoteEventsResponse.version)")
+        return bundledEventsResponse
+    }
+
+    private func loadBundledEventsResponse() -> EventsResponse? {
+        guard let url = Bundle.main.url(forResource: "events", withExtension: "json") else {
+            print("No bundled events file found")
+            return nil
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            return try JSONDecoder().decode(EventsResponse.self, from: data)
+        } catch {
+            print("Failed to load bundled events: \(error)")
+            return nil
+        }
+    }
+
+    private func isBundledEventsResponse(_ bundled: EventsResponse, newerThan remote: EventsResponse) -> Bool {
+        guard let bundledDate = parseSyncMetadataDate(bundled.lastUpdated),
+              let remoteDate = parseSyncMetadataDate(remote.lastUpdated) else {
+            return false
+        }
+
+        return bundledDate > remoteDate
+    }
+
+    private func parseSyncMetadataDate(_ dateString: String) -> Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: dateString)
+    }
     
     private func synchronizeEvents(from eventDTOs: [EventDTO]) async throws {
         // Get existing events from local storage
@@ -253,27 +294,21 @@ class EventSyncService {
     }
     
     private func loadFallbackEvents() async {
-        // Try to load from local bundle as fallback
-        guard let url = Bundle.main.url(forResource: "events", withExtension: "json") else {
-            print("No fallback events file found in bundle")
+        guard let eventsResponse = loadBundledEventsResponse() else {
             return
         }
-        
+
         do {
-            let data = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            let eventsResponse = try decoder.decode(EventsResponse.self, from: data)
-            
             for eventDTO in eventsResponse.events {
                 if let event = eventDTO.toEvent() {
                     modelContext.insert(event)
                 }
             }
-            
+
             try modelContext.save()
             print("Loaded \(eventsResponse.events.count) fallback events from bundle")
         } catch {
-            print("Failed to load fallback events: \(error)")
+            print("Failed to save fallback events: \(error)")
         }
     }
     

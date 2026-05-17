@@ -159,7 +159,7 @@ struct EventListView: View {
     private var eventHeaderInfo: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Text("WWDC25")
+                Text("WWDC26")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
@@ -186,7 +186,7 @@ struct EventListView: View {
                 }
             }
             
-            Text("June 7-13, 2025 • Cupertino")
+            Text("June 6-12, 2026 • San Jose & Cupertino")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
