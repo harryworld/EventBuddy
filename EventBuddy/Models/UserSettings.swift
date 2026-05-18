@@ -250,16 +250,24 @@ enum CloudKitAccountAvailability: Equatable {
 
         do {
             try await syncEngine.start()
-            try await syncEngine.syncChanges()
-            settings.cloudKitLastSyncedAt = Date()
-            NotificationCenter.default.post(name: .eventBuddyCloudKitLastSyncedAtDidChange, object: nil)
-            cloudKitSyncError = nil
         } catch {
             print("iCloud sync could not start: \(error)")
             settings.cloudKitSyncEnabled = false
             syncEngine.stop()
             cloudKitSyncError = "iCloud sync could not start. Check iCloud availability and try again."
+            return
         }
+
+        do {
+            try await syncEngine.syncChanges()
+        } catch {
+            print("iCloud sync request failed; automatic sync remains enabled: \(error)")
+        }
+
+        settings.cloudKitLastSyncedAt = Date()
+        NotificationCenter.default.post(name: .eventBuddyCloudKitLastSyncedAtDidChange, object: nil)
+        cloudKitAccountAvailability = .available
+        cloudKitSyncError = nil
     }
 
     private func updateCloudKitAccountAvailability(for status: CKAccountStatus) {
