@@ -32,6 +32,8 @@
 	</dict>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>WWDCBuddy would like to add events to your Calendar</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>WWDCBuddy needs calendar access to add attending events without creating duplicates</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

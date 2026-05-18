@@ -1,17 +1,20 @@
 import SwiftUI
 import MapKit
 import CoreLocation
-import EventKit
 import SQLiteData
 
 struct EventDetailView: View {
     @Bindable var event: Event
     @Environment(AppStore.self) private var appStore
     @Environment(\.dismiss) private var dismiss
+    @State private var calendarStore = EventCalendarStore()
     @State private var isAddedToCalendar = false
+    @State private var isAddingToCalendar = false
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
     @State private var showingCalendarAlert = false
+    @State private var showingCalendarErrorAlert = false
+    @State private var calendarErrorMessage = ""
 
     var body: some View {
         ScrollView {
@@ -30,6 +33,7 @@ struct EventDetailView: View {
                 EventToolbarView(
                     event: event,
                     isAddedToCalendar: isAddedToCalendar,
+                    isAddingToCalendar: isAddingToCalendar,
                     showingCalendarAlert: $showingCalendarAlert,
                     showingEditSheet: $showingEditSheet,
                     showingDeleteAlert: $showingDeleteAlert
@@ -51,37 +55,56 @@ struct EventDetailView: View {
             Button("Cancel", role: .cancel) { }
             Button("Add") {
                 addToCalendar()
-                event.toggleAttending()
-                try? appStore.save(event)
-                isAddedToCalendar = true
             }
         } message: {
-            Text("This will add \"\(event.title)\" to your calendar and mark you as attending.")
+            Text("This will add \"\(event.title)\" to your selected calendar if it is not already there and mark you as attending.")
+        }
+        .alert("Calendar Error", isPresented: $showingCalendarErrorAlert) {
+            Button("OK") { }
+        } message: {
+            Text(calendarErrorMessage)
+        }
+        .task {
+            refreshCalendarAddedState()
         }
     }
     
     private func addToCalendar() {
-        let eventStore = EKEventStore()
-        
-        Task {
-            do {
-                let granted = try await eventStore.requestWriteOnlyAccessToEvents()
-                if granted {
-                    let calendarEvent = EKEvent(eventStore: eventStore)
-                    calendarEvent.title = event.title
-                    calendarEvent.notes = event.eventDescription
-                    calendarEvent.location = event.location
-                    calendarEvent.startDate = event.startDate
-                    calendarEvent.endDate = event.endDate
-                    calendarEvent.calendar = eventStore.defaultCalendarForNewEvents
-                    
-                    try eventStore.save(calendarEvent, span: .thisEvent)
-                } else {
-                    print("Calendar access denied")
-                }
-            } catch {
-                print("Error saving event to calendar: \(error)")
+        Task { @MainActor in
+            isAddingToCalendar = true
+            defer { isAddingToCalendar = false }
+
+            let outcome = await calendarStore.add(event)
+            guard outcome.foundOrAddedEvent else {
+                calendarErrorMessage = calendarErrorMessage(for: outcome)
+                showingCalendarErrorAlert = true
+                return
             }
+
+            if !event.isAttending {
+                event.toggleAttending()
+                try? appStore.save(event)
+            }
+            isAddedToCalendar = true
+        }
+    }
+
+    private func refreshCalendarAddedState() {
+        calendarStore.refreshAuthorizationStatus()
+        guard calendarStore.hasFullAccess else { return }
+        isAddedToCalendar = calendarStore.eventExists(event)
+    }
+
+    private func calendarErrorMessage(for outcome: EventCalendarStore.AddOutcome) -> String {
+        switch outcome {
+        case .added, .alreadyExists:
+            return ""
+        case .accessDenied:
+            return "Calendar access is required before adding events."
+        case .noWritableCalendar:
+            return "No writable calendar is available."
+        case let .failed(message):
+            return message
         }
     }
     
@@ -735,6 +758,7 @@ struct SharedFriendsListSection: View {
 struct EventToolbarView: View {
     let event: Event
     let isAddedToCalendar: Bool
+    let isAddingToCalendar: Bool
     @Binding var showingCalendarAlert: Bool
     @Binding var showingEditSheet: Bool
     @Binding var showingDeleteAlert: Bool
@@ -745,8 +769,13 @@ struct EventToolbarView: View {
                 Button(action: {
                     showingCalendarAlert = true
                 }) {
-                    Image(systemName: "calendar.badge.plus")
+                    if isAddingToCalendar {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "calendar.badge.plus")
+                    }
                 }
+                .disabled(isAddingToCalendar)
             }
             
             if event.isCustomEvent {
