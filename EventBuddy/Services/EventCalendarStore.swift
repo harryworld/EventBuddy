@@ -66,7 +66,7 @@ final class EventCalendarStore {
 
     static let selectedCalendarIdentifierKey = "EventBuddy.EventCalendarStore.selectedCalendarIdentifier"
 
-    @ObservationIgnored private let eventStore: EKEventStore
+    @ObservationIgnored private var eventStore: EKEventStore
     @ObservationIgnored private let userDefaults: UserDefaults
 
     var authorizationStatus: EKAuthorizationStatus
@@ -111,7 +111,11 @@ final class EventCalendarStore {
     }
 
     func refreshAuthorizationStatus() {
-        authorizationStatus = EKEventStore.authorizationStatus(for: .event)
+        let updatedAuthorizationStatus = EKEventStore.authorizationStatus(for: .event)
+        if updatedAuthorizationStatus != authorizationStatus {
+            eventStore = EKEventStore()
+        }
+        authorizationStatus = updatedAuthorizationStatus
         reloadCalendarsIfAuthorized()
     }
 
@@ -127,8 +131,14 @@ final class EventCalendarStore {
         case .notDetermined, .writeOnly:
             do {
                 let granted = try await eventStore.requestFullAccessToEvents()
+                if granted {
+                    eventStore = EKEventStore()
+                    authorizationStatus = .fullAccess
+                    reloadCalendarsIfAuthorized()
+                    return true
+                }
                 refreshAuthorizationStatus()
-                return granted && hasFullAccess
+                return false
             } catch {
                 refreshAuthorizationStatus()
                 return false
@@ -216,6 +226,9 @@ final class EventCalendarStore {
             try eventStore.save(calendarEvent, span: .thisEvent)
             return .added
         } catch {
+            if matchingCalendarEvent(for: event, in: calendar) != nil {
+                return .alreadyExists
+            }
             return .failed(error.localizedDescription)
         }
     }

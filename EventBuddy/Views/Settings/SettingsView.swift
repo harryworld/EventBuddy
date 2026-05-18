@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppStore.self) private var appStore
+    @Environment(\.scenePhase) private var scenePhase
     let settingsStore: SettingsStore
     @State private var showingLogoutConfirmation = false
     @State private var showingDeleteAccountConfirmation = false
@@ -23,6 +24,13 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            refreshCalendarAuthorization()
+        }
+        .onAppear {
+            refreshCalendarAuthorization()
+        }
     }
 
     private var calendarSection: some View {
@@ -42,15 +50,25 @@ struct SettingsView: View {
                     Text("No writable calendars are available.")
                         .foregroundStyle(.secondary)
                 } else {
-                    Picker(selection: Binding(
-                        get: { calendarStore.selectedCalendarIdentifier ?? "" },
-                        set: { calendarStore.selectedCalendarIdentifier = $0.isEmpty ? nil : $0 }
-                    )) {
-                        ForEach(calendarStore.calendars) { calendar in
-                            Text(calendar.displayName).tag(calendar.id)
-                        }
-                    } label: {
+                    HStack {
                         Label("Default Calendar", systemImage: "calendar")
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+
+                        Spacer(minLength: 12)
+
+                        Picker(selection: Binding(
+                            get: { calendarStore.selectedCalendarIdentifier ?? calendarStore.calendars.first?.id ?? "" },
+                            set: { calendarStore.selectedCalendarIdentifier = $0.isEmpty ? nil : $0 }
+                        )) {
+                            ForEach(calendarStore.calendars) { calendar in
+                                Text(calendar.displayName).tag(calendar.id)
+                            }
+                        } label: {
+                            EmptyView()
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
                     }
                 }
 
@@ -87,7 +105,7 @@ struct SettingsView: View {
             Text("Calendar choice appears after access is granted. Batch add imports upcoming events marked as attending and skips events already in the selected calendar.")
         }
         .task {
-            calendarStore.refreshAuthorizationStatus()
+            refreshCalendarAuthorization()
         }
     }
 
@@ -370,7 +388,12 @@ struct SettingsView: View {
     private func requestCalendarAccess() {
         Task { @MainActor in
             _ = await calendarStore.requestFullAccess()
+            refreshCalendarAuthorization()
         }
+    }
+
+    private func refreshCalendarAuthorization() {
+        calendarStore.refreshAuthorizationStatus()
     }
 
     private func addAttendingEventsToCalendar() {
