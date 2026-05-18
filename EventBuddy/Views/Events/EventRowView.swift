@@ -1,7 +1,42 @@
 import SwiftUI
 
 struct EventRowView: View {
-    let event: Event
+    let title: String
+    let eventDescription: String
+    let location: String
+    let startDate: Date
+    let endDate: Date
+    let eventType: String
+    let requiresTicket: Bool
+    let requiresRegistration: Bool
+    let isAttending: Bool
+    let originalTimezoneIdentifier: String?
+
+    init(event: Event) {
+        self.title = event.title
+        self.eventDescription = event.eventDescription
+        self.location = event.location
+        self.startDate = event.startDate
+        self.endDate = event.endDate
+        self.eventType = event.eventType
+        self.requiresTicket = event.requiresTicket
+        self.requiresRegistration = event.requiresRegistration
+        self.isAttending = event.isAttending
+        self.originalTimezoneIdentifier = event.originalTimezoneIdentifier
+    }
+
+    init(eventRow: StoredEvent) {
+        self.title = eventRow.title
+        self.eventDescription = eventRow.eventDescription
+        self.location = eventRow.location
+        self.startDate = eventRow.startDate
+        self.endDate = eventRow.endDate
+        self.eventType = eventRow.eventType
+        self.requiresTicket = eventRow.requiresTicket
+        self.requiresRegistration = eventRow.requiresRegistration
+        self.isAttending = eventRow.isAttending
+        self.originalTimezoneIdentifier = eventRow.originalTimezoneIdentifier
+    }
     
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -24,19 +59,19 @@ struct EventRowView: View {
             // Event details
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(event.title)
+                    Text(title)
                         .font(.headline)
                         .foregroundColor(.primary)
-                        .strikethrough(event.hasEnded)
+                        .strikethrough(hasEnded)
                     
-                    if event.isAttending {
+                    if isAttending {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                             .accessibilityLabel("You're attending")
                     }
                 }
                 
-                if event.requiresTicket {
+                if requiresTicket {
                     HStack(spacing: 4) {
                         Image(systemName: "ticket")
                             .font(.caption)
@@ -47,27 +82,27 @@ struct EventRowView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                } else if event.requiresRegistration {
+                } else if requiresRegistration {
                     HStack(spacing: 4) {
                         Image(systemName: "person.crop.circle.badge.checkmark")
                             .font(.caption)
                             .foregroundColor(.blue)
                         
-                        Text(event.requiresRegistration ? "Registration suggested" : "RSVP requested")
+                        Text(requiresRegistration ? "Registration suggested" : "RSVP requested")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                } else if !event.eventDescription.isEmpty {
-                    Text(event.eventDescription)
+                } else if !eventDescription.isEmpty {
+                    Text(eventDescription)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 
-                Text(event.location.isEmpty ? "No location" : event.location)
+                Text(location.isEmpty ? "No location" : location)
                     .font(.caption)
-                    .foregroundColor(event.location.isEmpty ? .gray : .secondary)
-                    .italic(event.location.isEmpty)
+                    .foregroundColor(location.isEmpty ? .gray : .secondary)
+                    .italic(location.isEmpty)
             }
             
             Spacer()
@@ -81,7 +116,11 @@ struct EventRowView: View {
         .padding(.horizontal)
         .background(Color(.systemBackground))
         .cornerRadius(8)
-        .opacity(event.hasEnded ? 0.4 : 1.0)
+        .opacity(hasEnded ? 0.4 : 1.0)
+    }
+
+    private var hasEnded: Bool {
+        Date() > endDate
     }
     
     private var formattedTime: String {
@@ -89,11 +128,11 @@ struct EventRowView: View {
         formatter.dateFormat = "h:mma"
         formatter.amSymbol = "AM"
         formatter.pmSymbol = "PM"
-        return formatter.string(from: event.startDate)
+        return formatter.string(from: startDate)
     }
 
     private var shouldShowDualTimezone: Bool {
-        guard let originalTimezone = event.originalTimezoneIdentifier,
+        guard let originalTimezone = originalTimezoneIdentifier,
               let eventTimezone = TimeZone(identifier: originalTimezone) else {
             return false
         }
@@ -103,7 +142,7 @@ struct EventRowView: View {
     }
     
     private var formattedTimeOriginalTimezone: String {
-        guard let originalTimezone = event.originalTimezoneIdentifier,
+        guard let originalTimezone = originalTimezoneIdentifier,
               let eventTimezone = TimeZone(identifier: originalTimezone) else {
             return formattedTimeWithTimezone
         }
@@ -114,11 +153,11 @@ struct EventRowView: View {
         formatter.pmSymbol = "PM"
         formatter.timeZone = eventTimezone
         formatter.locale = Locale(identifier: "en_US")
-        return formatter.string(from: event.startDate)
+        return formatter.string(from: startDate)
     }
     
     private var formattedTimeWithTimezone: String {
-        guard let originalTimezone = event.originalTimezoneIdentifier,
+        guard let originalTimezone = originalTimezoneIdentifier,
               let eventTimezone = TimeZone(identifier: originalTimezone) else {
             // Fallback to current timezone
             let formatter = DateFormatter()
@@ -127,7 +166,7 @@ struct EventRowView: View {
             formatter.pmSymbol = "PM"
             formatter.timeZone = TimeZone.current
             formatter.locale = Locale(identifier: "en_US")
-            return formatter.string(from: event.startDate)
+            return formatter.string(from: startDate)
         }
         
         let formatter = DateFormatter()
@@ -136,7 +175,7 @@ struct EventRowView: View {
         formatter.pmSymbol = "PM"
         formatter.timeZone = eventTimezone
         formatter.locale = Locale(identifier: "en_US")
-        return formatter.string(from: event.startDate)
+        return formatter.string(from: startDate)
     }
 
     private var eventTypeTag: some View {
@@ -153,7 +192,7 @@ struct EventRowView: View {
     }
     
     private func getEventTypeLabel() -> String {
-        switch event.eventType {
+        switch eventType {
         case EventType.keynote.rawValue:
             return "Keynote"
         case EventType.watchParty.rawValue:
@@ -168,7 +207,7 @@ struct EventRowView: View {
     }
     
     private func getEventTypeColor() -> Color {
-        switch event.eventType {
+        switch eventType {
         case EventType.keynote.rawValue:
             return .orange
         case EventType.watchParty.rawValue:

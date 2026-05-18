@@ -431,11 +431,10 @@ struct EventListView: View {
 }
 
 private struct EventNavigationRow: View {
-    @Environment(AppStore.self) private var appStore
     let eventRow: StoredEvent
 
     var body: some View {
-        EventRowView(event: appStore.event(for: eventRow))
+        EventRowView(eventRow: eventRow)
     }
 }
 
