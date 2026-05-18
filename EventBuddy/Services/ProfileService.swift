@@ -45,7 +45,7 @@ class ProfileService {
     // Get the current user's profile
     static func getCurrentProfile(appStore: AppStore) -> Profile? {
         do {
-            return try appStore.profiles().first
+            return try appStore.currentProfile()
         } catch {
             print("Error fetching profile: \(error)")
             return nil

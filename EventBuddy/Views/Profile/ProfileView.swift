@@ -15,10 +15,14 @@ struct ProfileView: View {
     @State private var isShowingNameDrop = false
     
     private var currentProfile: Profile {
-        if let profileRow = storedProfiles.first {
-            return appStore.profile(for: profileRow)
+        if let profile = appStore.currentProfile(from: storedProfiles) {
+            return profile
         }
         return createDefaultProfile()
+    }
+
+    private var currentProfileContactSnapshot: ProfileContactSnapshot {
+        ProfileContactSnapshot(profile: currentProfile)
     }
     
     var body: some View {
@@ -86,7 +90,10 @@ struct ProfileView: View {
             }
         }
         .onAppear {
-            refreshQRCode()
+            refreshQRCode(showFeedback: false)
+        }
+        .onChange(of: currentProfileContactSnapshot) { _, _ in
+            refreshQRCode(showFeedback: false)
         }
     }
     
@@ -298,9 +305,11 @@ struct ProfileView: View {
         .padding(.vertical, 4)
     }
     
-    private func refreshQRCode() {
+    private func refreshQRCode(showFeedback: Bool = true) {
         qrCodeContact = currentProfile.createContact()
         qrCodeRefreshTrigger = UUID() // Force view to refresh
+
+        guard showFeedback else { return }
         
         // Show feedback toast
         withAnimation {
@@ -345,6 +354,32 @@ struct ProfileView: View {
         }
         
         return defaultProfile
+    }
+}
+
+private struct ProfileContactSnapshot: Equatable {
+    let id: UUID
+    let name: String
+    let bio: String
+    let email: String?
+    let phone: String?
+    let socialMediaAccounts: [String: String]
+    let updatedAt: Date
+    let title: String
+    let company: String
+    let avatarSystemName: String
+
+    init(profile: Profile) {
+        self.id = profile.id
+        self.name = profile.name
+        self.bio = profile.bio
+        self.email = profile.email
+        self.phone = profile.phone
+        self.socialMediaAccounts = profile.socialMediaAccounts
+        self.updatedAt = profile.updatedAt
+        self.title = profile.title
+        self.company = profile.company
+        self.avatarSystemName = profile.avatarSystemName
     }
 }
 

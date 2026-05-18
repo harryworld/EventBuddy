@@ -24,6 +24,10 @@ final class AppStore {
         try snapshot().profiles
     }
 
+    func currentProfile() throws -> Profile? {
+        try selectCurrentProfile(from: profiles())
+    }
+
     func event(id: UUID) throws -> Event? {
         try events().first { $0.id == id }
     }
@@ -46,6 +50,10 @@ final class AppStore {
 
     func profile(for row: StoredProfile) -> Profile {
         row.profile
+    }
+
+    func currentProfile(from rows: [StoredProfile]) -> Profile? {
+        selectCurrentProfile(from: rows.map(\.profile))
     }
 
     func hasFriends() throws -> Bool {
@@ -311,6 +319,33 @@ final class AppStore {
         if !friend.wishEvents.contains(where: { $0.id == event.id }) {
             friend.wishEvents.append(event)
         }
+    }
+
+    private func selectCurrentProfile(from profiles: [Profile]) -> Profile? {
+        profiles.sorted { lhs, rhs in
+            let lhsIsPlaceholder = isPlaceholderProfile(lhs)
+            let rhsIsPlaceholder = isPlaceholderProfile(rhs)
+
+            if lhsIsPlaceholder != rhsIsPlaceholder {
+                return !lhsIsPlaceholder
+            }
+
+            return lhs.updatedAt > rhs.updatedAt
+        }
+        .first
+    }
+
+    private func isPlaceholderProfile(_ profile: Profile) -> Bool {
+        (profile.name == "John Appleseed" &&
+            profile.email == "john@apple.com" &&
+            profile.company == "Apple Inc." &&
+            profile.title == "iOS Developer") ||
+        (profile.name == "Your Name" &&
+            profile.bio == "Add your bio here" &&
+            profile.email == nil &&
+            (profile.phone ?? "").isEmpty &&
+            profile.company.isEmpty &&
+            profile.title.isEmpty)
     }
 
     private struct Rows {
