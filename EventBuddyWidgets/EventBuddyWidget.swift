@@ -33,8 +33,8 @@ struct EventBuddyTimelineProvider: AppIntentTimelineProvider {
     
     private func createEntry(for configuration: EventBuddyWidgetConfigurationIntent) async -> EventBuddyEntry {
         let provider = await WidgetDataProvider.shared
-        let filter = WidgetEventFilter(configuration.eventFilter)
-        let timeScope = WidgetTimeScope(configuration.timeScope)
+        let filter = configuration.eventFilter
+        let timeScope = configuration.timeScope
         let events = await provider.getUpcomingEvents(
             filter: filter,
             timeScope: timeScope,
@@ -108,7 +108,7 @@ struct EventBuddyWidgets: Widget {
             EventBuddyWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("WWDCBuddy")
+        .configurationDisplayName("Events")
         .description("Stay updated with your upcoming events.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }

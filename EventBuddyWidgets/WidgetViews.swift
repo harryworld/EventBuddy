@@ -206,24 +206,7 @@ private func eventTypeIcon(_ eventType: String) -> String {
 
 private extension EventBuddyEntry {
     var visibleEvents: [Event] {
-        let calendar = Calendar.current
-        let referenceDate = date
-
-        let timeScopedEvents: [Event]
-        switch configuration.timeScope {
-        case .today:
-            timeScopedEvents = events.filter { calendar.isDate($0.startDate, inSameDayAs: referenceDate) }
-        case .future:
-            let endDate = calendar.date(byAdding: .day, value: 30, to: referenceDate) ?? referenceDate
-            timeScopedEvents = events.filter { $0.startDate >= referenceDate && $0.startDate < endDate }
-        }
-
-        switch configuration.eventFilter {
-        case .all:
-            return timeScopedEvents
-        case .attending:
-            return timeScopedEvents.filter(\.isAttending)
-        }
+        events
     }
 
     var eventListTitle: String {

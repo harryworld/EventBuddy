@@ -3,18 +3,9 @@ import Foundation
 import SQLiteData
 
 enum WidgetEventFilter: String, CaseIterable {
-    case all = "all"
-    case attending = "attending"
+    case all
+    case attending
 
-    init(_ intent: EventFilterIntent) {
-        switch intent {
-        case .all:
-            self = .all
-        case .attending:
-            self = .attending
-        }
-    }
-    
     var displayName: String {
         switch self {
         case .all: return "All Events"
@@ -24,18 +15,9 @@ enum WidgetEventFilter: String, CaseIterable {
 }
 
 enum WidgetTimeScope: String, CaseIterable {
-    case today = "today"
-    case future = "future"
+    case today
+    case future
 
-    init(_ intent: TimeScopeIntent) {
-        switch intent {
-        case .today:
-            self = .today
-        case .future:
-            self = .future
-        }
-    }
-    
     var displayName: String {
         switch self {
         case .today: return "Today Only"
