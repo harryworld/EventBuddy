@@ -92,3 +92,6 @@ iOSInjectionProject/
 
 # SweetPad
 buildServer.json
+
+# App Store Connect preflight artifacts (pulled metadata, upscaled screenshots)
+.preflight/
