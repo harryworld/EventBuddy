@@ -5,15 +5,15 @@ import Contacts
 @MainActor
 @Observable
 class DataImportService {
-    private let appStore: AppStore
+    private let persistenceService: EventPersistenceService
     
     var isImporting = false
     var importError: String?
     var importProgress: Double = 0.0
     var importSummary: ImportSummary?
     
-    init(appStore: AppStore) {
-        self.appStore = appStore
+    init(persistenceService: EventPersistenceService) {
+        self.persistenceService = persistenceService
     }
     
     // MARK: - Main Import Function
@@ -201,7 +201,7 @@ class DataImportService {
             profile = nil
         }
         
-        try appStore.save(
+        try persistenceService.persist(
             Array(eventIdMap.values),
             friends: Array(friendIdMap.values),
             profiles: profile.map { [$0] } ?? []
@@ -221,7 +221,7 @@ class DataImportService {
         var summary = ImportSummary()
         let profile = try overrideProfile(fromVCardAt: url, summary: &summary)
         importProgress = 0.9
-        try appStore.save(profile)
+        try persistenceService.persist(profile)
 
         self.importSummary = summary
 
@@ -324,12 +324,12 @@ class DataImportService {
     // MARK: - Helper Functions
     
     private func fetchExistingEvents() throws -> [String: Event] {
-        let events = try appStore.events()
+        let events = try persistenceService.events()
         return Dictionary(uniqueKeysWithValues: events.map { ($0.id.uuidString, $0) })
     }
     
     private func fetchExistingFriends() throws -> [String: Friend] {
-        let friends = try appStore.friends()
+        let friends = try persistenceService.friends()
         return Dictionary(uniqueKeysWithValues: friends.map { ($0.id.uuidString, $0) })
     }
 
@@ -350,7 +350,7 @@ class DataImportService {
     }
 
     private func overrideProfile(from dto: ProfileExportDTO, summary: inout ImportSummary) throws -> Profile {
-        let profiles = try appStore.profiles()
+        let profiles = try persistenceService.profiles()
 
         if let profile = profiles.first {
             profile.name = dto.name
@@ -388,7 +388,7 @@ class DataImportService {
     }
 
     private func overrideProfile(with contact: CNContact, summary: inout ImportSummary) throws -> Profile {
-        let profiles = try appStore.profiles()
+        let profiles = try persistenceService.profiles()
         let socialMediaAccounts = socialMediaAccounts(from: contact)
 
         if let profile = profiles.first {

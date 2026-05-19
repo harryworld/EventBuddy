@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FriendSocialMediaView: View {
     let friend: Friend
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     @Binding var showAddSocialSheet: Bool
     
     @Environment(\.openURL) private var openURL
@@ -111,6 +111,6 @@ struct FriendSocialMediaView: View {
             friend.socialMediaHandles.removeValue(forKey: platform.lowercased())
         }
         friend.updatedAt = Date()
-        try? appStore.save(friend)
+        eventPersistenceService?.save(friend)
     }
 }

@@ -11,6 +11,9 @@ import AppIntents
 struct EventBuddyWidgetConfigurationIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "WWDCBuddy Widget Configuration" }
     static var description: IntentDescription { "Configure your WWDCBuddy widget display options." }
+    static var parameterSummary: some ParameterSummary {
+        Summary("Show \(\.$eventFilter) for \(\.$timeScope)")
+    }
     
     @Parameter(title: "Event Filter", default: .all)
     var eventFilter: EventFilterIntent

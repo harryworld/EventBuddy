@@ -4,21 +4,15 @@ import SwiftUI
 @Observable
 class NavigationCoordinator {
     var selectedTab: Int = 0
-    var eventToShow: Event?
+    var eventToShowID: UUID?
     var shouldNavigateToEvent: Bool = false
     var shouldScrollToEvent: Bool = false
     
-    func navigateToEvent(with id: UUID, appStore: AppStore) {
-        do {
-            if let event = try appStore.event(id: id) {
-                selectedTab = 0 // Events tab
-                eventToShow = event
-                shouldScrollToEvent = true
-                shouldNavigateToEvent = true
-            }
-        } catch {
-            print("Error fetching event for deep link: \(error)")
-        }
+    func navigateToEvent(with id: UUID) {
+        selectedTab = 0 // Events tab
+        eventToShowID = id
+        shouldScrollToEvent = true
+        shouldNavigateToEvent = true
     }
     
     func navigateToEventsTab() {
@@ -38,7 +32,7 @@ class NavigationCoordinator {
     }
     
     func resetNavigation() {
-        eventToShow = nil
+        eventToShowID = nil
         shouldNavigateToEvent = false
         shouldScrollToEvent = false
     }

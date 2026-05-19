@@ -929,7 +929,7 @@ enum LegacySwiftDataStore {
 enum LegacySwiftDataMigration {
     private static let sampleFriendID = UUID(uuidString: "12345678-1234-1234-1234-123456789ABC")!
 
-    static func migrateIfNeeded(appStore: AppStore) throws -> MigrationSnapshot? {
+    static func migrateIfNeeded(persistenceService: EventPersistenceService) throws -> MigrationSnapshot? {
         guard let legacyStoreURL = MigrationValidationStorage.productionLegacyStoreURL() else {
             return nil
         }
@@ -939,7 +939,7 @@ enum LegacySwiftDataMigration {
             return nil
         }
 
-        let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(appStore: appStore)
+        let sqliteBefore = try SQLiteMigrationValidator.fetchSnapshot(persistenceService: persistenceService)
         let alreadyAudited = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationAuditDidRunKey)
         let alreadyMigrated = UserDefaults.standard.bool(forKey: MigrationValidationStorage.legacyMigrationDidRunKey)
         let alreadyContainsLegacyData = sqliteBefore.containsMigratedData(from: snapshot)
@@ -956,10 +956,10 @@ enum LegacySwiftDataMigration {
         )
 
         if !alreadyContainsLegacyData {
-            try merge(snapshot, into: appStore)
+            try merge(snapshot, into: persistenceService)
         }
 
-        let sqliteAfter = try SQLiteMigrationValidator.fetchSnapshot(appStore: appStore)
+        let sqliteAfter = try SQLiteMigrationValidator.fetchSnapshot(persistenceService: persistenceService)
         let migrationContainsLegacyData = sqliteAfter.containsMigratedData(from: snapshot)
         let status: String
         let message: String?
@@ -990,15 +990,15 @@ enum LegacySwiftDataMigration {
         return alreadyContainsLegacyData ? nil : snapshot
     }
 
-    private static func merge(_ snapshot: MigrationSnapshot, into appStore: AppStore) throws {
-        let profile = try mergeProfile(snapshot.profile, into: appStore)
+    private static func merge(_ snapshot: MigrationSnapshot, into persistenceService: EventPersistenceService) throws {
+        let profile = try mergeProfile(snapshot.profile, into: persistenceService)
 
-        var existingFriends = try appStore.friends()
+        var existingFriends = try persistenceService.friends()
         let legacyFriendIDs = Set(snapshot.friends.map(\.id))
         if !legacyFriendIDs.isEmpty,
            !legacyFriendIDs.contains(sampleFriendID),
            let sampleFriend = existingFriends.first(where: { $0.id == sampleFriendID }) {
-            try appStore.delete(sampleFriend)
+            try persistenceService.remove(sampleFriend)
             existingFriends.removeAll { $0.id == sampleFriendID }
         }
 
@@ -1011,7 +1011,7 @@ enum LegacySwiftDataMigration {
             }
         }
 
-        let existingEvents = try appStore.events()
+        let existingEvents = try persistenceService.events()
         var eventsByID = Dictionary(uniqueKeysWithValues: existingEvents.map { ($0.id, $0) })
         for eventSnapshot in snapshot.events {
             let event = eventsByID[eventSnapshot.id] ?? makeEvent(from: eventSnapshot)
@@ -1021,17 +1021,17 @@ enum LegacySwiftDataMigration {
             }
         }
 
-        try appStore.save(
+        try persistenceService.persist(
             Array(eventsByID.values),
             friends: Array(friendsByID.values),
             profiles: profile.map { [$0] } ?? []
         )
     }
 
-    private static func mergeProfile(_ snapshot: MigrationProfileSnapshot?, into appStore: AppStore) throws -> Profile? {
+    private static func mergeProfile(_ snapshot: MigrationProfileSnapshot?, into persistenceService: EventPersistenceService) throws -> Profile? {
         guard let snapshot else { return nil }
 
-        let profiles = try appStore.profiles()
+        let profiles = try persistenceService.profiles()
         if let existingProfile = profiles.first(where: { $0.id == snapshot.id }) {
             apply(snapshot, to: existingProfile, includeID: false)
             return existingProfile
@@ -1041,7 +1041,7 @@ enum LegacySwiftDataMigration {
             let placeholderID = placeholderProfile.id
             apply(snapshot, to: placeholderProfile, includeID: true)
             if placeholderID != placeholderProfile.id {
-                try appStore.deleteProfile(id: placeholderID)
+                try persistenceService.removeProfile(id: placeholderID)
             }
             return placeholderProfile
         }
@@ -1191,9 +1191,9 @@ enum LegacySwiftDataMigration {
 
 @MainActor
 enum SQLiteMigrationValidator {
-    static func fetchSnapshot(appStore: AppStore) throws -> MigrationSnapshot {
-        let profile = try appStore.profiles().first
-        let friends = try appStore.friends()
+    static func fetchSnapshot(persistenceService: EventPersistenceService) throws -> MigrationSnapshot {
+        let profile = try persistenceService.profiles().first
+        let friends = try persistenceService.friends()
             .map {
                 MigrationFriendSnapshot(
                     id: $0.id,
@@ -1211,7 +1211,7 @@ enum SQLiteMigrationValidator {
             }
             .sorted { $0.name < $1.name }
 
-        let storedEvents = try appStore.events()
+        let storedEvents = try persistenceService.events()
         let events = sortedMigrationEventSnapshots(
             storedEvents.map {
                 MigrationEventSnapshot(
@@ -1261,19 +1261,19 @@ enum SQLiteMigrationValidator {
         )
     }
 
-    static func migrateLegacyStoreToSQLite(appStore: AppStore) throws -> MigrationComparison {
+    static func migrateLegacyStoreToSQLite(persistenceService: EventPersistenceService) throws -> MigrationComparison {
         let legacySnapshot = MigrationValidationStorage.legacyStoreExists()
             ? try LegacySwiftDataStore.fetchSnapshot()
             : try LegacySwiftDataStore.seedFixture()
 
         let models = legacySnapshot.makeDomainModels()
-        try appStore.replace(
+        try persistenceService.replace(
             events: models.events,
             friends: models.friends,
             profiles: models.profile.map { [$0] } ?? []
         )
 
-        let sqliteSnapshot = try fetchSnapshot(appStore: appStore)
+        let sqliteSnapshot = try fetchSnapshot(persistenceService: persistenceService)
         print("🗃️ SQLite migration digest: \(sqliteSnapshot.digest)")
         return MigrationComparison(legacy: legacySnapshot, sqlite: sqliteSnapshot)
     }

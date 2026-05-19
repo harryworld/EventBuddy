@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AddEventView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @Environment(\.dismiss) private var dismiss
     
     @State private var title = ""
@@ -135,7 +135,7 @@ struct AddEventView: View {
             originalTimezoneIdentifier: selectedTimezone
         )
         
-        try? appStore.save(newEvent)
+        eventPersistenceService?.save(newEvent)
     }
 }
 

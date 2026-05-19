@@ -6,7 +6,7 @@ import UIKit
 @Observable
 class LiveActivityService {
     private var currentActivity: Activity<EventBuddyWidgetsAttributes>?
-    private var appStore: AppStore?
+    private var persistenceService: EventPersistenceService?
     private var updateTimer: Timer?
     
     init() {
@@ -25,8 +25,8 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] notification in
             Task { @MainActor [weak self] in
-                guard let self, let appStore = self.appStore else { return }
-                await self.checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
+                guard let self, let persistenceService = self.persistenceService else { return }
+                await self.checkAndStartLiveActivityForOngoingEvents(persistenceService: persistenceService)
             }
         }
         
@@ -37,8 +37,8 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, let appStore = self.appStore else { return }
-                await self.handleAppEnteringBackground(appStore: appStore)
+                guard let self, let persistenceService = self.persistenceService else { return }
+                await self.handleAppEnteringBackground(persistenceService: persistenceService)
             }
         }
         
@@ -48,7 +48,7 @@ class LiveActivityService {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, self.appStore != nil else { return }
+                guard let self, self.persistenceService != nil else { return }
                 print("🔴 LiveActivityService: App entering foreground - refreshing Live Activity")
                 await self.forceUpdate()
             }
@@ -59,7 +59,7 @@ class LiveActivityService {
         scheduleTimer(interval: 120.0, logMessage: "🔴 LiveActivityService: Started periodic updates (every 2 minutes - timer intervals handle time)")
     }
     
-    private func updateOngoingActivities(appStore: AppStore) async {
+    private func updateOngoingActivities(persistenceService: EventPersistenceService) async {
         guard currentActivity != nil else {
             print("🔴 LiveActivityService: No active Live Activity to update")
             return 
@@ -68,7 +68,7 @@ class LiveActivityService {
         print("🔴 LiveActivityService: Updating Live Activity state...")
         
         do {
-            let events = try appStore.events()
+            let events = try persistenceService.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             // If there's an ongoing event, update the activity
@@ -106,30 +106,30 @@ class LiveActivityService {
         }
     }
     
-    func setAppStore(_ appStore: AppStore) {
-        self.appStore = appStore
+    func setPersistenceService(_ persistenceService: EventPersistenceService) {
+        self.persistenceService = persistenceService
         
         if currentActivity != nil {
             Task { @MainActor in
-                await checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
+                await checkAndStartLiveActivityForOngoingEvents(persistenceService: persistenceService)
             }
         }
     }
     
     // Force an immediate update of the Live Activity
     func forceUpdate() async {
-        guard let appStore = self.appStore else { return }
+        guard let persistenceService else { return }
         
         print("🔴 LiveActivityService: Force updating Live Activity")
-        await updateOngoingActivities(appStore: appStore)
+        await updateOngoingActivities(persistenceService: persistenceService)
     }
     
     // Handle app entering background - ensure Live Activity is active for ongoing events
-    func handleAppEnteringBackground(appStore: AppStore) async {
+    func handleAppEnteringBackground(persistenceService: EventPersistenceService) async {
         print("🔴 LiveActivityService: App entering background - checking ongoing events")
         
         do {
-            let events = try appStore.events()
+            let events = try persistenceService.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             // Also check for events starting soon (within 30 minutes) that user is attending
@@ -213,11 +213,11 @@ class LiveActivityService {
     }
     
     // Check for ongoing events and start Live Activity if needed
-    func checkAndStartLiveActivityForOngoingEvents(appStore: AppStore) async {
+    func checkAndStartLiveActivityForOngoingEvents(persistenceService: EventPersistenceService) async {
         print("🔴 LiveActivityService: Checking for ongoing events...")
         
         do {
-            let events = try appStore.events()
+            let events = try persistenceService.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             print("🔴 LiveActivityService: Found \(ongoingEvents.count) ongoing events user is attending")
@@ -430,8 +430,8 @@ class LiveActivityService {
     }
     
     // Handle attendance status change - check if Live Activity should be started or stopped
-    func handleAttendanceChange(appStore: AppStore) async {
-        await checkAndStartLiveActivityForOngoingEvents(appStore: appStore)
+    func handleAttendanceChange(persistenceService: EventPersistenceService) async {
+        await checkAndStartLiveActivityForOngoingEvents(persistenceService: persistenceService)
     }
     
     func endCurrentActivity() async {
@@ -453,11 +453,11 @@ class LiveActivityService {
     }
     
     // Adjust update frequency based on how close we are to event ending
-    private func adjustUpdateFrequencyIfNeeded(appStore: AppStore) async {
+    private func adjustUpdateFrequencyIfNeeded(persistenceService: EventPersistenceService) async {
         guard currentActivity != nil else { return }
         
         do {
-            let events = try appStore.events()
+            let events = try persistenceService.events()
             let ongoingEvents = Event.findOngoingAttendingEvents(from: events)
             
             if let ongoingEvent = ongoingEvents.first {
@@ -491,9 +491,9 @@ class LiveActivityService {
 
         updateTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, let appStore = self.appStore else { return }
-                await self.updateOngoingActivities(appStore: appStore)
-                await self.adjustUpdateFrequencyIfNeeded(appStore: appStore)
+                guard let self, let persistenceService = self.persistenceService else { return }
+                await self.updateOngoingActivities(persistenceService: persistenceService)
+                await self.adjustUpdateFrequencyIfNeeded(persistenceService: persistenceService)
             }
         }
 

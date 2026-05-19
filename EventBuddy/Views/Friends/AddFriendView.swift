@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct AddFriendView: View {
-    @Environment(AppStore.self) private var appStore
+    let eventPersistenceService: EventPersistenceService?
+    @Environment(EventPersistenceService.self) private var fallbackEventPersistenceService: EventPersistenceService?
     @Environment(\.dismiss) private var dismiss
     
     @State private var name = ""
@@ -13,6 +14,12 @@ struct AddFriendView: View {
     @State private var twitter = ""
     @State private var linkedin = ""
     @State private var github = ""
+    @State private var showSaveError = false
+    @State private var saveErrorMessage = ""
+
+    private var persistenceService: EventPersistenceService? {
+        eventPersistenceService ?? fallbackEventPersistenceService
+    }
     
     var body: some View {
         NavigationStack {
@@ -84,15 +91,25 @@ struct AddFriendView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         addFriend()
-                        dismiss()
                     }
                     .disabled(name.isEmpty)
                 }
+            }
+            .alert("Unable to Save Friend", isPresented: $showSaveError) {
+                Button("OK") { }
+            } message: {
+                Text(saveErrorMessage)
             }
         }
     }
     
     private func addFriend() {
+        guard let persistenceService else {
+            saveErrorMessage = "Friend storage service is not available."
+            showSaveError = true
+            return
+        }
+
         // Build social media handles dictionary
         var socialMediaHandles: [String: String] = [:]
         
@@ -119,10 +136,11 @@ struct AddFriendView: View {
             notes: notes.isEmpty ? nil : notes
         )
         
-        try? appStore.save(friend)
+        persistenceService.save(friend)
+        dismiss()
     }
 }
 
 #Preview {
-    AddFriendView()
+    AddFriendView(eventPersistenceService: EventPersistenceService())
 }

@@ -4,7 +4,7 @@ import UIKit
 import SQLiteData
 
 struct ProfileView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @FetchAll(StoredProfile.all, animation: .default)
     private var storedProfiles: [StoredProfile]
     
@@ -15,7 +15,7 @@ struct ProfileView: View {
     @State private var isShowingNameDrop = false
     
     private var currentProfile: Profile {
-        if let profile = appStore.currentProfile(from: storedProfiles) {
+        if let profile = eventPersistenceService.currentProfile(from: storedProfiles) {
             return profile
         }
         return createDefaultProfile()
@@ -348,7 +348,7 @@ struct ProfileView: View {
         )
         
         do {
-            try appStore.save(defaultProfile)
+            try eventPersistenceService.persist(defaultProfile)
         } catch {
             print("Error saving default profile: \(error)")
         }
@@ -384,8 +384,8 @@ private struct ProfileContactSnapshot: Equatable {
 }
 
 #Preview {
-    let environment = AppEnvironment()
-    try? environment.store.save(Profile.preview)
+    let persistenceService = EventPersistenceService()
+    try? persistenceService.persist(Profile.preview)
     return ProfileView()
-        .environment(environment.store)
+        .environment(persistenceService)
 }

@@ -26,22 +26,22 @@ struct EventBuddyTimelineProvider: AppIntentTimelineProvider {
     
     func timeline(for configuration: EventBuddyWidgetConfigurationIntent, in context: Context) async -> Timeline<EventBuddyEntry> {
         let entry = await createEntry(for: configuration)
-        
-        // Refresh every hour
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
+
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date()
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
     
-    @MainActor
     private func createEntry(for configuration: EventBuddyWidgetConfigurationIntent) async -> EventBuddyEntry {
-        let provider = WidgetDataProvider.shared
-        
-        let filter: WidgetEventFilter = configuration.eventFilter == .attending ? .attending : .all
-        let timeScope: WidgetTimeScope = configuration.timeScope == .today ? .today : .future
-        
-        let events = provider.getUpcomingEvents(filter: filter, timeScope: timeScope)
-        let profile = provider.getCurrentProfile()
-        
+        let provider = await WidgetDataProvider.shared
+        let filter = WidgetEventFilter(configuration.eventFilter)
+        let timeScope = WidgetTimeScope(configuration.timeScope)
+        let events = await provider.getUpcomingEvents(
+            filter: filter,
+            timeScope: timeScope,
+            limit: 5
+        )
+        let profile = await provider.getCurrentProfile()
+
         return EventBuddyEntry(
             date: Date(),
             events: events,
@@ -53,11 +53,12 @@ struct EventBuddyTimelineProvider: AppIntentTimelineProvider {
 
 // MARK: - Widget Entry View
 struct EventBuddyWidgetEntryView: View {
-    var entry: EventBuddyEntry
-    @Environment(\.widgetFamily) var family
-    
+    @Environment(\.widgetFamily) private var widgetFamily
+
+    let entry: EventBuddyEntry
+
     var body: some View {
-        switch family {
+        switch widgetFamily {
         case .systemSmall:
             SmallEventWidgetView(entry: entry)
         case .systemMedium:
@@ -65,8 +66,32 @@ struct EventBuddyWidgetEntryView: View {
         case .systemLarge:
             LargeWidgetView(entry: entry)
         default:
-            SmallEventWidgetView(entry: entry)
+            MediumWidgetView(entry: entry)
         }
+    }
+}
+
+struct WWDC26PlaceholderWidgetView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Spacer()
+
+            Image(systemName: "calendar")
+                .font(.title2)
+                .foregroundStyle(.blue)
+
+            Text("WWDC26")
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.primary)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetURL(URL(string: "eventbuddy://events"))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("WWDC26")
+        .accessibilityHint("Opens WWDCBuddy events.")
     }
 }
 

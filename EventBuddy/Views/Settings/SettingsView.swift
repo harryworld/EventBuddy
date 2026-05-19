@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @Environment(\.scenePhase) private var scenePhase
     let settingsStore: SettingsStore
     @State private var showingLogoutConfirmation = false
@@ -403,7 +403,7 @@ struct SettingsView: View {
             defer { isAddingCalendarEvents = false }
 
             let startOfToday = Calendar.current.startOfDay(for: Date())
-            let attendingEvents = (try? appStore.events())?
+            let attendingEvents = (try? eventPersistenceService.events())?
                 .filter { $0.isAttending && $0.startDate >= startOfToday } ?? []
             calendarBatchSummary = await calendarStore.addEvents(attendingEvents)
         }
@@ -428,7 +428,7 @@ private struct CalendarBatchSummaryView: View {
 }
 
 #Preview {
-    let environment = AppEnvironment()
+    let persistenceService = EventPersistenceService()
     return SettingsView(settingsStore: SettingsStore())
-        .environment(environment.store)
+        .environment(persistenceService)
 }

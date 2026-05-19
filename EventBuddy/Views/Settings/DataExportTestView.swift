@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DataExportTestView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @Environment(\.dismiss) private var dismiss
     
     @State private var isCreatingData = false
@@ -107,7 +107,7 @@ struct DataExportTestView: View {
             
             // Create relationships
             createRelationships(events: events, friends: friends)
-            try? appStore.save(events, friends: friends)
+            try? eventPersistenceService.persist(events, friends: friends)
             
             await MainActor.run {
                 isCreatingData = false
@@ -236,4 +236,5 @@ struct DataExportTestView: View {
 
 #Preview {
     DataExportTestView()
+        .environment(EventPersistenceService())
 }

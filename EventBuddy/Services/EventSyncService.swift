@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 class EventSyncService {
-    private let appStore: AppStore
+    private let persistenceService: EventPersistenceService
     private let eventsURL = "https://eventbuddy.buildwithharry.com/events.json"
     
     // Sync frequency control
@@ -31,8 +31,8 @@ class EventSyncService {
     var syncError: String?
     var isManualSyncBlocked = false // New property to track when manual sync is blocked
     
-    init(appStore: AppStore) {
-        self.appStore = appStore
+    init(persistenceService: EventPersistenceService) {
+        self.persistenceService = persistenceService
         // Restore last sync date from UserDefaults
         self.lastSyncDate = UserDefaults.standard.object(forKey: lastSyncDateKey) as? Date
         print("Restored last sync date: \(lastSyncDate?.description ?? "None")")
@@ -234,7 +234,7 @@ class EventSyncService {
     }
     
     private func synchronizeEvents(from eventDTOs: [EventDTO]) async throws {
-        let existingEvents = try appStore.events()
+        let existingEvents = try persistenceService.events()
         
         // Create a dictionary for quick lookup
         var existingEventsDict: [UUID: Event] = [:]
@@ -269,14 +269,14 @@ class EventSyncService {
             }
         }
         
-        try appStore.save(eventsToAdd + eventsToUpdate)
+        try persistenceService.persist(eventsToAdd + eventsToUpdate)
         
         print("Sync completed: \(eventsToAdd.count) added, \(eventsToUpdate.count) updated")
     }
     
     private func hasNoLocalEvents() async -> Bool {
         do {
-            return try appStore.events().isEmpty
+            return try persistenceService.events().isEmpty
         } catch {
             return true
         }
@@ -290,7 +290,7 @@ class EventSyncService {
         do {
             let events = eventsResponse.events.compactMap { $0.toEvent() }
 
-            try appStore.save(events)
+            try persistenceService.persist(events)
             print("Loaded \(eventsResponse.events.count) fallback events from bundle")
         } catch {
             print("Failed to save fallback events: \(error)")

@@ -6,7 +6,7 @@ struct SmallEventWidgetView: View {
     let entry: EventBuddyEntry
     
     var body: some View {
-        if let nextEvent = entry.events.first {
+        if let nextEvent = entry.visibleEvents.first {
             VStack(alignment: .leading, spacing: 4) {
                 Text(nextEvent.title)
                     .font(.system(size: 14, weight: .semibold))
@@ -47,7 +47,7 @@ struct SmallEventWidgetView: View {
                         .font(.title2)
                         .foregroundColor(.secondary)
                     
-                    Text("No upcoming events")
+                    Text(entry.emptyEventMessage)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -65,7 +65,11 @@ struct MediumWidgetView: View {
     let entry: EventBuddyEntry
     
     var body: some View {
-        EventsListWidgetView(events: Array(entry.events.prefix(3)))
+        EventsListWidgetView(
+            title: entry.eventListTitle,
+            emptyMessage: entry.emptyEventMessage,
+            events: Array(entry.visibleEvents.prefix(3))
+        )
     }
 }
 
@@ -74,16 +78,25 @@ struct LargeWidgetView: View {
     let entry: EventBuddyEntry
     
     var body: some View {
-        EventsListWidgetView(events: Array(entry.events.prefix(5)), isLarge: true)
+        EventsListWidgetView(
+            title: entry.eventListTitle,
+            emptyMessage: entry.emptyEventMessage,
+            events: Array(entry.visibleEvents.prefix(5)),
+            isLarge: true
+        )
     }
 }
 
 // MARK: - Events List Widget
 struct EventsListWidgetView: View {
+    let title: String
+    let emptyMessage: String
     let events: [Event]
     let isLarge: Bool
     
-    init(events: [Event], isLarge: Bool = false) {
+    init(title: String, emptyMessage: String, events: [Event], isLarge: Bool = false) {
+        self.title = title
+        self.emptyMessage = emptyMessage
         self.events = events
         self.isLarge = isLarge
     }
@@ -91,7 +104,7 @@ struct EventsListWidgetView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
             HStack {
-                Text("Upcoming Events")
+                Text(title)
                     .font(.headline)
                     .fontWeight(.semibold)
                 
@@ -109,7 +122,7 @@ struct EventsListWidgetView: View {
                         .font(.title)
                         .foregroundColor(.secondary)
                     
-                    Text("No upcoming events")
+                    Text(emptyMessage)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -190,3 +203,53 @@ private func eventTypeIcon(_ eventType: String) -> String {
     default: return "calendar"
     }
 } 
+
+private extension EventBuddyEntry {
+    var visibleEvents: [Event] {
+        let calendar = Calendar.current
+        let referenceDate = date
+
+        let timeScopedEvents: [Event]
+        switch configuration.timeScope {
+        case .today:
+            timeScopedEvents = events.filter { calendar.isDate($0.startDate, inSameDayAs: referenceDate) }
+        case .future:
+            let endDate = calendar.date(byAdding: .day, value: 30, to: referenceDate) ?? referenceDate
+            timeScopedEvents = events.filter { $0.startDate >= referenceDate && $0.startDate < endDate }
+        }
+
+        switch configuration.eventFilter {
+        case .all:
+            return timeScopedEvents
+        case .attending:
+            return timeScopedEvents.filter(\.isAttending)
+        }
+    }
+
+    var eventListTitle: String {
+        switch configuration.eventFilter {
+        case .attending:
+            return "Attending Events"
+        case .all:
+            switch configuration.timeScope {
+            case .today:
+                return "Today's Events"
+            case .future:
+                return "Future Events"
+            }
+        }
+    }
+
+    var emptyEventMessage: String {
+        switch (configuration.eventFilter, configuration.timeScope) {
+        case (.attending, .today):
+            return "No attending events today"
+        case (.attending, .future):
+            return "No attending future events"
+        case (.all, .today):
+            return "No events today"
+        case (.all, .future):
+            return "No future events"
+        }
+    }
+}

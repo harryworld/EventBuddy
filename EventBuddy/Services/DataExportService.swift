@@ -6,14 +6,14 @@ import Contacts
 @MainActor
 @Observable
 class DataExportService {
-    private let appStore: AppStore
+    private let persistenceService: EventPersistenceService
     
     var isExporting = false
     var exportError: String?
     var exportProgress: Double = 0.0
     
-    init(appStore: AppStore) {
-        self.appStore = appStore
+    init(persistenceService: EventPersistenceService) {
+        self.persistenceService = persistenceService
     }
     
     // MARK: - Main Export Function
@@ -77,9 +77,9 @@ class DataExportService {
     private func exportJSONBackup(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("eventbuddy_backup.json")
         
-        let events = try appStore.events()
-        let friends = try appStore.friends()
-        let profile = try appStore.profiles().first
+        let events = try persistenceService.events()
+        let friends = try persistenceService.friends()
+        let profile = try persistenceService.profiles().first
         
         // Create backup structure
         let backup = DataBackup(
@@ -106,7 +106,7 @@ class DataExportService {
     private func exportEventsCSV(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("events.csv")
         
-        let events = try appStore.events()
+        let events = try persistenceService.events()
         
         var csvContent = "ID,Title,Description,Location,Address,Start Date,End Date,Event Type,Notes,Requires Ticket,Requires Registration,URL,Is Attending,Is Custom Event,Created At,Updated At,Attendee Count,Wish Count\n"
         
@@ -144,7 +144,7 @@ class DataExportService {
     private func exportFriendsCSV(to directory: URL) async throws -> URL {
         let fileURL = directory.appendingPathComponent("friends.csv")
         
-        let friends = try appStore.friends()
+        let friends = try persistenceService.friends()
         
         var csvContent = "ID,Name,Email,Phone,Job Title,Company,Notes,Is Favorite,Created At,Updated At,Events Count,Wish Events Count,Social Media\n"
         
@@ -177,7 +177,7 @@ class DataExportService {
     }
 
     private func exportPersonalNamecard(to directory: URL) async throws -> URL? {
-        guard let profile = try appStore.profiles().first else {
+        guard let profile = try persistenceService.profiles().first else {
             return nil
         }
 

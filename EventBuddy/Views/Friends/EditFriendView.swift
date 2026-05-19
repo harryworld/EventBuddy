@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditFriendView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @Environment(\.dismiss) private var dismiss
     
     @Bindable var friend: Friend
@@ -187,7 +187,7 @@ struct EditFriendView: View {
             value.isEmpty ? nil : value
         }
 
-        try? appStore.save(friend)
+        eventPersistenceService?.save(friend)
     }
     
     private var additionalSocialPlatforms: Set<String> {

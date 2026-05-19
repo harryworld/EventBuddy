@@ -2,7 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileEditView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @Environment(\.dismiss) private var dismiss
     
     let profile: Profile
@@ -227,7 +227,7 @@ struct ProfileEditView: View {
         profile.markAsUpdated()
         
         do {
-            try appStore.save(profile)
+            try eventPersistenceService.persist(profile)
         } catch {
             print("Error saving profile: \(error)")
         }
@@ -235,7 +235,6 @@ struct ProfileEditView: View {
 }
 
 #Preview {
-    let environment = AppEnvironment()
     return ProfileEditView(profile: Profile.preview, onSave: {})
-        .environment(environment.store)
+        .environment(EventPersistenceService())
 }

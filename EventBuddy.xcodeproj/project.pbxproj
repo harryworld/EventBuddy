@@ -74,10 +74,7 @@
 				Models/Event.swift,
 				Models/Friend.swift,
 				Models/Profile.swift,
-				Persistence/AppEnvironment.swift,
-				Persistence/AppStore.swift,
 				Persistence/SQLiteSchema.swift,
-				Services/LiveActivityService.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 		};

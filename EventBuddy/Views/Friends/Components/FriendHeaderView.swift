@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FriendHeaderView: View {
     let friend: Friend
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -15,7 +15,7 @@ struct FriendHeaderView: View {
                 
                 Button {
                     friend.toggleFavorite()
-                    try? appStore.save(friend)
+                    eventPersistenceService?.save(friend)
                 } label: {
                     Image(systemName: friend.isFavorite ? "star.fill" : "star")
                         .font(.title)

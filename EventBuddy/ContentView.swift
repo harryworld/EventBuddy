@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
     @State private var navigationCoordinator = NavigationCoordinator()
@@ -50,6 +50,7 @@ struct ContentView: View {
                 }
                 .tabBarMinimumEffect()
                 .environment(eventSyncService)
+                .environment(eventPersistenceService)
                 .alert("Sync Error", isPresented: $showingSyncError) {
                     Button("OK") { }
                     Button("Retry") {
@@ -80,11 +81,11 @@ struct ContentView: View {
     
     private func setupServices() {
         do {
-            _ = try LegacySwiftDataMigration.migrateIfNeeded(appStore: appStore)
+            _ = try LegacySwiftDataMigration.migrateIfNeeded(persistenceService: eventPersistenceService)
         } catch {
             print("Failed to prepare persistence: \(error)")
         }
-        eventSyncService = EventSyncService(appStore: appStore)
+        eventSyncService = EventSyncService(persistenceService: eventPersistenceService)
         loadInitialData()
     }
     
@@ -94,11 +95,11 @@ struct ContentView: View {
         Task {
             // Load friends sample data
             await MainActor.run {
-                FriendService.addSampleFriends(appStore: appStore)
+                FriendService.addSampleFriends(eventPersistenceService: eventPersistenceService)
                 
                 // Add sample profile if none exists
-                if ProfileService.getCurrentProfile(appStore: appStore) == nil {
-                    ProfileService.addSampleProfile(appStore: appStore)
+                if ProfileService.getCurrentProfile(persistenceService: eventPersistenceService) == nil {
+                    ProfileService.addSampleProfile(persistenceService: eventPersistenceService)
                 }
             }
             
@@ -123,7 +124,7 @@ struct ContentView: View {
             } else {
                 // In preview mode, use the old sample data
                 await MainActor.run {
-                    EventService.addSampleWWDCEvents(appStore: appStore)
+                    EventService.addSampleWWDCEvents(persistenceService: eventPersistenceService)
                 }
             }
         }
@@ -135,7 +136,7 @@ struct ContentView: View {
         switch url.host {
         case "event":
             if let eventId = UUID(uuidString: url.lastPathComponent) {
-                navigationCoordinator.navigateToEvent(with: eventId, appStore: appStore)
+                navigationCoordinator.navigateToEvent(with: eventId)
             }
         case "events":
             navigationCoordinator.navigateToEventsTab()
@@ -148,9 +149,9 @@ struct ContentView: View {
 }
 
 #Preview {
-    let environment = AppEnvironment()
+    let persistenceService = EventPersistenceService()
     return ContentView()
-        .environment(environment.store)
+        .environment(persistenceService)
 }
 
 extension View {

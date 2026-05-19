@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DataExportView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService
     @Environment(\.dismiss) private var dismiss
     
     @State private var exportService: DataExportService?
@@ -63,7 +63,7 @@ struct DataExportView: View {
             }
             .onAppear {
                 if exportService == nil {
-                    exportService = DataExportService(appStore: appStore)
+                    exportService = DataExportService(persistenceService: eventPersistenceService)
                 }
             }
             .sheet(isPresented: $showingShareSheet) {

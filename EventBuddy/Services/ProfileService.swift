@@ -5,9 +5,9 @@ import SwiftUI
 class ProfileService {
     
     // Add sample profile for demonstration purposes
-    static func addSampleProfile(appStore: AppStore) {
+    static func addSampleProfile(persistenceService: EventPersistenceService) {
         // Clear existing profiles first (should only be one)
-        clearExistingProfiles(appStore: appStore)
+        clearExistingProfiles(persistenceService: persistenceService)
         
         let sampleProfile = Profile(
             name: "John Appleseed",
@@ -27,25 +27,25 @@ class ProfileService {
         )
         
         do {
-            try appStore.save(sampleProfile)
+            try persistenceService.persist(sampleProfile)
         } catch {
             print("Error saving sample profile: \(error)")
         }
     }
     
     // Clear existing profiles
-    private static func clearExistingProfiles(appStore: AppStore) {
+    private static func clearExistingProfiles(persistenceService: EventPersistenceService) {
         do {
-            try appStore.deleteProfiles()
+            try persistenceService.removeProfiles()
         } catch {
             print("Error clearing profiles: \(error)")
         }
     }
     
     // Get the current user's profile
-    static func getCurrentProfile(appStore: AppStore) -> Profile? {
+    static func getCurrentProfile(persistenceService: EventPersistenceService) -> Profile? {
         do {
-            return try appStore.currentProfile()
+            return try persistenceService.currentProfile()
         } catch {
             print("Error fetching profile: \(error)")
             return nil
@@ -53,7 +53,7 @@ class ProfileService {
     }
     
     // Create a new profile if none exists
-    static func createDefaultProfile(appStore: AppStore) -> Profile {
+    static func createDefaultProfile(persistenceService: EventPersistenceService) -> Profile {
         let defaultProfile = Profile(
             name: "Your Name",
             bio: "Add your bio here",
@@ -72,7 +72,7 @@ class ProfileService {
         )
         
         do {
-            try appStore.save(defaultProfile)
+            try persistenceService.persist(defaultProfile)
         } catch {
             print("Error saving default profile: \(error)")
         }
@@ -81,18 +81,18 @@ class ProfileService {
     }
     
     // Update profile and save changes
-    static func updateProfile(_ profile: Profile, appStore: AppStore) {
+    static func updateProfile(_ profile: Profile, persistenceService: EventPersistenceService) {
         profile.markAsUpdated()
         
         do {
-            try appStore.save(profile)
+            try persistenceService.persist(profile)
         } catch {
             print("Error updating profile: \(error)")
         }
     }
     
     // Add or update social media account
-    static func updateSocialAccount(for profile: Profile, service: String, username: String, appStore: AppStore) {
+    static func updateSocialAccount(for profile: Profile, service: String, username: String, persistenceService: EventPersistenceService) {
         if username.isEmpty {
             profile.socialMediaAccounts.removeValue(forKey: service)
         } else {
@@ -100,12 +100,12 @@ class ProfileService {
             profile.socialMediaAccounts[service] = cleanUsername
         }
         
-        updateProfile(profile, appStore: appStore)
+        updateProfile(profile, persistenceService: persistenceService)
     }
     
     // Remove social media account
-    static func removeSocialAccount(for profile: Profile, service: String, appStore: AppStore) {
+    static func removeSocialAccount(for profile: Profile, service: String, persistenceService: EventPersistenceService) {
         profile.socialMediaAccounts.removeValue(forKey: service)
-        updateProfile(profile, appStore: appStore)
+        updateProfile(profile, persistenceService: persistenceService)
     }
 } 

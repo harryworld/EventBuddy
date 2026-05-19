@@ -2,7 +2,6 @@ import SQLiteData
 import SwiftUI
 
 struct EventListView: View {
-    @Environment(AppStore.self) private var appStore
     @Environment(EventSyncService.self) private var eventSyncService: EventSyncService?
     @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
@@ -279,13 +278,7 @@ struct EventListView: View {
                     } description: {
                         Text("There are no events matching your criteria.")
                     } actions: {
-                        // Preview only
-                        if isPreview {
-                            Button("Add Sample Events") {
-                                addSampleEvents()
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
+                        // No fallback actions in non-preview environments
                     }
                     .padding(.top, 50)
                 } else {
@@ -314,14 +307,14 @@ struct EventListView: View {
             .animation(.spring(duration: 0.2), value: selectedEventFilter)
             .animation(.spring(duration: 0.2), value: showHistoricalEvents)
             .onChange(of: navigationCoordinator?.shouldScrollToEvent) { _, shouldScroll in
-                if shouldScroll == true, let eventToShow = navigationCoordinator?.eventToShow {
+                if shouldScroll == true, let eventToShowID = navigationCoordinator?.eventToShowID {
                     withAnimation(.easeInOut(duration: 0.5)) {
-                        proxy.scrollTo(eventToShow.id, anchor: .center)
+                        proxy.scrollTo(eventToShowID, anchor: .center)
                     }
                     
                     // After scrolling, wait a moment then navigate to detail
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                        navigationPath.append(eventToShow.id)
+                        navigationPath.append(eventToShowID)
                         navigationCoordinator?.resetNavigation()
                     }
                 }
@@ -395,16 +388,6 @@ struct EventListView: View {
         return formatter.string(from: date)
     }
     
-    private func deleteEvent(_ event: Event) {
-        try? appStore.delete(event)
-    }
-    
-    private func addSampleEvents() {
-        Task {
-            EventService.addSampleWWDCEvents(appStore: appStore)
-        }
-    }
-    
     private func refreshEvents() async {
         await eventSyncService?.manualSync()
     }
@@ -418,12 +401,12 @@ struct EventListView: View {
     private func handleDeepLinkNavigation() {
         guard let coordinator = navigationCoordinator,
               coordinator.shouldNavigateToEvent,
-              let eventToShow = coordinator.eventToShow else {
+              let eventToShowID = coordinator.eventToShowID else {
             return
         }
         
         // Navigate to the specific event
-            navigationPath.append(eventToShow.id)
+        navigationPath.append(eventToShowID)
         
         // Reset the navigation state
         coordinator.resetNavigation()
@@ -439,22 +422,81 @@ private struct EventNavigationRow: View {
 }
 
 private struct EventDetailByIDView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
+    @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
+    private var storedEvents: [StoredEvent]
     let eventID: UUID
+    @State private var event: Event?
+    @State private var hasCheckedPersistence = false
 
     var body: some View {
         Group {
-            if let event = try? appStore.event(id: eventID) {
+            if let event {
                 EventDetailView(event: event)
+            } else if !hasCheckedPersistence {
+                ProgressView("Loading event...")
+                    .progressViewStyle(.circular)
+                    .padding()
             } else {
                 ContentUnavailableView("Event Not Found", systemImage: "calendar.badge.exclamationmark")
             }
         }
+        .task { refreshEvent() }
+        .onChange(of: storedEvents.map(\.id)) { _, _ in
+            refreshEvent()
+        }
+        .onAppear {
+            refreshEvent()
+        }
+    }
+
+    private func refreshEvent() {
+        if let storedEvent = storedEvents.first(where: { $0.id == eventID }).map(StoredEvent.initEventFromStored) {
+            if event?.id != storedEvent.id {
+                event = storedEvent
+            }
+            hasCheckedPersistence = true
+            return
+        }
+        
+        if let persistedEvent = eventPersistenceService?.event(for: eventID) {
+            if event?.id != persistedEvent.id {
+                event = persistedEvent
+            }
+            hasCheckedPersistence = true
+            return
+        }
+        
+        event = nil
+        hasCheckedPersistence = true
+    }
+}
+
+private extension StoredEvent {
+    static func initEventFromStored(_ storedEvent: StoredEvent) -> Event {
+        let event = Event(
+            id: storedEvent.id,
+            title: storedEvent.title,
+            eventDescription: storedEvent.eventDescription,
+            location: storedEvent.location,
+            address: storedEvent.address,
+            startDate: storedEvent.startDate,
+            endDate: storedEvent.endDate,
+            eventType: storedEvent.eventType,
+            notes: storedEvent.notes,
+            requiresTicket: storedEvent.requiresTicket,
+            requiresRegistration: storedEvent.requiresRegistration,
+            url: storedEvent.url,
+            isAttending: storedEvent.isAttending,
+            originalTimezoneIdentifier: storedEvent.originalTimezoneIdentifier,
+            isCustomEvent: storedEvent.isCustomEvent
+        )
+        event.createdAt = storedEvent.createdAt
+        event.updatedAt = storedEvent.updatedAt
+        return event
     }
 }
 
 #Preview {
-    let environment = AppEnvironment()
-    return EventListView()
-        .environment(environment.store)
+    EventListView()
 }

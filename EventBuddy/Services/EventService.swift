@@ -5,9 +5,9 @@ import SwiftUI
 class EventService {
     
     // Add sample WWDC events based on cross-referenced data from official sources
-    static func addSampleWWDCEvents(appStore: AppStore) {
+    static func addSampleWWDCEvents(persistenceService: EventPersistenceService) {
         // Clear existing events first
-        clearExistingEvents(appStore: appStore)
+        clearExistingEvents(persistenceService: persistenceService)
         
         let events = [
             // SATURDAY, June 7th
@@ -1375,15 +1375,15 @@ class EventService {
         ]
         
         do {
-            try appStore.save(events)
+            try persistenceService.persist(events)
         } catch {
             print("Failed to save events: \(error)")
         }
     }
     
-    private static func clearExistingEvents(appStore: AppStore) {
+    private static func clearExistingEvents(persistenceService: EventPersistenceService) {
         do {
-            try appStore.deleteEvents()
+            try persistenceService.removeEvents()
         } catch {
             print("Failed to clear existing events: \(error)")
         }

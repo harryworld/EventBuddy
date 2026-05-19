@@ -2,7 +2,7 @@ import SQLiteData
 import SwiftUI
 
 struct FriendListView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @FetchAll(StoredFriend.order(by: \.name), animation: .default)
     private var storedFriends: [StoredFriend]
     
@@ -34,8 +34,8 @@ struct FriendListView: View {
                             FriendDetailByIDView(friendID: friendRow.id)
                         } label: {
                             FriendRowView(friendRow: friendRow)
-                                .swipeActions {
-                                    NavigationLink(destination: EditFriendView(friend: appStore.friend(for: friendRow))) {
+                            .swipeActions {
+                                NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
                                         Label("Edit", systemImage: "pencil")
                                     }
                                     .tint(.blue)
@@ -55,7 +55,7 @@ struct FriendListView: View {
                                     .tint(.yellow)
                                 }
                                 .contextMenu {
-                                    NavigationLink(destination: EditFriendView(friend: appStore.friend(for: friendRow))) {
+                                    NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
                                         Label("Edit Friend", systemImage: "pencil")
                                     }
                                     
@@ -98,7 +98,11 @@ struct FriendListView: View {
                 }
             }
             .sheet(isPresented: $showingAddFriendSheet) {
-                AddFriendView()
+                if let eventPersistenceService {
+                    AddFriendView(eventPersistenceService: eventPersistenceService)
+                } else {
+                    AddFriendView(eventPersistenceService: nil)
+                }
             }
         }
     }
@@ -257,96 +261,182 @@ struct FriendListView: View {
     }
 
     private func deleteFriend(_ friendRow: StoredFriend) {
-        try? appStore.deleteFriend(id: friendRow.id)
+        eventPersistenceService?.deleteFriend(id: friendRow.id)
     }
 
     private func toggleFavorite(_ friendRow: StoredFriend) {
-        let friend = appStore.friend(for: friendRow)
+        let friend = friendFromRow(friendRow)
         friend.toggleFavorite()
-        try? appStore.save(friend)
+        eventPersistenceService?.save(friend)
     }
     
     private func addSampleFriends() {
         // Call FriendService
-        do {
-            try appStore.deleteFriends()
+        eventPersistenceService?.deleteFriends()
+        
+        let friends = [
+            Friend(
+                name: "Emily Chen",
+                email: "emily@google.com",
+                phone: "+1 (555) 123-4567",
+                socialMediaHandles: [
+                    "linkedin": "emilychen",
+                    "github": "emilychen"
+                ],
+                notes: "Works at Google"
+            ),
             
-            let friends = [
-                Friend(
-                    name: "Emily Chen",
-                    email: "emily@google.com",
-                    phone: "+1 (555) 123-4567",
-                    socialMediaHandles: [
-                        "linkedin": "emilychen",
-                        "github": "emilychen"
-                    ],
-                    notes: "Works at Google"
-                ),
-                
-                Friend(
-                    name: "John Appleseed",
-                    email: "john@apple.com",
-                    phone: "+1 (555) 234-5678",
-                    socialMediaHandles: [
-                        "twitter": "johnapple",
-                        "linkedin": "johnapple",
-                        "github": "johnapple"
-                    ],
-                    notes: "Works at Apple"
-                ),
-                
-                Friend(
-                    name: "Miguel Rodriguez",
-                    email: "miguel@swiftui.dev",
-                    phone: "+1 (555) 345-6789",
-                    socialMediaHandles: [
-                        "twitter": "migueldev",
-                        "github": "migueldev"
-                    ],
-                    notes: "SwiftUI Dev"
-                ),
-                
-                Friend(
-                    name: "Sarah Thompson",
-                    email: "sarah@indie.dev",
-                    phone: "+1 (555) 456-7890",
-                    socialMediaHandles: [
-                        "twitter": "sarahdev",
-                        "github": "sarahdev",
-                        "linkedin": "saraht"
-                    ],
-                    notes: "Indie Developer"
-                )
-            ]
+            Friend(
+                name: "John Appleseed",
+                email: "john@apple.com",
+                phone: "+1 (555) 234-5678",
+                socialMediaHandles: [
+                    "twitter": "johnapple",
+                    "linkedin": "johnapple",
+                    "github": "johnapple"
+                ],
+                notes: "Works at Apple"
+            ),
             
-            // Set John and Miguel as favorites
-            friends[1].isFavorite = true
-            friends[2].isFavorite = true
+            Friend(
+                name: "Miguel Rodriguez",
+                email: "miguel@swiftui.dev",
+                phone: "+1 (555) 345-6789",
+                socialMediaHandles: [
+                    "twitter": "migueldev",
+                    "github": "migueldev"
+                ],
+                notes: "SwiftUI Dev"
+            ),
             
-            try appStore.save([], friends: friends)
-        } catch {
-            print("Error adding sample friends: \(error)")
+            Friend(
+                name: "Sarah Thompson",
+                email: "sarah@indie.dev",
+                phone: "+1 (555) 456-7890",
+                socialMediaHandles: [
+                    "twitter": "sarahdev",
+                    "github": "sarahdev",
+                    "linkedin": "saraht"
+                ],
+                notes: "Indie Developer"
+            )
+        ]
+        
+        // Set John and Miguel as favorites
+        friends[1].isFavorite = true
+        friends[2].isFavorite = true
+        
+        eventPersistenceService?.save(friends: friends)
+    }
+
+    private func friendFromRow(_ friendRow: StoredFriend) -> Friend {
+        if let friend = eventPersistenceService?.friend(for: friendRow) {
+            return friend
         }
+
+        let friend = Friend(
+            id: friendRow.id,
+            name: friendRow.name,
+            email: friendRow.email,
+            phone: friendRow.phone,
+            jobTitle: friendRow.jobTitle,
+            company: friendRow.company,
+            socialMediaHandles: decodeStringDictionary(friendRow.socialMediaHandlesJSON),
+            notes: friendRow.notes,
+            isFavorite: friendRow.isFavorite
+        )
+        friend.createdAt = friendRow.createdAt
+        friend.updatedAt = friendRow.updatedAt
+        return friend
+    }
+
+    private func decodeStringDictionary(_ json: String) -> [String: String] {
+        guard let data = json.data(using: .utf8),
+              let value = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return value
     }
 }
 
 private struct FriendDetailByIDView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
+    @FetchAll(StoredFriend.order(by: \.name), animation: .default)
+    private var storedFriends: [StoredFriend]
+    @State private var friend: Friend?
+    @State private var hasCheckedPersistence = false
     let friendID: UUID
 
     var body: some View {
         Group {
-            if let friend = try? appStore.friend(id: friendID) {
+            if let friend {
                 FriendDetailView(friend: friend)
+            } else if !hasCheckedPersistence {
+                ProgressView("Loading friend...")
+                    .progressViewStyle(.circular)
+                    .padding()
             } else {
                 ContentUnavailableView("Friend Not Found", systemImage: "person.crop.circle.badge.exclamationmark")
             }
         }
+        .task { refreshFriend() }
+        .onAppear {
+            refreshFriend()
+        }
+        .onChange(of: storedFriends.map(\.id)) { _, _ in
+            refreshFriend()
+        }
+    }
+
+    private func refreshFriend() {
+        if let storedFriend = storedFriends.first(where: { $0.id == friendID }) {
+            let mappedFriend = eventPersistenceService?.friend(for: storedFriend) ?? Friend.initFromStored(storedFriend)
+            if friend?.id != mappedFriend.id {
+                friend = mappedFriend
+            }
+            hasCheckedPersistence = true
+            return
+        }
+
+        if let persistedFriend = eventPersistenceService?.friend(for: friendID) {
+            if friend?.id != persistedFriend.id {
+                friend = persistedFriend
+            }
+            hasCheckedPersistence = true
+            return
+        }
+
+        friend = nil
+        hasCheckedPersistence = true
+    }
+}
+
+private extension Friend {
+    static func initFromStored(_ storedFriend: StoredFriend) -> Friend {
+        let friend = Friend(
+            id: storedFriend.id,
+            name: storedFriend.name,
+            email: storedFriend.email,
+            phone: storedFriend.phone,
+            jobTitle: storedFriend.jobTitle,
+            company: storedFriend.company,
+            socialMediaHandles: decodeStoredFriendSocialMedia(storedFriend.socialMediaHandlesJSON),
+            notes: storedFriend.notes,
+            isFavorite: storedFriend.isFavorite
+        )
+        friend.createdAt = storedFriend.createdAt
+        friend.updatedAt = storedFriend.updatedAt
+        return friend
+    }
+
+    private static func decodeStoredFriendSocialMedia(_ json: String) -> [String: String] {
+        guard let data = json.data(using: .utf8),
+              let value = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return value
     }
 }
 
 #Preview {
-    let environment = AppEnvironment()
     return FriendListView()
-        .environment(environment.store)
+        .environment(EventPersistenceService())
 }

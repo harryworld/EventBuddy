@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditEventView: View {
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @Environment(\.dismiss) private var dismiss
     
     @Bindable var event: Event
@@ -152,7 +152,7 @@ struct EditEventView: View {
         event.originalTimezoneIdentifier = selectedTimezone
         event.updatedAt = Date()
         
-        try? appStore.save(event)
+        eventPersistenceService?.save(event)
     }
 }
 

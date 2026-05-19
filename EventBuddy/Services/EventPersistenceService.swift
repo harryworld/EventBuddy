@@ -3,7 +3,7 @@ import SQLiteData
 
 @MainActor
 @Observable
-final class AppStore {
+final class EventPersistenceService {
     @ObservationIgnored
     @Dependency(\.defaultDatabase) private var database
     @ObservationIgnored private let saveDidComplete: @MainActor () -> Void
@@ -28,24 +28,42 @@ final class AppStore {
         try selectCurrentProfile(from: profiles())
     }
 
-    func event(id: UUID) throws -> Event? {
+    func fetchEvent(id: UUID) throws -> Event? {
         try events().first { $0.id == id }
     }
 
-    func friend(id: UUID) throws -> Friend? {
+    func fetchFriend(id: UUID) throws -> Friend? {
         try friends().first { $0.id == id }
     }
 
-    func profile(id: UUID) throws -> Profile? {
+    func fetchProfile(id: UUID) throws -> Profile? {
         try profiles().first { $0.id == id }
     }
 
     func event(for row: StoredEvent) -> Event {
-        (try? event(id: row.id)) ?? row.event
+        (try? fetchEvent(id: row.id)) ?? row.event
+    }
+
+    func event(for id: UUID) -> Event? {
+        do {
+            return try fetchEvent(id: id)
+        } catch {
+            print("Failed to load event: \(error)")
+            return nil
+        }
     }
 
     func friend(for row: StoredFriend) -> Friend {
-        (try? friend(id: row.id)) ?? row.friend
+        (try? fetchFriend(id: row.id)) ?? row.friend
+    }
+
+    func friend(for id: UUID) -> Friend? {
+        do {
+            return try fetchFriend(id: id)
+        } catch {
+            print("Failed to load friend: \(error)")
+            return nil
+        }
     }
 
     func profile(for row: StoredProfile) -> Profile {
@@ -56,31 +74,40 @@ final class AppStore {
         selectCurrentProfile(from: rows.map(\.profile))
     }
 
-    func hasFriends() throws -> Bool {
+    func hasAnyFriends() throws -> Bool {
         try database.read { db in
             try !StoredFriend.fetchAll(db).isEmpty
         }
     }
 
-    func save(_ event: Event) throws {
-        try save([event])
+    func hasFriends() -> Bool {
+        do {
+            return try hasAnyFriends()
+        } catch {
+            print("Failed to check friends existence: \(error)")
+            return false
+        }
     }
 
-    func save(_ friend: Friend) throws {
+    func persist(_ event: Event) throws {
+        try persist([event])
+    }
+
+    func persist(_ friend: Friend) throws {
         try database.write { db in
             try upsert(friend, in: db)
         }
         saveDidComplete()
     }
 
-    func save(_ profile: Profile) throws {
+    func persist(_ profile: Profile) throws {
         try database.write { db in
             try upsert(profile, in: db)
         }
         saveDidComplete()
     }
 
-    func save(_ events: [Event], friends: [Friend] = [], profiles: [Profile] = []) throws {
+    func persist(_ events: [Event], friends: [Friend] = [], profiles: [Profile] = []) throws {
         try database.write { db in
             var friendsByID = Dictionary(uniqueKeysWithValues: friends.map { ($0.id, $0) })
             for event in events {
@@ -105,40 +132,112 @@ final class AppStore {
         saveDidComplete()
     }
 
-    func delete(_ event: Event) throws {
-        try deleteEvent(id: event.id)
+    func save(_ event: Event) {
+        do {
+            try persist(event)
+        } catch {
+            print("Failed to save event: \(error)")
+        }
     }
 
-    func delete(_ friend: Friend) throws {
-        try deleteFriend(id: friend.id)
+    func save(_ friend: Friend) {
+        do {
+            try persist(friend)
+        } catch {
+            print("Failed to save friend: \(error)")
+        }
     }
 
-    func delete(_ profile: Profile) throws {
-        try deleteProfile(id: profile.id)
+    func save(_ profile: Profile) {
+        do {
+            try persist(profile)
+        } catch {
+            print("Failed to save profile: \(error)")
+        }
     }
 
-    func deleteEvent(id: UUID) throws {
+    func save(events: [Event] = [], friends: [Friend] = [], profiles: [Profile] = []) {
+        do {
+            try persist(events, friends: friends, profiles: profiles)
+        } catch {
+            print("Failed to save batch data: \(error)")
+        }
+    }
+
+    func remove(_ event: Event) throws {
+        try removeEvent(id: event.id)
+    }
+
+    func remove(_ friend: Friend) throws {
+        try removeFriend(id: friend.id)
+    }
+
+    func remove(_ profile: Profile) throws {
+        try removeProfile(id: profile.id)
+    }
+
+    func delete(_ event: Event) {
+        do {
+            try remove(event)
+        } catch {
+            print("Failed to delete event: \(error)")
+        }
+    }
+
+    func delete(_ friend: Friend) {
+        do {
+            try remove(friend)
+        } catch {
+            print("Failed to delete friend: \(error)")
+        }
+    }
+
+    func removeEvent(id: UUID) throws {
         try database.write { db in
             try deleteEvent(id: id, in: db)
         }
         saveDidComplete()
     }
 
-    func deleteFriend(id: UUID) throws {
+    func removeFriend(id: UUID) throws {
         try database.write { db in
             try deleteFriend(id: id, in: db)
         }
         saveDidComplete()
     }
 
-    func deleteProfile(id: UUID) throws {
+    func removeProfile(id: UUID) throws {
         try database.write { db in
             try deleteProfile(id: id, in: db)
         }
         saveDidComplete()
     }
 
-    func deleteEvents() throws {
+    func deleteFriend(id: UUID) {
+        do {
+            try removeFriend(id: id)
+        } catch {
+            print("Failed to delete friend by id: \(error)")
+        }
+    }
+
+    func deleteFriends() {
+        do {
+            try removeFriends()
+        } catch {
+            print("Failed to delete all friends: \(error)")
+        }
+    }
+
+    func deleteEvents() {
+        do {
+            try removeEvents()
+        } catch {
+            print("Failed to delete all events: \(error)")
+        }
+    }
+
+    func removeEvents() throws {
         try database.write { db in
             try db.execute(sql: #"DELETE FROM "storedEventAttendees""#)
             try db.execute(sql: #"DELETE FROM "storedEventWishes""#)
@@ -147,7 +246,7 @@ final class AppStore {
         saveDidComplete()
     }
 
-    func deleteFriends() throws {
+    func removeFriends() throws {
         try database.write { db in
             try db.execute(sql: #"DELETE FROM "storedEventAttendees""#)
             try db.execute(sql: #"DELETE FROM "storedEventWishes""#)
@@ -156,7 +255,7 @@ final class AppStore {
         saveDidComplete()
     }
 
-    func deleteProfiles() throws {
+    func removeProfiles() throws {
         try database.write { db in
             try db.execute(sql: #"DELETE FROM "storedProfiles""#)
         }

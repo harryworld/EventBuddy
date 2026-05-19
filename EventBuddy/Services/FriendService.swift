@@ -11,23 +11,23 @@ class FriendService {
     private static let sampleFriendsAddedKey = "EventBuddy.SampleFriendsAdded"
     
     // Add sample friends for demonstration purposes
-    static func addSampleFriends(appStore: AppStore) {
+    static func addSampleFriends(eventPersistenceService: EventPersistenceService) {
         let sampleWasAdded = UserDefaults.standard.bool(forKey: sampleFriendsAddedKey)
         
         if !sampleWasAdded {
-            if hasAnyFriends(appStore: appStore) {
+            if hasAnyFriends(service: eventPersistenceService) {
                 UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
                 return
             }
 
             // Rule 1: If sample was not added, insert it
-            insertSampleFriend(appStore: appStore)
+            insertSampleFriend(service: eventPersistenceService)
             UserDefaults.standard.set(true, forKey: sampleFriendsAddedKey)
         } else {
             // Rule 2: If sample was added before, check if it still exists
-            if sampleFriendExists(appStore: appStore) {
+            if sampleFriendExists(service: eventPersistenceService) {
                 // Rule 3: If exists, update the sample instead of deleting and inserting
-                updateSampleFriend(appStore: appStore)
+                updateSampleFriend(service: eventPersistenceService)
             } else {
                 // Rule 4: If not exists, ignore it
                 return
@@ -36,7 +36,7 @@ class FriendService {
     }
     
     // Insert the sample friend
-    private static func insertSampleFriend(appStore: AppStore) {
+    private static func insertSampleFriend(service: EventPersistenceService) {
         let sampleFriend = Friend(
             id: sampleFriendId,
             name: "John Appleseed",
@@ -52,56 +52,38 @@ class FriendService {
             notes: "Works at Apple",
             isFavorite: true
         )
-        
-        do {
-            try appStore.save(sampleFriend)
-        } catch {
-            print("Error saving sample friend: \(error)")
-        }
+
+        service.save(sampleFriend)
     }
 
-    private static func hasAnyFriends(appStore: AppStore) -> Bool {
-        do {
-            return try appStore.hasFriends()
-        } catch {
-            print("Error checking existing friends: \(error)")
-            return false
-        }
+    private static func hasAnyFriends(service: EventPersistenceService) -> Bool {
+        return service.hasFriends()
     }
     
     // Check if sample friend exists in database
-    private static func sampleFriendExists(appStore: AppStore) -> Bool {
-        do {
-            return try appStore.friend(id: sampleFriendId) != nil
-        } catch {
-            print("Error checking if sample friend exists: \(error)")
-            return false
-        }
+    private static func sampleFriendExists(service: EventPersistenceService) -> Bool {
+        service.friend(for: sampleFriendId) != nil
     }
     
     // Update sample friend
-    private static func updateSampleFriend(appStore: AppStore) {
-        do {
-            if let friend = try appStore.friend(id: sampleFriendId) {
-                friend.update(
-                    name: "John Appleseed",
-                    email: "john@apple.com",
-                    phone: "+1 (555) 234-5678",
-                    jobTitle: "Senior Software Engineer",
-                    company: "Apple Inc.",
-                    socialMediaHandles: [
-                        "twitter": "johnapple",
-                        "linkedin": "johnapple",
-                        "github": "johnapple"
-                    ],
-                    notes: "Works at Apple",
-                    isFavorite: true
-                )
-                
-                try appStore.save(friend)
-            }
-        } catch {
-            print("Error updating sample friend: \(error)")
+    private static func updateSampleFriend(service: EventPersistenceService) {
+        if let friend = service.friend(for: sampleFriendId) {
+            friend.update(
+                name: "John Appleseed",
+                email: "john@apple.com",
+                phone: "+1 (555) 234-5678",
+                jobTitle: "Senior Software Engineer",
+                company: "Apple Inc.",
+                socialMediaHandles: [
+                    "twitter": "johnapple",
+                    "linkedin": "johnapple",
+                    "github": "johnapple"
+                ],
+                notes: "Works at Apple",
+                isFavorite: true
+            )
+            
+            service.save(friend)
         }
     }
     

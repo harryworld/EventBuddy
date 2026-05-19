@@ -5,7 +5,7 @@ import SQLiteData
 
 struct EventDetailView: View {
     @Bindable var event: Event
-    @Environment(AppStore.self) private var appStore
+    @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @Environment(\.dismiss) private var dismiss
     @State private var calendarStore = EventCalendarStore()
     @State private var isAddedToCalendar = false
@@ -19,10 +19,10 @@ struct EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                EventHeaderView(event: event, appStore: appStore)
+                EventHeaderView(event: event, eventPersistenceService: eventPersistenceService)
                 EventDateTimeView(event: event, isAddedToCalendar: isAddedToCalendar)
                 EventLocationView(event: event)
-                EventAttendeesView(event: event, appStore: appStore)
+                EventAttendeesView(event: event, eventPersistenceService: eventPersistenceService)
             }
             .padding()
         }
@@ -83,7 +83,7 @@ struct EventDetailView: View {
 
             if !event.isAttending {
                 event.toggleAttending()
-                try? appStore.save(event)
+                eventPersistenceService?.save(event)
             }
             isAddedToCalendar = true
         }
@@ -111,21 +111,16 @@ struct EventDetailView: View {
     private func deleteEvent() {
         // Now that we've fixed the circular cascade deletion issue,
         // we can safely delete without manual relationship clearing
-        do {
-            try appStore.delete(event)
-            // Only dismiss after successful deletion
-            dismiss()
-        } catch {
-            print("Error deleting event: \(error)")
-            // If deletion fails, we don't dismiss
-        }
+        eventPersistenceService?.delete(event)
+        // Only dismiss after successful deletion
+        dismiss()
     }
 }
 
 // MARK: - Event Header Component
 struct EventHeaderView: View {
     @Bindable var event: Event
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     @State private var showingDescriptionPopover = false
     
     var body: some View {
@@ -158,9 +153,9 @@ struct EventHeaderView: View {
             
             Spacer()
             
-            Button(action: {
+    Button(action: {
                 event.toggleAttending()
-                try? appStore.save(event)
+                eventPersistenceService?.save(event)
             }) {
                 Image(systemName: event.isAttending ? "checkmark.circle.fill" : "checkmark.circle")
                     .font(.title2)
@@ -310,7 +305,7 @@ struct EventLocationView: View {
 // MARK: - Event Attendees Component
 struct EventAttendeesView: View {
     @Bindable var event: Event
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     @State private var selectedFriendForDetailEdit: Friend? = nil
     @State private var selectedTab = 0 // 0 for People Met, 1 for Friend Wishes
     @State private var filterText = ""
@@ -330,18 +325,18 @@ struct EventAttendeesView: View {
                     // People Met (Attendees)
                     SharedAddFriendSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         isWishMode: false
                     )
                     SharedFriendSearchSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         isWishMode: false,
                         filterText: $filterText
                     )
                     SharedFriendsListSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
                         isWishMode: false,
                         filterText: $filterText
@@ -350,18 +345,18 @@ struct EventAttendeesView: View {
                     // Friend Wishes
                     SharedAddFriendSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         isWishMode: true
                     )
                     SharedFriendSearchSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         isWishMode: true,
                         filterText: $filterText
                     )
                     SharedFriendsListSection(
                         event: event,
-                        appStore: appStore,
+                        eventPersistenceService: eventPersistenceService,
                         selectedFriendForDetailEdit: $selectedFriendForDetailEdit,
                         isWishMode: true,
                         filterText: $filterText
@@ -378,7 +373,7 @@ struct EventAttendeesView: View {
 // MARK: - Shared Add Friend Section
 struct SharedAddFriendSection: View {
     @Bindable var event: Event
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     let isWishMode: Bool
     @State private var showingAddFriendSheet = false
     @State private var manualFriendName = ""
@@ -480,8 +475,8 @@ struct SharedAddFriendSection: View {
         } else {
             event.addFriend(friend)
         }
-        
-        try? appStore.save(event)
+
+        eventPersistenceService?.save(event)
         
         manualFriendName = ""
         showingAddFriendSheet = false
@@ -492,7 +487,7 @@ struct SharedAddFriendSection: View {
 // MARK: - Shared Friend Search Section
 struct SharedFriendSearchSection: View {
     @Bindable var event: Event
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     let isWishMode: Bool
     @Binding var filterText: String
     @FetchAll(StoredFriend.order(by: \.name), animation: .default)
@@ -502,7 +497,10 @@ struct SharedFriendSearchSection: View {
         if filterText.isEmpty {
             return []
         } else {
-            return storedFriends.map { appStore.friend(for: $0) }.filter { friend in
+            guard let eventPersistenceService else {
+                return []
+            }
+            return storedFriends.map { eventPersistenceService.friend(for: $0) }.filter { friend in
                 friend.name.localizedCaseInsensitiveContains(filterText) &&
                 !currentFriendsList.contains { $0.id == friend.id }
             }
@@ -608,7 +606,7 @@ struct SharedFriendSearchSection: View {
             event.addFriend(friend)
         }
         filterText = ""
-        try? appStore.save(event)
+        eventPersistenceService?.save(event)
     }
     
     private func createQuickFriend(name: String) {
@@ -623,7 +621,7 @@ struct SharedFriendSearchSection: View {
             event.addFriend(friend)
         }
         
-        try? appStore.save(event)
+        eventPersistenceService?.save(event)
         filterText = ""
     }
 }
@@ -631,7 +629,7 @@ struct SharedFriendSearchSection: View {
 // MARK: - Shared Friends List Section
 struct SharedFriendsListSection: View {
     @Bindable var event: Event
-    let appStore: AppStore
+    let eventPersistenceService: EventPersistenceService?
     @Binding var selectedFriendForDetailEdit: Friend?
     let isWishMode: Bool
     @Binding var filterText: String
@@ -691,7 +689,7 @@ struct SharedFriendsListSection: View {
                     if isWishMode {
                         Button {
                             event.markFriendAsMet(friend)
-                            try? appStore.save(event)
+                            eventPersistenceService?.save(event)
                         } label: {
                             Image(systemName: "checkmark.circle")
                                 .foregroundColor(.green)
@@ -716,7 +714,7 @@ struct SharedFriendsListSection: View {
                         if isWishMode {
                             Button {
                                 event.markFriendAsMet(friend)
-                                try? appStore.save(event)
+                                eventPersistenceService?.save(event)
                             } label: {
                                 Label("Mark as Met", systemImage: "checkmark.circle")
                             }
@@ -750,7 +748,7 @@ struct SharedFriendsListSection: View {
         } else {
             event.removeFriend(friend.id)
         }
-        try? appStore.save(event)
+        eventPersistenceService?.save(event)
     }
 }
 
@@ -862,9 +860,8 @@ struct SectionContainer<Content: View>: View {
 }
 
 #Preview {
-    let environment = AppEnvironment()
     NavigationStack {
         EventDetailView(event: Event.preview)
     }
-    .environment(environment.store)
+    .environment(EventPersistenceService())
 } 
