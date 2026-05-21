@@ -47,7 +47,7 @@ struct FriendDetailView: View {
             .padding()
         }
         .navigationTitle("Friend Details")
-        .navigationBarTitleDisplayMode(.inline)
+        .eventBuddyInlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

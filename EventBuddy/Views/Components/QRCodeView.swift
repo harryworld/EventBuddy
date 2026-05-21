@@ -2,11 +2,19 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 import Contacts
 
+#if os(macOS)
+import AppKit
+private typealias PlatformImage = NSImage
+#else
+import UIKit
+private typealias PlatformImage = UIImage
+#endif
+
 struct QRCodeView: View {
     let contact: CNContact
     let size: CGFloat
     
-    @State private var qrCode: UIImage?
+    @State private var qrCode: PlatformImage?
     
     init(contact: CNContact, size: CGFloat = 200) {
         self.contact = contact
@@ -16,7 +24,7 @@ struct QRCodeView: View {
     var body: some View {
         Group {
             if let qrCode {
-                Image(uiImage: qrCode)
+                platformImage(qrCode)
                     .interpolation(.none)
                     .resizable()
                     .scaledToFit()
@@ -53,9 +61,20 @@ struct QRCodeView: View {
         // Scale the QR code for better visibility
         let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
         
-        // Create UIImage from CIImage
         if let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) {
+            #if os(macOS)
+            qrCode = NSImage(cgImage: cgImage, size: NSSize(width: size, height: size))
+            #else
             qrCode = UIImage(cgImage: cgImage)
+            #endif
         }
     }
-} 
+
+    private func platformImage(_ image: PlatformImage) -> Image {
+        #if os(macOS)
+        Image(nsImage: image)
+        #else
+        Image(uiImage: image)
+        #endif
+    }
+}

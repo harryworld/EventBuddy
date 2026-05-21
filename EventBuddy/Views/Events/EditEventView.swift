@@ -95,7 +95,7 @@ struct EditEventView: View {
                 }
             }
             .navigationTitle("Edit Event")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

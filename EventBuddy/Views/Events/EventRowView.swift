@@ -114,7 +114,7 @@ struct EventRowView: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal)
-        .background(Color(.systemBackground))
+        .background(Color.eventBuddySystemBackground)
         .cornerRadius(8)
         .opacity(hasEnded ? 0.4 : 1.0)
     }
@@ -228,5 +228,5 @@ struct EventRowView: View {
 
         EventRowView(event: Event.wwdcKeynoteWatchParty)
     }
-    .listStyle(.insetGrouped)
+    .eventBuddyInsetGroupedListStyle()
 }

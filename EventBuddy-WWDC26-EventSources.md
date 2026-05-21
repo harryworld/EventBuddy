@@ -30,6 +30,7 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 | --- | --- | --- | --- | --- |
 | Jun 6 | 9:30am-11:30am | Let's Run at WWDC26! | Cupertino | https://luma.com/wwdc26-run |
 | Jun 6 | 5:00pm-8:00pm | Community Gathering - Pre-WWDC26 | San Jose | https://luma.com/trtbdihd |
+| Jun 6 | 5:00pm-8:00pm | try! Swift WWDC Nomikai | Cupertino | https://luma.com/oha511rl |
 | Jun 6 | 6:30pm-10:00pm | Apple Park Happy Hour | Cupertino | https://www.eventbrite.com/e/apple-park-happy-hour-tickets-1986822959957 |
 | Jun 7 | 7:30am-9:30am | Run & Walk with Ctrl+Alt+Run - WWDC 2026 Edition | Cupertino | https://luma.com/61dpw1up |
 | Jun 7 | 9:00am-11:00am | WWDC26 Community Step-Into-Coffee | Cupertino | https://luma.com/3jsjkshu |
@@ -73,5 +74,6 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 - Apple Community-driven events currently adds The Interface WWDC26 and local Apple-curated discovery metadata not fully represented on the CommunityKit schedule.
 - CommunityKit schedule currently adds several child events not listed on Apple or twostraws, including WWDC App Money Lunch Club, Apple Intelligence Automators, try! Swift, Vapor, Feedback Friday, and Make Something, Ship Nothing.
 - Eventbrite Cupertino WWDC search currently surfaces Apple Park Happy Hour, iOSDevHappyHour @ WWDC26 IRL, and James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026; the James Dempsey venue is X Bar Cupertino, about 1.7 miles west of Apple Park.
+- X-indexed search currently adds try! Swift WWDC Nomikai via https://luma.com/oha511rl. Framna's WWDC livestream posts point to the Copenhagen and Stockholm watch-party pages already present in events.json.
 - Several Luma pages are approval-required, full, or registration-closed; EventBuddy keeps them because users may still want to track the event even if RSVP status changes.
 - Recheck CommunityKit and Luma before publishing the remote feed; both sources state that details can continue to change.

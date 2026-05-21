@@ -70,7 +70,11 @@ struct ProfileEditView: View {
                             }
                         }
                     }
+                    #if os(iOS)
                     .pickerStyle(.navigationLink)
+                    #else
+                    .pickerStyle(.menu)
+                    #endif
                 }
                 
                 Section("Social Links") {
@@ -96,7 +100,7 @@ struct ProfileEditView: View {
                 }
             }
             .navigationTitle("Edit Profile")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -144,7 +148,7 @@ struct ProfileEditView: View {
                 }
             }
             .navigationTitle("Add Social Link")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

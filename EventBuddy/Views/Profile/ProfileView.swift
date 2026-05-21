@@ -1,6 +1,5 @@
 import SwiftUI
 import Contacts
-import UIKit
 import SQLiteData
 
 struct ProfileView: View {
@@ -51,7 +50,7 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingEditSheet = true
                     } label: {

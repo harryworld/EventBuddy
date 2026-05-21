@@ -57,7 +57,7 @@ struct DataImportView: View {
             }
             .padding()
             .navigationTitle("Import Data")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -389,7 +389,7 @@ struct ImportSummaryView: View {
                 .padding()
             }
             .navigationTitle("Import Complete")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

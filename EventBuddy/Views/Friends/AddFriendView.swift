@@ -80,7 +80,7 @@ struct AddFriendView: View {
                 }
             }
             .navigationTitle("Add Friend")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

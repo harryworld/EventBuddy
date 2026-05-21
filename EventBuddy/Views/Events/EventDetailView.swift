@@ -27,7 +27,7 @@ struct EventDetailView: View {
             .padding()
         }
         .navigationTitle("Event Details")
-        .navigationBarTitleDisplayMode(.inline)
+        .eventBuddyInlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 EventToolbarView(
@@ -543,7 +543,7 @@ struct SharedFriendSearchSection: View {
                 }
             }
             .padding(12)
-            .background(Color(.systemGray6))
+            .background(Color.eventBuddySystemGray6)
             .cornerRadius(8)
             
             if !filterText.isEmpty {
@@ -562,7 +562,7 @@ struct SharedFriendSearchSection: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .background(Color(.systemGray6).opacity(0.5))
+                        .background(Color.eventBuddySystemGray6.opacity(0.5))
                     }
                     
                     ForEach(filteredFriends) { friend in
@@ -587,7 +587,7 @@ struct SharedFriendSearchSection: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .background(Color(.systemGray6).opacity(0.3))
+                        .background(Color.eventBuddySystemGray6.opacity(0.3))
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -757,6 +757,7 @@ struct EventToolbarView: View {
     let event: Event
     let isAddedToCalendar: Bool
     let isAddingToCalendar: Bool
+    @Environment(\.openURL) private var openURL
     @Binding var showingCalendarAlert: Bool
     @Binding var showingEditSheet: Bool
     @Binding var showingDeleteAlert: Bool
@@ -820,7 +821,7 @@ struct EventToolbarView: View {
             return
         }
         
-        UIApplication.shared.open(url)
+        openURL(url)
     }
 }
 

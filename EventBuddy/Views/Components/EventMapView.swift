@@ -24,7 +24,7 @@ struct EventMapView: View {
                 }
                 .frame(height: 200)
                 .frame(maxWidth: .infinity)
-                .background(Color(.systemGray6))
+                .background(Color.eventBuddySystemGray6)
                 .cornerRadius(12)
             } else if let coordinate = coordinate {
                 // Map with pin
@@ -70,7 +70,7 @@ struct EventMapView: View {
                 }
                 .frame(height: 200)
                 .frame(maxWidth: .infinity)
-                .background(Color(.systemGray6))
+                .background(Color.eventBuddySystemGray6)
                 .cornerRadius(12)
             }
         }

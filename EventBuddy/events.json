@@ -33,6 +33,22 @@
       "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
+      "id": "b401ad4c-08fb-4e5b-9010-9b4bd8d8395d",
+      "title": "try! Swift WWDC Nomikai",
+      "eventDescription": "Japanese-speaking pre-WWDC social for people attending WWDC, staying in the Bay Area during WWDC week, or living locally.",
+      "location": "Cupertino, California",
+      "address": "Cupertino, CA, USA",
+      "startDate": "2026-06-06T17:00:00-07:00",
+      "endDate": "2026-06-06T20:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Found through X-indexed posts and verified against the Luma organizer page. Luma lists the venue as Cupertino, CA with the exact place visible after registration; the description says payment is handled locally and Swift Student Challenge winners can attend free.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/oha511rl",
+      "createdAt": "2026-05-21T00:00:00Z",
+      "updatedAt": "2026-05-21T00:00:00Z"
+    },
+    {
       "id": "e44cfa50-6134-50ba-aea9-f9d9bf44588e",
       "title": "Apple Park Happy Hour",
       "eventDescription": "Runway-hosted happy hour near Apple Park after Visitor Center hours.",

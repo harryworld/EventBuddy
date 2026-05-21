@@ -5,8 +5,8 @@ WWDCBuddy is an iOS app designed to help you manage WWDC events, connect with fr
 ## Features
 
 ### Events
-- [x] Load WWDC25 events
-- [x] Load WWDC25 events from server
+- [x] Load WWDC26 events
+- [x] Load WWDC26 events from server
 - [x] Add custom event
 - [x] Mark which one I will be going
 - [x] Show event detail
@@ -83,6 +83,27 @@ WWDCBuddy is an iOS app designed to help you manage WWDC events, connect with fr
 - iOS 17.0+
 - Xcode 15.0+
 - Swift 5.9+
+
+## WWDC26 Event Data
+
+WWDCBuddy includes a curated WWDC26 event list for Apple Park, Cupertino, San Jose, Sunnyvale, nearby Bay Area gatherings, online events, and selected watch parties. Event details are refreshed from organizer pages first, then checked against aggregate and discovery sources.
+
+Source priority:
+
+1. Organizer pages for canonical time, venue, RSVP status, tickets, and notes.
+2. CommunityKit schedule for CommunityKit-hosted sessions without dedicated event pages.
+3. Apple Community-driven events for curated WWDC26 discovery.
+4. Community aggregators and social posts for discovery and cross-checking.
+
+Credits for event data and discovery:
+
+- [Apple WWDC26](https://developer.apple.com/wwdc26/) and [Apple Community-driven events](https://developer.apple.com/community/events/)
+- [CommunityKit](https://communitykit.social/schedule/) and the [CommunityKit Luma calendar](https://luma.com/communitykit)
+- [twostraws/wwdc](https://github.com/twostraws/wwdc)
+- Event organizers publishing details through Luma, Eventbrite, TicketTailor, Meetup, Kommunity, Framna, MacPaw, and other public event pages
+- Community members sharing event announcements on X and other public channels
+
+The detailed import notes live in [EventBuddy-WWDC26-EventSources.md](EventBuddy-WWDC26-EventSources.md).
 
 ## Project Structure
 

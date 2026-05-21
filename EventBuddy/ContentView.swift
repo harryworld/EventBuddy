@@ -155,12 +155,17 @@ struct ContentView: View {
 }
 
 extension View {
+    @ViewBuilder
     func tabBarMinimumEffect() -> some View {
+        #if os(iOS)
         if #available(iOS 26, *) {
-            return self
+            self
                 .tabBarMinimizeBehavior(.onScrollDown)
         } else {
-            return self
+            self
         }
+        #else
+        self
+        #endif
     }
 }

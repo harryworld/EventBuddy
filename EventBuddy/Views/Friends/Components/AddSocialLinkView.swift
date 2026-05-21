@@ -37,7 +37,7 @@ struct AddSocialLinkView: View {
                 }
             }
             .navigationTitle("Add Social Link")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

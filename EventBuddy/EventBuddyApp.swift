@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+#if os(iOS)
 import UIKit
 import WidgetKit
+#endif
 
 @main
 struct EventBuddyApp: App {
@@ -20,7 +22,9 @@ struct EventBuddyApp: App {
         let validationMode = MigrationValidationMode.current
         self.validationMode = validationMode
 
+        #if os(iOS)
         UIDatePicker.appearance().minuteInterval = 5
+        #endif
 
         if let validationMode {
             try? validationMode.prepareForLaunch()
@@ -30,7 +34,9 @@ struct EventBuddyApp: App {
         let saveDidComplete: @MainActor () -> Void = {
             guard validationMode == nil else { return }
             CloudKitSyncPusher.schedulePushAfterLocalChange()
+            #if os(iOS)
             WidgetCenter.shared.reloadEventBuddyTimelines()
+            #endif
         }
         _ = try? EventBuddyDatabase.bootstrap(
             configureSyncEngine: shouldConfigureSyncEngine,
@@ -47,43 +53,11 @@ struct EventBuddyApp: App {
             rootView
                 .environment(eventPersistenceService)
                 .environment(liveActivityService)
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    guard validationMode == nil else { return }
-                    print("🟢 App: Became active - checking for ongoing events")
-                    
-                    // Check for ongoing events and start Live Activity when app becomes foreground
-                    Task { @MainActor in
-                        liveActivityService.setPersistenceService(eventPersistenceService)
-                        await liveActivityService.checkAndStartLiveActivityForOngoingEvents(persistenceService: eventPersistenceService)
-                        // Force an immediate update to refresh the display
-                        await liveActivityService.forceUpdate()
-                    }
-                    
-                    // Refresh widgets when app becomes active
-                    WidgetCenter.shared.reloadEventBuddyTimelines()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-                    guard validationMode == nil else { return }
-                    print("🟡 App: Will resign active - checking for ongoing events to start Live Activity")
-                    
-                    // Start Live Activity for ongoing events when app goes to background
-                    Task { @MainActor in
-                        liveActivityService.setPersistenceService(eventPersistenceService)
-                        await liveActivityService.handleAppEnteringBackground(persistenceService: eventPersistenceService)
-                    }
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
-                    guard validationMode == nil else { return }
-                    print("🟡 App: Entered background - ensuring Live Activity is active for ongoing events")
-                    
-                    // Double-check Live Activity is running for ongoing events
-                    Task { @MainActor in
-                        await liveActivityService.handleAppEnteringBackground(persistenceService: eventPersistenceService)
-                    }
-                    
-                    // Refresh widgets when app goes to background
-                    WidgetCenter.shared.reloadEventBuddyTimelines()
-                }
+                .modifier(EventBuddyLifecycleModifier(
+                    validationMode: validationMode,
+                    eventPersistenceService: eventPersistenceService,
+                    liveActivityService: liveActivityService
+                ))
         }
     }
 
@@ -97,9 +71,64 @@ struct EventBuddyApp: App {
     }
 }
 
+#if os(iOS)
+private struct EventBuddyLifecycleModifier: ViewModifier {
+    let validationMode: MigrationValidationMode?
+    let eventPersistenceService: EventPersistenceService
+    let liveActivityService: LiveActivityService
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                guard validationMode == nil else { return }
+                print("🟢 App: Became active - checking for ongoing events")
+
+                Task { @MainActor in
+                    liveActivityService.setPersistenceService(eventPersistenceService)
+                    await liveActivityService.checkAndStartLiveActivityForOngoingEvents(persistenceService: eventPersistenceService)
+                    await liveActivityService.forceUpdate()
+                }
+
+                WidgetCenter.shared.reloadEventBuddyTimelines()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                guard validationMode == nil else { return }
+                print("🟡 App: Will resign active - checking for ongoing events to start Live Activity")
+
+                Task { @MainActor in
+                    liveActivityService.setPersistenceService(eventPersistenceService)
+                    await liveActivityService.handleAppEnteringBackground(persistenceService: eventPersistenceService)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+                guard validationMode == nil else { return }
+                print("🟡 App: Entered background - ensuring Live Activity is active for ongoing events")
+
+                Task { @MainActor in
+                    await liveActivityService.handleAppEnteringBackground(persistenceService: eventPersistenceService)
+                }
+
+                WidgetCenter.shared.reloadEventBuddyTimelines()
+            }
+    }
+}
+
 private extension WidgetCenter {
     func reloadEventBuddyTimelines() {
         reloadTimelines(ofKind: "EventBuddyWidget")
         reloadTimelines(ofKind: "QRCodeWidget")
     }
 }
+#else
+private struct EventBuddyLifecycleModifier: ViewModifier {
+    init(
+        validationMode: MigrationValidationMode?,
+        eventPersistenceService: EventPersistenceService,
+        liveActivityService: LiveActivityService
+    ) {}
+
+    func body(content: Content) -> some View {
+        content
+    }
+}
+#endif

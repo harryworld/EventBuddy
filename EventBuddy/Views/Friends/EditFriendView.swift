@@ -139,7 +139,7 @@ struct EditFriendView: View {
                 }
             }
             .navigationTitle("Edit Friend")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .sheet(isPresented: $showAddSocialSheet) {
                 AddSocialLinkView(
                     platform: $newPlatform,

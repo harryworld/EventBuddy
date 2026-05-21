@@ -53,9 +53,9 @@ struct DataExportView: View {
             }
             .padding()
             .navigationTitle("Export Data")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") {
                         dismiss()
                     }
@@ -256,6 +256,7 @@ struct DataExportView: View {
     }
 }
 
+#if os(iOS)
 struct DataExportShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     
@@ -277,6 +278,31 @@ struct DataExportShareSheet: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
+#else
+struct DataExportShareSheet: View {
+    let items: [Any]
+
+    var body: some View {
+        VStack(spacing: 16) {
+            if let url = items.compactMap({ $0 as? URL }).first {
+                Image(systemName: "square.and.arrow.up.circle.fill")
+                    .font(.system(size: 44))
+                    .foregroundStyle(.blue)
+
+                ShareLink(item: url) {
+                    Label("Share Export", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.borderedProminent)
+            } else {
+                Text("Export file is unavailable.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(32)
+        .frame(minWidth: 280)
+    }
+}
+#endif
 
 #Preview {
     DataExportView()

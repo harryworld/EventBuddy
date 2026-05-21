@@ -1,3 +1,4 @@
+#if os(iOS)
 import ActivityKit
 import Foundation
 import UIKit
@@ -504,3 +505,26 @@ class LiveActivityService {
         print(logMessage)
     }
 }
+#else
+import Foundation
+
+@MainActor
+@Observable
+class LiveActivityService {
+    var hasActiveLiveActivity: Bool { false }
+
+    func setPersistenceService(_ persistenceService: EventPersistenceService) {}
+
+    func forceUpdate() async {}
+
+    func handleAppEnteringBackground(persistenceService: EventPersistenceService) async {}
+
+    func checkAndStartLiveActivityForOngoingEvents(persistenceService: EventPersistenceService) async {}
+
+    func handleAttendanceChange(persistenceService: EventPersistenceService) async {}
+
+    func startLiveActivity(for event: Event) async {}
+
+    func endCurrentActivity() async {}
+}
+#endif

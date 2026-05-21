@@ -65,9 +65,9 @@ struct DataExportTestView: View {
             }
             .padding()
             .navigationTitle("Test Data")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") {
                         dismiss()
                     }

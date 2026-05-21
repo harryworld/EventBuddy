@@ -65,7 +65,7 @@ struct TimezonePicker: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(Color.eventBuddySystemGray6)
                     .cornerRadius(8)
                     .padding(.bottom, 8)
                     

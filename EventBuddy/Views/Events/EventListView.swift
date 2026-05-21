@@ -42,9 +42,9 @@ struct EventListView: View {
                 // Event list
                 eventListByDate
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigation) {
                     Button {
                         Task {
                             await eventSyncService?.manualSync()
@@ -148,7 +148,7 @@ struct EventListView: View {
             }
         }
         .padding(10)
-        .background(Color(.systemGray6))
+        .background(Color.eventBuddySystemGray6)
         .cornerRadius(20)
         .padding(.horizontal)
         .padding(.top, 10)
@@ -249,7 +249,7 @@ struct EventListView: View {
                             .padding(.horizontal, 16)
                             .background(
                                 Capsule()
-                                    .fill(selectedEventFilter == filter ? Color.blue : Color(.systemGray6))
+                                    .fill(selectedEventFilter == filter ? Color.blue : Color.eventBuddySystemGray6)
                             )
                             .foregroundStyle(selectedEventFilter == filter ? .white : .primary)
                     }

@@ -70,8 +70,8 @@ nonisolated struct StoredEventWish: Identifiable {
 }
 
 enum EventBuddyDatabase {
-    static let appGroupIdentifier = "group.com.buildwithharry.EventBuddy"
-    static let cloudKitContainerIdentifier = "iCloud.com.buildwithharry.EventBuddy"
+    static let appGroupIdentifier = EventBuddyStorageConfiguration.appGroupIdentifier
+    static let cloudKitContainerIdentifier = EventBuddyStorageConfiguration.cloudKitContainerIdentifier
 
     static func makeDatabase(attachMetadatabase: Bool) throws -> any DatabaseWriter {
         @Dependency(\.context) var context
@@ -131,24 +131,7 @@ enum EventBuddyDatabase {
             )
             .execute(db)
 
-            try #sql(
-                """
-                CREATE TABLE "storedFriends" (
-                  "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
-                  "name" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "email" TEXT,
-                  "phone" TEXT,
-                  "jobTitle" TEXT,
-                  "company" TEXT,
-                  "socialMediaHandlesJSON" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '{}',
-                  "notes" TEXT,
-                  "createdAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "updatedAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "isFavorite" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0
-                ) STRICT
-                """
-            )
-            .execute(db)
+            try db.execute(sql: EventBuddyStorageConfiguration.createStoredFriendsTableSQL)
 
             try #sql(
                 """
@@ -225,7 +208,7 @@ enum EventBuddyDatabase {
         ) else {
             throw CocoaError(.fileNoSuchFile)
         }
-        return containerURL.appendingPathComponent("EventBuddy.sqlite")
+        return containerURL.appendingPathComponent(EventBuddyStorageConfiguration.databaseFileName)
     }
 
     static func attendeeRowID(eventID: UUID, friendID: UUID) -> String {

@@ -77,7 +77,7 @@ struct AddEventView: View {
                 }
             }
             .navigationTitle("Add Event")
-            .navigationBarTitleDisplayMode(.inline)
+            .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

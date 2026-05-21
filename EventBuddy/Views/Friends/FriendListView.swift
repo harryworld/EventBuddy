@@ -124,7 +124,7 @@ struct FriendListView: View {
             }
         }
         .padding(10)
-        .background(Color(uiColor: .systemGray6))
+        .background(Color.eventBuddySystemGray6)
         .cornerRadius(8)
         .padding(.horizontal)
     }
@@ -159,8 +159,8 @@ struct FriendListView: View {
                 .background(
                     Capsule()
                         .fill(selectedFilter == .all ?
-                              Color(uiColor: .systemGray5) :
-                              Color(uiColor: .systemGray6))
+                              Color.eventBuddySystemGray5 :
+                              Color.eventBuddySystemGray6)
                 )
             }
 
@@ -180,8 +180,8 @@ struct FriendListView: View {
                 .background(
                     Capsule()
                         .fill(selectedFilter == .favorites ?
-                              Color(uiColor: .systemGray5) :
-                              Color(uiColor: .systemGray6))
+                              Color.eventBuddySystemGray5 :
+                              Color.eventBuddySystemGray6)
                 )
             }
 
