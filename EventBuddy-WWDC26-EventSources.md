@@ -63,6 +63,7 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 | Jun 11 | 12:00pm-2:00pm | Vapor @ WWDC at CommunityKit | Cupertino | https://luma.com/49kh9w32 |
 | Jun 11 | 4:00pm-8:00pm | AiOS Meetup - WWDC '26 Edition | Cupertino | https://luma.com/ju8j7vtp |
 | Jun 11 | 5:00pm-10:00pm | Bitrig Bash | San Jose | https://luma.com/hbytg7n8 |
+| Jun 11 | 7:00pm-11:00pm | James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026 | Cupertino | https://www.eventbrite.com/e/james-dempsey-and-the-breakpoints-live-near-wwdc-concert-2026-tickets-1989917468716 |
 | Jun 12 | 10:00am-12:00pm | Feedback Friday | Cupertino | https://luma.com/9z7as4f6 |
 | Jun 12 | 1:00pm-3:00pm | Make Something, Ship Nothing | Cupertino | https://communitykit.social/schedule/ |
 
@@ -71,5 +72,6 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 - Organizer pages currently override aggregators for exact time. Example: Let's Run at WWDC26 is 9:30am-11:30am on Luma, while twostraws lists 10:00am-12:00pm.
 - Apple Community-driven events currently adds The Interface WWDC26 and local Apple-curated discovery metadata not fully represented on the CommunityKit schedule.
 - CommunityKit schedule currently adds several child events not listed on Apple or twostraws, including WWDC App Money Lunch Club, Apple Intelligence Automators, try! Swift, Vapor, Feedback Friday, and Make Something, Ship Nothing.
+- Eventbrite Cupertino WWDC search currently surfaces Apple Park Happy Hour, iOSDevHappyHour @ WWDC26 IRL, and James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026; the James Dempsey venue is X Bar Cupertino, about 1.7 miles west of Apple Park.
 - Several Luma pages are approval-required, full, or registration-closed; EventBuddy keeps them because users may still want to track the event even if RSVP status changes.
 - Recheck CommunityKit and Luma before publishing the remote feed; both sources state that details can continue to change.

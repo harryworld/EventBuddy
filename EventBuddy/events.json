@@ -369,6 +369,22 @@
       "updatedAt": "2026-05-19T00:00:00Z"
     },
     {
+      "id": "27e0b7ce-dc52-4c44-b04b-01671d420bad",
+      "title": "WWDC26 Watch Party With Swift Chennai",
+      "eventDescription": "Evening watch party for the WWDC26 keynote hosted by the Swift Chennai community.",
+      "location": "Chennai, India",
+      "address": "Chennai, Tamil Nadu, India",
+      "startDate": "2026-06-08T20:00:00+05:30",
+      "endDate": "2026-06-09T00:30:00+05:30",
+      "eventType": "Watch Party",
+      "notes": "Added from twostraws WWDC26 watch-party list. Luma metadata describes a 8:00 PM-12:30 AM event and notes limited parking.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/q86j02km",
+      "createdAt": "2026-05-21T00:00:00Z",
+      "updatedAt": "2026-05-21T00:00:00Z"
+    },
+    {
       "id": "463639c9-3462-5555-9e3d-6e8721d78d8a",
       "title": "WWDC2026 Seyir Partisi - NSIstanbul",
       "eventDescription": "NSIstanbul WWDC26 viewing party in Istanbul.",
@@ -897,6 +913,22 @@
       "updatedAt": "2026-05-17T13:13:54Z"
     },
     {
+      "id": "0091d890-5d8c-4f03-8631-b6580618fa6c",
+      "title": "James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026",
+      "eventDescription": "Benefit concert near WWDC celebrating 25 years of James Dempsey and the Breakpoints.",
+      "location": "X Bar Cupertino",
+      "address": "20990 Homestead Road, Cupertino, CA 95014, USA",
+      "startDate": "2026-06-11T19:00:00-07:00",
+      "endDate": "2026-06-11T23:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Eventbrite lists Techtonica as organizer and X Bar Cupertino at 20990 Homestead Road. Eventbrite coordinates place the venue about 1.7 miles west of Apple Park, within the local WWDC Cupertino scope.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://www.eventbrite.com/e/james-dempsey-and-the-breakpoints-live-near-wwdc-concert-2026-tickets-1989917468716",
+      "createdAt": "2026-05-21T00:00:00Z",
+      "updatedAt": "2026-05-21T00:00:00Z"
+    },
+    {
       "id": "6855e4b3-5eda-5dbb-a92d-668b2f4d5a42",
       "title": "Feedback Friday",
       "eventDescription": "Friday WWDC26 feedback meetup hosted by Matthew Cassinelli and CommunityKit.",
@@ -929,6 +961,6 @@
       "updatedAt": "2026-05-17T13:20:21Z"
     }
   ],
-  "lastUpdated": "2026-05-19T00:00:00Z",
+  "lastUpdated": "2026-05-21T00:00:00Z",
   "version": "2.7-wwdc26-official-events"
 }
