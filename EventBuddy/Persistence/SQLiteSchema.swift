@@ -106,75 +106,11 @@ enum EventBuddyDatabase {
         var migrator = DatabaseMigrator()
 
         migrator.registerMigration("Create SQLiteData tables") { db in
-            try #sql(
-                """
-                CREATE TABLE "storedEvents" (
-                  "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
-                  "title" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "eventDescription" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "location" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "address" TEXT,
-                  "startDate" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "endDate" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "eventType" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT 'Social',
-                  "notes" TEXT,
-                  "requiresTicket" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0,
-                  "requiresRegistration" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0,
-                  "url" TEXT,
-                  "createdAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "updatedAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "isAttending" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0,
-                  "originalTimezoneIdentifier" TEXT,
-                  "isCustomEvent" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 1
-                ) STRICT
-                """
-            )
-            .execute(db)
+            try createSQLiteDataTablesIfNeeded(in: db)
+        }
 
-            try db.execute(sql: EventBuddyStorageConfiguration.createStoredFriendsTableSQL)
-
-            try #sql(
-                """
-                CREATE TABLE "storedProfiles" (
-                  "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
-                  "name" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "bio" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "email" TEXT,
-                  "phone" TEXT,
-                  "profileImage" BLOB,
-                  "socialMediaAccountsJSON" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '{}',
-                  "preferencesJSON" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '{}',
-                  "createdAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "updatedAt" TEXT NOT NULL ON CONFLICT REPLACE,
-                  "title" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "company" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
-                  "avatarSystemName" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT 'person.crop.circle.fill'
-                ) STRICT
-                """
-            )
-            .execute(db)
-
-            try #sql(
-                """
-                CREATE TABLE "storedEventAttendees" (
-                  "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
-                  "eventID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "storedEvents"("id") ON DELETE CASCADE,
-                  "friendID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "storedFriends"("id") ON DELETE CASCADE
-                ) STRICT
-                """
-            )
-            .execute(db)
-
-            try #sql(
-                """
-                CREATE TABLE "storedEventWishes" (
-                  "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
-                  "eventID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "storedEvents"("id") ON DELETE CASCADE,
-                  "friendID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "storedFriends"("id") ON DELETE CASCADE
-                ) STRICT
-                """
-            )
-            .execute(db)
+        migrator.registerMigration("Repair missing SQLiteData tables") { db in
+            try createSQLiteDataTablesIfNeeded(in: db)
         }
 
         try migrator.migrate(database)
@@ -217,6 +153,14 @@ enum EventBuddyDatabase {
 
     static func wishRowID(eventID: UUID, friendID: UUID) -> String {
         "\(eventID.uuidString)|\(friendID.uuidString)"
+    }
+
+    private static func createSQLiteDataTablesIfNeeded(in db: Database) throws {
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventsTableSQL)
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredFriendsTableSQL)
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredProfilesTableSQL)
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventAttendeesTableSQL)
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventWishesTableSQL)
     }
 }
 
