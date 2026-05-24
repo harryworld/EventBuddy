@@ -425,6 +425,10 @@ private struct EventDetailByIDView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
     private var storedEvents: [StoredEvent]
+    @FetchAll(StoredEventAttendee.all, animation: .default)
+    private var storedEventAttendees: [StoredEventAttendee]
+    @FetchAll(StoredEventWish.all, animation: .default)
+    private var storedEventWishes: [StoredEventWish]
     let eventID: UUID
     @State private var event: Event?
     @State private var hasCheckedPersistence = false
@@ -442,7 +446,13 @@ private struct EventDetailByIDView: View {
             }
         }
         .task { refreshEvent() }
-        .onChange(of: storedEvents.map(\.id)) { _, _ in
+        .onChange(of: storedEvents.map { "\($0.id.uuidString):\($0.updatedAt.timeIntervalSinceReferenceDate)" }) { _, _ in
+            refreshEvent()
+        }
+        .onChange(of: storedEventAttendees.map(\.id)) { _, _ in
+            refreshEvent()
+        }
+        .onChange(of: storedEventWishes.map(\.id)) { _, _ in
             refreshEvent()
         }
         .onAppear {
@@ -451,22 +461,18 @@ private struct EventDetailByIDView: View {
     }
 
     private func refreshEvent() {
-        if let storedEvent = storedEvents.first(where: { $0.id == eventID }).map(StoredEvent.initEventFromStored) {
-            if event?.id != storedEvent.id {
-                event = storedEvent
-            }
-            hasCheckedPersistence = true
-            return
-        }
-        
         if let persistedEvent = eventPersistenceService?.event(for: eventID) {
-            if event?.id != persistedEvent.id {
-                event = persistedEvent
-            }
+            event = persistedEvent
             hasCheckedPersistence = true
             return
         }
-        
+
+        if let storedEvent = storedEvents.first(where: { $0.id == eventID }).map(StoredEvent.initEventFromStored) {
+            event = storedEvent
+            hasCheckedPersistence = true
+            return
+        }
+
         event = nil
         hasCheckedPersistence = true
     }

@@ -362,6 +362,10 @@ private struct FriendDetailByIDView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @FetchAll(StoredFriend.order(by: \.name), animation: .default)
     private var storedFriends: [StoredFriend]
+    @FetchAll(StoredEventAttendee.all, animation: .default)
+    private var storedEventAttendees: [StoredEventAttendee]
+    @FetchAll(StoredEventWish.all, animation: .default)
+    private var storedEventWishes: [StoredEventWish]
     @State private var friend: Friend?
     @State private var hasCheckedPersistence = false
     let friendID: UUID
@@ -382,7 +386,13 @@ private struct FriendDetailByIDView: View {
         .onAppear {
             refreshFriend()
         }
-        .onChange(of: storedFriends.map(\.id)) { _, _ in
+        .onChange(of: storedFriends.map { "\($0.id.uuidString):\($0.updatedAt.timeIntervalSinceReferenceDate)" }) { _, _ in
+            refreshFriend()
+        }
+        .onChange(of: storedEventAttendees.map(\.id)) { _, _ in
+            refreshFriend()
+        }
+        .onChange(of: storedEventWishes.map(\.id)) { _, _ in
             refreshFriend()
         }
     }
@@ -390,17 +400,13 @@ private struct FriendDetailByIDView: View {
     private func refreshFriend() {
         if let storedFriend = storedFriends.first(where: { $0.id == friendID }) {
             let mappedFriend = eventPersistenceService?.friend(for: storedFriend) ?? Friend.initFromStored(storedFriend)
-            if friend?.id != mappedFriend.id {
-                friend = mappedFriend
-            }
+            friend = mappedFriend
             hasCheckedPersistence = true
             return
         }
 
         if let persistedFriend = eventPersistenceService?.friend(for: friendID) {
-            if friend?.id != persistedFriend.id {
-                friend = persistedFriend
-            }
+            friend = persistedFriend
             hasCheckedPersistence = true
             return
         }

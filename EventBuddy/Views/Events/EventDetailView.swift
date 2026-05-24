@@ -493,17 +493,24 @@ struct SharedFriendSearchSection: View {
     @FetchAll(StoredFriend.order(by: \.name), animation: .default)
     private var storedFriends: [StoredFriend]
     
-    private var filteredFriends: [Friend] {
-        if filterText.isEmpty {
+    private var trimmedFilterText: String {
+        filterText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var currentFriendIDs: Set<UUID> {
+        Set(currentFriendsList.map(\.id))
+    }
+
+    private var filteredFriendRows: [StoredFriend] {
+        let query = trimmedFilterText
+        guard !query.isEmpty else {
             return []
-        } else {
-            guard let eventPersistenceService else {
-                return []
-            }
-            return storedFriends.map { eventPersistenceService.friend(for: $0) }.filter { friend in
-                friend.name.localizedCaseInsensitiveContains(filterText) &&
-                !currentFriendsList.contains { $0.id == friend.id }
-            }
+        }
+
+        let excludedIDs = currentFriendIDs
+        return storedFriends.filter { friend in
+            friend.name.localizedCaseInsensitiveContains(query) &&
+            !excludedIDs.contains(friend.id)
         }
     }
     
@@ -546,15 +553,17 @@ struct SharedFriendSearchSection: View {
             .background(Color.eventBuddySystemGray6)
             .cornerRadius(8)
             
-            if !filterText.isEmpty {
-                VStack(alignment: .leading, spacing: 0) {
-                    if filteredFriends.isEmpty {
+            if !trimmedFilterText.isEmpty {
+                let friendRows = filteredFriendRows
+
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    if friendRows.isEmpty {
                         Button {
                             createQuickFriend(name: filterText)
                         } label: {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("Create \"\(filterText)\"")
+                                Text("Create \"\(trimmedFilterText)\"")
                                 Spacer()
                             }
                             .padding(.vertical, 12)
@@ -565,16 +574,16 @@ struct SharedFriendSearchSection: View {
                         .background(Color.eventBuddySystemGray6.opacity(0.5))
                     }
                     
-                    ForEach(filteredFriends) { friend in
+                    ForEach(friendRows) { friendRow in
                         Button {
-                            addFriendToEvent(friend)
+                            addFriendToEvent(makeFriend(from: friendRow))
                         } label: {
                             HStack {
                                 Image(systemName: "person.circle.fill")
                                     .font(.title3)
                                     .foregroundColor(iconColor)
                                 
-                                Text(friend.name)
+                                Text(friendRow.name)
                                     .font(.body)
                                 
                                 Spacer()
@@ -623,6 +632,30 @@ struct SharedFriendSearchSection: View {
         
         eventPersistenceService?.save(event)
         filterText = ""
+    }
+
+    private func makeFriend(from row: StoredFriend) -> Friend {
+        let friend = Friend(
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            phone: row.phone,
+            jobTitle: row.jobTitle,
+            company: row.company,
+            socialMediaHandles: decodeStringDictionary(row.socialMediaHandlesJSON),
+            notes: row.notes,
+            isFavorite: row.isFavorite
+        )
+        friend.createdAt = row.createdAt
+        friend.updatedAt = row.updatedAt
+        return friend
+    }
+
+    private func decodeStringDictionary(_ json: String) -> [String: String] {
+        guard let data = json.data(using: .utf8),
+              let value = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return value
     }
 }
 
