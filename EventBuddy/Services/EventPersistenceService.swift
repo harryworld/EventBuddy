@@ -348,11 +348,11 @@ final class EventPersistenceService {
     private func replaceRelations(for event: Event, in db: Database) throws {
         try db.execute(
             sql: #"DELETE FROM "storedEventAttendees" WHERE "eventID" = ?"#,
-            arguments: [event.id.uuidString]
+            arguments: [sqliteUUIDString(event.id)]
         )
         try db.execute(
             sql: #"DELETE FROM "storedEventWishes" WHERE "eventID" = ?"#,
-            arguments: [event.id.uuidString]
+            arguments: [sqliteUUIDString(event.id)]
         )
 
         for friend in event.attendees {
@@ -377,29 +377,29 @@ final class EventPersistenceService {
     private func deleteEvent(id: UUID, in db: Database) throws {
         try db.execute(
             sql: #"DELETE FROM "storedEventAttendees" WHERE "eventID" = ?"#,
-            arguments: [id.uuidString]
+            arguments: [sqliteUUIDString(id)]
         )
         try db.execute(
             sql: #"DELETE FROM "storedEventWishes" WHERE "eventID" = ?"#,
-            arguments: [id.uuidString]
+            arguments: [sqliteUUIDString(id)]
         )
-        try db.execute(sql: #"DELETE FROM "storedEvents" WHERE "id" = ?"#, arguments: [id.uuidString])
+        try db.execute(sql: #"DELETE FROM "storedEvents" WHERE "id" = ?"#, arguments: [sqliteUUIDString(id)])
     }
 
     private func deleteFriend(id: UUID, in db: Database) throws {
         try db.execute(
             sql: #"DELETE FROM "storedEventAttendees" WHERE "friendID" = ?"#,
-            arguments: [id.uuidString]
+            arguments: [sqliteUUIDString(id)]
         )
         try db.execute(
             sql: #"DELETE FROM "storedEventWishes" WHERE "friendID" = ?"#,
-            arguments: [id.uuidString]
+            arguments: [sqliteUUIDString(id)]
         )
-        try db.execute(sql: #"DELETE FROM "storedFriends" WHERE "id" = ?"#, arguments: [id.uuidString])
+        try db.execute(sql: #"DELETE FROM "storedFriends" WHERE "id" = ?"#, arguments: [sqliteUUIDString(id)])
     }
 
     private func deleteProfile(id: UUID, in db: Database) throws {
-        try db.execute(sql: #"DELETE FROM "storedProfiles" WHERE "id" = ?"#, arguments: [id.uuidString])
+        try db.execute(sql: #"DELETE FROM "storedProfiles" WHERE "id" = ?"#, arguments: [sqliteUUIDString(id)])
     }
 
     private func linkAttendee(_ friend: Friend, to event: Event) {
@@ -488,6 +488,10 @@ private func encodeBoolDictionary(_ value: [String: Bool]) -> String {
           let json = String(data: data, encoding: .utf8)
     else { return "{}" }
     return json
+}
+
+private func sqliteUUIDString(_ id: UUID) -> String {
+    id.uuidString.lowercased()
 }
 
 private extension StoredEvent {

@@ -25,6 +25,7 @@ struct EventDetailView: View {
                 EventAttendeesView(event: event, eventPersistenceService: eventPersistenceService)
             }
             .padding()
+            .padding(.bottom, 96)
         }
         .navigationTitle("Event Details")
         .eventBuddyInlineNavigationTitle()
@@ -767,8 +768,11 @@ struct SharedFriendsListSection: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.red.opacity(0.7))
+                            .frame(width: 32, height: 32)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(isWishMode ? "Remove Friend Wish" : "Remove Friend Link")
                 }
                 .padding(.vertical, 8)
             }
