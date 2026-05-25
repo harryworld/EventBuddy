@@ -29,15 +29,6 @@ struct MacContentView: View {
                 .macFlexibleDetailSurface()
                 .navigationTitle(activeSelection.title)
                 .toolbar {
-                    ToolbarItem(placement: .navigation) {
-                        Button {
-                            toggleSidebar()
-                        } label: {
-                            Label("Toggle Sidebar", systemImage: "sidebar.leading")
-                        }
-                        .help("Toggle Sidebar")
-                    }
-
                     ToolbarItemGroup(placement: .primaryAction) {
                         toolbarItems
                     }
@@ -63,17 +54,6 @@ struct MacContentView: View {
         }
     }
 
-    private func toggleSidebar() {
-        withAnimation {
-            switch columnVisibility {
-            case .detailOnly:
-                columnVisibility = .all
-            default:
-                columnVisibility = .detailOnly
-            }
-        }
-    }
-
     @ViewBuilder
     private var detailContent: some View {
         switch activeSelection {
@@ -82,10 +62,10 @@ struct MacContentView: View {
         case .friends:
             MacFriendsWorkspace(selectedFriendID: $selectedFriendID)
         case .profile:
-            ProfileView()
+            MacProfileWorkspace()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .settings:
-            SettingsView(settingsStore: settingsStore)
+            MacSettingsWorkspace(settingsStore: settingsStore)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

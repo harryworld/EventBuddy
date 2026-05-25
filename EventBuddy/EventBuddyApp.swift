@@ -47,10 +47,14 @@ struct EventBuddyApp: App {
             WidgetCenter.shared.reloadEventBuddyTimelines()
             #endif
         }
-        _ = try? EventBuddyDatabase.bootstrap(
-            configureSyncEngine: shouldConfigureSyncEngine,
-            startSyncEngine: false
-        )
+        do {
+            _ = try EventBuddyDatabase.bootstrap(
+                configureSyncEngine: shouldConfigureSyncEngine,
+                startSyncEngine: false
+            )
+        } catch {
+            fatalError("Unable to open the WWDCBuddy app-group database: \(error)")
+        }
         let eventPersistenceService = EventPersistenceService(
             saveDidComplete: validationMode == nil ? saveDidComplete : {}
         )

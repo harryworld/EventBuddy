@@ -19,7 +19,6 @@ build_app() {
     -destination "platform=macOS" \
     -derivedDataPath "$DERIVED_DATA" \
     ENABLE_DEBUG_DYLIB=NO \
-    CODE_SIGNING_ALLOWED=NO \
     build
 }
 

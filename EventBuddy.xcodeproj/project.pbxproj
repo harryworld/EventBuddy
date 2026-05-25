@@ -653,6 +653,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "WWDCBuddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "WWDCBuddy would like to add events to your Calendar";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -687,6 +689,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "WWDCBuddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "WWDCBuddy would like to add events to your Calendar";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

@@ -168,12 +168,6 @@ enum EventBuddyDatabase {
     }
 
     static func databaseURL() throws -> URL {
-        #if os(macOS)
-        guard canAccessAppGroupContainer else {
-            return try applicationSupportDatabaseURL()
-        }
-        #endif
-
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupIdentifier
         ) else {
@@ -211,18 +205,6 @@ enum EventBuddyDatabase {
         return groups.contains(appGroupIdentifier)
     }
 
-    private static func applicationSupportDatabaseURL() throws -> URL {
-        let directory = try FileManager.default
-            .url(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true
-            )
-            .appendingPathComponent("WWDCBuddy", isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        return directory.appendingPathComponent(EventBuddyStorageConfiguration.databaseFileName)
-    }
     #else
     static var canAccessCloudKitContainer: Bool {
         true
