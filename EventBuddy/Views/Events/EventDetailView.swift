@@ -3,6 +3,14 @@ import MapKit
 import CoreLocation
 import SQLiteData
 
+private enum EventDetailLayout {
+    #if os(macOS)
+    static let minimumContentWidth: CGFloat = 500
+    #else
+    static let minimumContentWidth: CGFloat = 0
+    #endif
+}
+
 struct EventDetailView: View {
     @Bindable var event: Event
     @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
@@ -17,16 +25,35 @@ struct EventDetailView: View {
     @State private var calendarErrorMessage = ""
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                EventHeaderView(event: event, eventPersistenceService: eventPersistenceService)
-                EventDateTimeView(event: event, isAddedToCalendar: isAddedToCalendar)
-                EventLocationView(event: event)
-                EventAttendeesView(event: event, eventPersistenceService: eventPersistenceService)
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    EventHeaderView(event: event, eventPersistenceService: eventPersistenceService)
+                    EventDateTimeView(event: event, isAddedToCalendar: isAddedToCalendar)
+                    EventLocationView(event: event)
+                    EventAttendeesView(event: event, eventPersistenceService: eventPersistenceService)
+                }
+                .padding()
+                .padding(.bottom, 96)
+                .frame(
+                    width: max(proxy.size.width, EventDetailLayout.minimumContentWidth),
+                    alignment: .topLeading
+                )
             }
-            .padding()
-            .padding(.bottom, 96)
         }
+        .frame(
+            minWidth: EventDetailLayout.minimumContentWidth,
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .topLeading
+        )
+        #if os(macOS)
+        .overlay(alignment: .topTrailing) {
+            EventAttendanceButton(event: event, eventPersistenceService: eventPersistenceService)
+                .padding(.top, 70)
+                .padding(.trailing, 56)
+        }
+        #endif
         .navigationTitle("Event Details")
         .eventBuddyInlineNavigationTitle()
         .toolbar {
@@ -126,45 +153,64 @@ struct EventHeaderView: View {
     
     var body: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.title)
-                    .font(.largeTitle)
-                    .bold()
-                
-                HStack {
-                    Text(event.eventType)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    if !event.eventDescription.isEmpty {
-                        Button {
-                            showingDescriptionPopover = true
-                        } label: {
-                            Image(systemName: "info.circle")
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                        }
-                        .buttonStyle(.plain)
-                        .popover(isPresented: $showingDescriptionPopover, arrowEdge: .top) {
-                            EventDescriptionPopover(description: event.eventDescription)
-                        }
+            headerText
+
+            #if os(iOS)
+            Spacer(minLength: 12)
+
+            EventAttendanceButton(event: event, eventPersistenceService: eventPersistenceService)
+            #endif
+        }
+        .padding(.bottom, 8)
+        .padding(.trailing, 40)
+    }
+
+    private var headerText: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(event.title)
+                .font(.largeTitle)
+                .bold()
+                .lineLimit(2)
+                .truncationMode(.tail)
+
+            HStack {
+                Text(event.eventType)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                if !event.eventDescription.isEmpty {
+                    Button {
+                        showingDescriptionPopover = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $showingDescriptionPopover, arrowEdge: .top) {
+                        EventDescriptionPopover(description: event.eventDescription)
                     }
                 }
             }
-            
-            Spacer()
-            
-    Button(action: {
-                event.toggleAttending()
-                eventPersistenceService?.save(event)
-            }) {
-                Image(systemName: event.isAttending ? "checkmark.circle.fill" : "checkmark.circle")
-                    .font(.title2)
-                    .foregroundColor(event.isAttending ? .green : .gray)
-            }
-            .buttonStyle(.plain)
         }
-        .padding(.bottom, 8)
+    }
+}
+
+private struct EventAttendanceButton: View {
+    @Bindable var event: Event
+    let eventPersistenceService: EventPersistenceService?
+
+    var body: some View {
+        Button {
+            event.toggleAttending()
+            eventPersistenceService?.save(event)
+        } label: {
+            Image(systemName: event.isAttending ? "checkmark.circle.fill" : "checkmark.circle")
+                .font(.title2)
+                .foregroundColor(event.isAttending ? .green : .gray)
+        }
+        .buttonStyle(.plain)
+        .fixedSize()
     }
 }
 
@@ -195,25 +241,31 @@ struct EventDateTimeView: View {
     let isAddedToCalendar: Bool
     
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "calendar")
             
             Text("\(formattedDate) • \(formattedTimeTimeZone)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            
-            Spacer()
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .layoutPriority(1)
             
             if isAddedToCalendar {
-                HStack {
+                HStack(spacing: 4) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                     Text("Added")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
+                        .lineLimit(1)
                 }
+                .fixedSize()
+                .layoutPriority(2)
             }
+
+            Spacer(minLength: 0)
         }
         .padding(.bottom, 8)
     }
@@ -294,9 +346,12 @@ struct EventLocationView: View {
                 }
                 
                 if !event.location.isEmpty {
-                    EventMapView(event: event)
-                        .frame(height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    EventMapView(event: event, height: 180)
+                        .frame(
+                            minWidth: 0,
+                            maxWidth: .infinity,
+                            alignment: .leading
+                        )
                 }
             }
         }
@@ -320,6 +375,8 @@ struct EventAttendeesView: View {
                     Text("Friend Wishes (\(event.friendWishes.count))").tag(1)
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // Content based on selected tab
                 if selectedTab == 0 {
@@ -881,14 +938,20 @@ struct SectionContainer<Content: View>: View {
             HStack {
                 Label(title, systemImage: icon)
                     .font(.headline)
-                
-                Spacer()
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                 
                 if let trailingText = trailingText {
                     Text(trailingText)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(2)
                 }
+
+                Spacer(minLength: 0)
             }
             
             content

@@ -4,6 +4,7 @@ enum EventBuddyStorageConfiguration {
     static let appGroupIdentifier = "group.com.buildwithharry.EventBuddy"
     static let cloudKitContainerIdentifier = "iCloud.com.buildwithharry.EventBuddy"
     static let databaseFileName = "EventBuddy.sqlite"
+    static let cloudKitSyncEnabledDefaultsKey = "EventBuddy.UserSettings.cloudKitSyncEnabled"
 
     static let storedEventsTableName = "storedEvents"
     static let storedFriendsTableName = "storedFriends"

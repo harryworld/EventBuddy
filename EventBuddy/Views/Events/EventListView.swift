@@ -421,7 +421,7 @@ private struct EventNavigationRow: View {
     }
 }
 
-private struct EventDetailByIDView: View {
+struct EventDetailByIDView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
     private var storedEvents: [StoredEvent]
@@ -431,13 +431,13 @@ private struct EventDetailByIDView: View {
     private var storedEventWishes: [StoredEventWish]
     let eventID: UUID
     @State private var event: Event?
-    @State private var hasCheckedPersistence = false
+    @State private var checkedEventID: UUID?
 
     var body: some View {
         Group {
-            if let event {
+            if let event, event.id == eventID {
                 EventDetailView(event: event)
-            } else if !hasCheckedPersistence {
+            } else if checkedEventID != eventID {
                 ProgressView("Loading event...")
                     .progressViewStyle(.circular)
                     .padding()
@@ -445,7 +445,9 @@ private struct EventDetailByIDView: View {
                 ContentUnavailableView("Event Not Found", systemImage: "calendar.badge.exclamationmark")
             }
         }
-        .task { refreshEvent() }
+        .task(id: eventID) {
+            refreshEvent()
+        }
         .onChange(of: storedEvents.map { "\($0.id.uuidString):\($0.updatedAt.timeIntervalSinceReferenceDate)" }) { _, _ in
             refreshEvent()
         }
@@ -463,18 +465,18 @@ private struct EventDetailByIDView: View {
     private func refreshEvent() {
         if let persistedEvent = eventPersistenceService?.event(for: eventID) {
             event = persistedEvent
-            hasCheckedPersistence = true
+            checkedEventID = eventID
             return
         }
 
         if let storedEvent = storedEvents.first(where: { $0.id == eventID }).map(StoredEvent.initEventFromStored) {
             event = storedEvent
-            hasCheckedPersistence = true
+            checkedEventID = eventID
             return
         }
 
         event = nil
-        hasCheckedPersistence = true
+        checkedEventID = eventID
     }
 }
 

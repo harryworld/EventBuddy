@@ -88,8 +88,10 @@ enum CloudKitAccountAvailability: Equatable {
 }
 
 @Observable class UserSettings {
-    static let isCloudKitSyncFeatureEnabled = true
-    static let cloudKitSyncEnabledKey = "EventBuddy.UserSettings.cloudKitSyncEnabled"
+    static var isCloudKitSyncFeatureEnabled: Bool {
+        EventBuddyDatabase.canAccessCloudKitContainer
+    }
+    static let cloudKitSyncEnabledKey = EventBuddyStorageConfiguration.cloudKitSyncEnabledDefaultsKey
     static let cloudKitLastSyncedAtKey = "EventBuddy.UserSettings.cloudKitLastSyncedAt"
 
     @ObservationIgnored private let userDefaults: UserDefaults
@@ -196,6 +198,12 @@ enum CloudKitAccountAvailability: Equatable {
         guard !isUpdatingCloudKitSync else { return }
 
         reloadCloudKitLastSyncedAt()
+
+        guard UserSettings.isCloudKitSyncFeatureEnabled else {
+            setCloudKitAccountUnavailable("iCloud unavailable in this build", disablesSync: true)
+            return
+        }
+
         cloudKitAccountAvailability = .checking
 
         do {
@@ -242,6 +250,9 @@ enum CloudKitAccountAvailability: Equatable {
 
     func syncCloudKitIfEnabled() async {
         guard UserSettings.isCloudKitSyncFeatureEnabled, settings.cloudKitSyncEnabled, !isUpdatingCloudKitSync else {
+            if !UserSettings.isCloudKitSyncFeatureEnabled {
+                setCloudKitAccountUnavailable("iCloud unavailable in this build", disablesSync: true)
+            }
             return
         }
 

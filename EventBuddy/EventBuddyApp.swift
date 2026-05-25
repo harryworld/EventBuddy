@@ -15,6 +15,9 @@ import WidgetKit
 struct EventBuddyApp: App {
     private let validationMode: MigrationValidationMode?
     private let eventPersistenceService: EventPersistenceService
+    #if os(macOS)
+    private let cliCommandProcessor: EventBuddyCLICommandProcessor
+    #endif
 
     @State private var liveActivityService: LiveActivityService
 
@@ -42,9 +45,16 @@ struct EventBuddyApp: App {
             configureSyncEngine: shouldConfigureSyncEngine,
             startSyncEngine: false
         )
-        eventPersistenceService = EventPersistenceService(
+        let eventPersistenceService = EventPersistenceService(
             saveDidComplete: validationMode == nil ? saveDidComplete : {}
         )
+        self.eventPersistenceService = eventPersistenceService
+        #if os(macOS)
+        cliCommandProcessor = EventBuddyCLICommandProcessor(persistenceService: eventPersistenceService)
+        if validationMode == nil {
+            cliCommandProcessor.start()
+        }
+        #endif
         _liveActivityService = State(initialValue: LiveActivityService())
     }
 
@@ -59,6 +69,11 @@ struct EventBuddyApp: App {
                     liveActivityService: liveActivityService
                 ))
         }
+        #if os(macOS)
+        .commands {
+            SidebarCommands()
+        }
+        #endif
     }
 
     @ViewBuilder

@@ -93,5 +93,9 @@ iOSInjectionProject/
 # SweetPad
 buildServer.json
 
+# Rust
+target/
+CLI/target/
+
 # App Store Connect preflight artifacts (pulled metadata, upscaled screenshots)
 .preflight/

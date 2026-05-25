@@ -23,44 +23,20 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let eventSyncService = eventSyncService {
-                TabView(selection: $navigationCoordinator.selectedTab) {
-                    EventListView(navigationCoordinator: navigationCoordinator)
-                        .tabItem {
-                            Label("Events", systemImage: "calendar")
+                mainContent
+                    .tabBarMinimumEffect()
+                    .environment(eventSyncService)
+                    .environment(eventPersistenceService)
+                    .alert("Sync Error", isPresented: $showingSyncError) {
+                        Button("OK") { }
+                        Button("Retry") {
+                            Task {
+                                await eventSyncService.manualSync()
+                            }
                         }
-                        .tag(0)
-
-                    FriendListView()
-                        .tabItem {
-                            Label("Friends", systemImage: "person.2")
-                        }
-                        .tag(1)
-
-                    ProfileView()
-                        .tabItem {
-                            Label("Profile", systemImage: "person.circle")
-                        }
-                        .tag(2)
-
-                    SettingsView(settingsStore: settingsStore)
-                        .tabItem {
-                            Label("Settings", systemImage: "gear")
-                        }
-                        .tag(3)
-                }
-                .tabBarMinimumEffect()
-                .environment(eventSyncService)
-                .environment(eventPersistenceService)
-                .alert("Sync Error", isPresented: $showingSyncError) {
-                    Button("OK") { }
-                    Button("Retry") {
-                        Task {
-                            await eventSyncService.manualSync()
-                        }
+                    } message: {
+                        Text(eventSyncService.syncError ?? "Unknown error occurred")
                     }
-                } message: {
-                    Text(eventSyncService.syncError ?? "Unknown error occurred")
-                }
             } else {
                 ProgressView("Loading...")
                     .onAppear {
@@ -77,6 +53,42 @@ struct ContentView: View {
         .onOpenURL { url in
             handleDeepLink(url)
         }
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
+        #if os(macOS)
+        MacContentView(
+            settingsStore: settingsStore,
+            navigationCoordinator: navigationCoordinator
+        )
+        #else
+        TabView(selection: $navigationCoordinator.selectedTab) {
+            EventListView(navigationCoordinator: navigationCoordinator)
+                .tabItem {
+                    Label("Events", systemImage: "calendar")
+                }
+                .tag(0)
+
+            FriendListView()
+                .tabItem {
+                    Label("Friends", systemImage: "person.2")
+                }
+                .tag(1)
+
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.circle")
+                }
+                .tag(2)
+
+            SettingsView(settingsStore: settingsStore)
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+                .tag(3)
+        }
+        #endif
     }
     
     private func setupServices() {

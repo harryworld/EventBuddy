@@ -12,6 +12,7 @@
 		06E75D112DEDB9B0000EEE35 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0A1B2C3D4E5F60718293A401 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A403 /* SQLiteData */; };
 		0A1B2C3D4E5F60718293A402 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A404 /* SQLiteData */; };
+		0B0D0C0A2E90000000000001 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0D0C0A2E9000000000000B /* SQLiteData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		06E75CFD2DEDB9AF000EEE35 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		06E75CFF2DEDB9AF000EEE35 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		06E75D182DEDB9DD000EEE35 /* EventBuddyWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EventBuddyWidgetsExtension.entitlements; sourceTree = "<group>"; };
+		0B0D0C0A2E90000000000002 /* WWDCBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WWDCBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -79,6 +81,13 @@
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 		};
+		0B0D0C0A2E90000000000003 /* Exceptions for "EventBuddy" folder in "EventBuddyMac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B0D0C0A2E90000000000007 /* EventBuddyMac */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +96,7 @@
 			exceptions = (
 				06E7585C2DE36E3E000EEE35 /* Exceptions for "EventBuddy" folder in "EventBuddy" target */,
 				06E75D1D2DEDBA5D000EEE35 /* Exceptions for "EventBuddy" folder in "EventBuddyWidgetsExtension" target */,
+				0B0D0C0A2E90000000000003 /* Exceptions for "EventBuddy" folder in "EventBuddyMac" target */,
 			);
 			path = EventBuddy;
 			sourceTree = "<group>";
@@ -121,6 +131,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0B0D0C0A2E90000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0B0D0C0A2E90000000000001 /* SQLiteData in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -140,6 +158,7 @@
 			children = (
 				068753A92DD6D5A00048FD00 /* EventBuddy.app */,
 				06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */,
+				0B0D0C0A2E90000000000002 /* WWDCBuddy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -204,6 +223,30 @@
 			productReference = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		0B0D0C0A2E90000000000007 /* EventBuddyMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0D0C0A2E9000000000000A /* Build configuration list for PBXNativeTarget "EventBuddyMac" */;
+			buildPhases = (
+				0B0D0C0A2E90000000000005 /* Sources */,
+				0B0D0C0A2E90000000000004 /* Frameworks */,
+				0B0D0C0A2E90000000000006 /* Resources */,
+				0B0D0C0A2E9000000000000C /* Build Rust CLI */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				068753AB2DD6D5A00048FD00 /* EventBuddy */,
+			);
+			name = EventBuddyMac;
+			packageProductDependencies = (
+				0B0D0C0A2E9000000000000B /* SQLiteData */,
+			);
+			productName = WWDCBuddy;
+			productReference = 0B0D0C0A2E90000000000002 /* WWDCBuddy.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -218,6 +261,9 @@
 						CreatedOnToolsVersion = 16.3;
 					};
 					06E75CFA2DEDB9AF000EEE35 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					0B0D0C0A2E90000000000007 = {
 						CreatedOnToolsVersion = 16.3;
 					};
 				};
@@ -241,6 +287,7 @@
 			targets = (
 				068753A82DD6D5A00048FD00 /* EventBuddy */,
 				06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */,
+				0B0D0C0A2E90000000000007 /* EventBuddyMac */,
 			);
 		};
 /* End PBXProject section */
@@ -260,7 +307,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0B0D0C0A2E90000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0B0D0C0A2E9000000000000C /* Build Rust CLI */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust CLI";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/wwdcbuddy",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nCLI_DIR=\"$SRCROOT/CLI\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.cargo/bin:$PATH\"\nif ! command -v cargo >/dev/null 2>&1; then\n  echo \"error: cargo is required to build wwdcbuddy\" >&2\n  exit 1\nfi\ncargo build --manifest-path \"$CLI_DIR/Cargo.toml\" --release\nDESTINATION=\"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/wwdcbuddy\"\nmkdir -p \"$(dirname \"$DESTINATION\")\"\nrm -f \"$DESTINATION\"\nrm -f \"$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/eventbuddyctl\"\ninstall -m 755 \"$CLI_DIR/target/release/wwdcbuddy\" \"$DESTINATION\"\nif [ \"${CODE_SIGNING_ALLOWED:-NO}\" = \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ] && [ \"$EXPANDED_CODE_SIGN_IDENTITY\" != \"-\" ]; then\n  xcrun codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --entitlements \"$SRCROOT/EventBuddy/EventBuddyMac.entitlements\" \"$DESTINATION\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		068753A52DD6D5A00048FD00 /* Sources */ = {
@@ -271,6 +348,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		06E75CF72DEDB9AF000EEE35 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0B0D0C0A2E90000000000005 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -442,9 +526,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -484,9 +568,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -551,6 +635,75 @@
 			};
 			name = Release;
 		};
+		0B0D0C0A2E90000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MacAppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddyMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 26;
+				DEVELOPMENT_TEAM = 77GUV2264S;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2026.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy.mac;
+				PRODUCT_NAME = WWDCBuddy;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		0B0D0C0A2E90000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MacAppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddyMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 26;
+				DEVELOPMENT_TEAM = 77GUV2264S;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2026.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy.mac;
+				PRODUCT_NAME = WWDCBuddy;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -581,6 +734,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		0B0D0C0A2E9000000000000A /* Build configuration list for PBXNativeTarget "EventBuddyMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B0D0C0A2E90000000000008 /* Debug */,
+				0B0D0C0A2E90000000000009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -601,6 +763,11 @@
 			productName = SQLiteData;
 		};
 		0A1B2C3D4E5F60718293A404 /* SQLiteData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */;
+			productName = SQLiteData;
+		};
+		0B0D0C0A2E9000000000000B /* SQLiteData */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */;
 			productName = SQLiteData;

@@ -4,10 +4,16 @@ import CoreLocation
 
 struct EventMapView: View {
     let event: Event
+    let height: CGFloat
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var coordinate: CLLocationCoordinate2D?
     @State private var isLoading = true
     @State private var geocodingFailed = false
+
+    init(event: Event, height: CGFloat = 200) {
+        self.event = event
+        self.height = height
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,7 +28,7 @@ struct EventMapView: View {
                         .foregroundColor(.secondary)
                         .padding(.top, 8)
                 }
-                .frame(height: 200)
+                .frame(height: height)
                 .frame(maxWidth: .infinity)
                 .background(Color.eventBuddySystemGray6)
                 .cornerRadius(12)
@@ -46,7 +52,8 @@ struct EventMapView: View {
                         }
                     }
                 }
-                .frame(height: 200)
+                .frame(height: height)
+                .frame(minWidth: 0, maxWidth: .infinity)
                 .cornerRadius(12)
                 .onTapGesture {
                     openInMaps()
@@ -68,12 +75,13 @@ struct EventMapView: View {
                     .font(.caption)
                     .padding(.top, 4)
                 }
-                .frame(height: 200)
+                .frame(height: height)
                 .frame(maxWidth: .infinity)
                 .background(Color.eventBuddySystemGray6)
                 .cornerRadius(12)
             }
         }
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .onAppear {
             geocodeLocation()
         }

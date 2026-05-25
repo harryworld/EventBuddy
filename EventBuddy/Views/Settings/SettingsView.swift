@@ -9,6 +9,9 @@ struct SettingsView: View {
     @State private var calendarStore = EventCalendarStore()
     @State private var isAddingCalendarEvents = false
     @State private var calendarBatchSummary: EventCalendarStore.BatchAddSummary?
+    #if os(macOS)
+    @State private var cliInstallerStatus: String?
+    #endif
     
     var body: some View {
         NavigationStack {
@@ -338,6 +341,26 @@ struct SettingsView: View {
             } label: {
                 Label("Import Data", systemImage: "square.and.arrow.down")
             }
+
+            #if os(macOS)
+            Button {
+                installCLI()
+            } label: {
+                Label("Install CLI", systemImage: "terminal")
+            }
+
+            Button {
+                chooseCLIInstallFolder()
+            } label: {
+                Label("Choose CLI Install Folder", systemImage: "folder")
+            }
+
+            if let cliInstallerStatus {
+                Text(cliInstallerStatus)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            #endif
             
             #if DEBUG
             NavigationLink {
@@ -408,6 +431,27 @@ struct SettingsView: View {
             calendarBatchSummary = await calendarStore.addEvents(attendingEvents)
         }
     }
+
+    #if os(macOS)
+    private func installCLI() {
+        do {
+            let installedURL = try CLIInstaller.installShim()
+            cliInstallerStatus = "Installed \(installedURL.path)"
+        } catch {
+            cliInstallerStatus = error.localizedDescription
+        }
+    }
+
+    private func chooseCLIInstallFolder() {
+        guard let directoryURL = CLIInstaller.chooseInstallDirectory() else { return }
+        do {
+            let installedURL = try CLIInstaller.installShim(in: directoryURL)
+            cliInstallerStatus = "Installed \(installedURL.path)"
+        } catch {
+            cliInstallerStatus = error.localizedDescription
+        }
+    }
+    #endif
 }
 
 private struct CalendarBatchSummaryView: View {

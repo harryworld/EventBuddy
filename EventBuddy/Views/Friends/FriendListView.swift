@@ -358,7 +358,7 @@ struct FriendListView: View {
     }
 }
 
-private struct FriendDetailByIDView: View {
+struct FriendDetailByIDView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService: EventPersistenceService?
     @FetchAll(StoredFriend.order(by: \.name), animation: .default)
     private var storedFriends: [StoredFriend]
@@ -367,14 +367,14 @@ private struct FriendDetailByIDView: View {
     @FetchAll(StoredEventWish.all, animation: .default)
     private var storedEventWishes: [StoredEventWish]
     @State private var friend: Friend?
-    @State private var hasCheckedPersistence = false
+    @State private var checkedFriendID: UUID?
     let friendID: UUID
 
     var body: some View {
         Group {
-            if let friend {
+            if let friend, friend.id == friendID {
                 FriendDetailView(friend: friend)
-            } else if !hasCheckedPersistence {
+            } else if checkedFriendID != friendID {
                 ProgressView("Loading friend...")
                     .progressViewStyle(.circular)
                     .padding()
@@ -382,7 +382,9 @@ private struct FriendDetailByIDView: View {
                 ContentUnavailableView("Friend Not Found", systemImage: "person.crop.circle.badge.exclamationmark")
             }
         }
-        .task { refreshFriend() }
+        .task(id: friendID) {
+            refreshFriend()
+        }
         .onAppear {
             refreshFriend()
         }
@@ -401,18 +403,18 @@ private struct FriendDetailByIDView: View {
         if let storedFriend = storedFriends.first(where: { $0.id == friendID }) {
             let mappedFriend = eventPersistenceService?.friend(for: storedFriend) ?? Friend.initFromStored(storedFriend)
             friend = mappedFriend
-            hasCheckedPersistence = true
+            checkedFriendID = friendID
             return
         }
 
         if let persistedFriend = eventPersistenceService?.friend(for: friendID) {
             friend = persistedFriend
-            hasCheckedPersistence = true
+            checkedFriendID = friendID
             return
         }
 
         friend = nil
-        hasCheckedPersistence = true
+        checkedFriendID = friendID
     }
 }
 

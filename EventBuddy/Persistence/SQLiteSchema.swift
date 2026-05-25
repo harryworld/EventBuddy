@@ -1,5 +1,8 @@
 import Foundation
 import OSLog
+#if os(macOS)
+import Security
+#endif
 import SQLiteData
 
 @Table
@@ -114,16 +117,35 @@ enum EventBuddyDatabase {
         }
 
         try migrator.migrate(database)
+        try database.write { db in
+            try createSQLiteDataTablesIfNeeded(in: db)
+        }
         try migrationBackup?.finish(database: database)
         return database
     }
 
     static func bootstrap(configureSyncEngine: Bool, startSyncEngine: Bool = true) throws -> any DatabaseWriter {
-        let database = try makeDatabase(attachMetadatabase: configureSyncEngine)
-        try prepareDependencies {
+        let database: any DatabaseWriter
+        var shouldConfigureSyncEngine = configureSyncEngine
+
+        do {
+            database = try makeDatabase(attachMetadatabase: configureSyncEngine)
+        } catch {
+            guard configureSyncEngine else { throw error }
+            let message = String(describing: error)
+            logger.error("CloudKit database bootstrap failed; opening local database without sync metadata: \(message, privacy: .public)")
+            UserDefaults.standard.set(false, forKey: EventBuddyStorageConfiguration.cloudKitSyncEnabledDefaultsKey)
+            database = try makeDatabase(attachMetadatabase: false)
+            shouldConfigureSyncEngine = false
+        }
+
+        prepareDependencies {
             $0.defaultDatabase = database
-            if configureSyncEngine {
-                $0.defaultSyncEngine = try SyncEngine(
+        }
+
+        if shouldConfigureSyncEngine {
+            do {
+                let syncEngine = try SyncEngine(
                     for: database,
                     tables: StoredEvent.self,
                     StoredFriend.self,
@@ -133,12 +155,25 @@ enum EventBuddyDatabase {
                     containerIdentifier: cloudKitContainerIdentifier,
                     startImmediately: startSyncEngine
                 )
+                prepareDependencies {
+                    $0.defaultSyncEngine = syncEngine
+                }
+            } catch {
+                let message = String(describing: error)
+                logger.error("CloudKit sync engine bootstrap failed; local SQLite database remains available: \(message, privacy: .public)")
+                UserDefaults.standard.set(false, forKey: EventBuddyStorageConfiguration.cloudKitSyncEnabledDefaultsKey)
             }
         }
         return database
     }
 
     static func databaseURL() throws -> URL {
+        #if os(macOS)
+        guard canAccessAppGroupContainer else {
+            return try applicationSupportDatabaseURL()
+        }
+        #endif
+
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupIdentifier
         ) else {
@@ -146,6 +181,53 @@ enum EventBuddyDatabase {
         }
         return containerURL.appendingPathComponent(EventBuddyStorageConfiguration.databaseFileName)
     }
+
+    #if os(macOS)
+    static var canAccessCloudKitContainer: Bool {
+        guard let task = SecTaskCreateFromSelf(nil),
+              let entitlement = SecTaskCopyValueForEntitlement(
+                task,
+                "com.apple.developer.icloud-container-identifiers" as CFString,
+                nil
+              ) else {
+            return false
+        }
+
+        guard let containers = entitlement as? [String] else { return false }
+        return containers.contains(cloudKitContainerIdentifier)
+    }
+
+    static var canAccessAppGroupContainer: Bool {
+        guard let task = SecTaskCreateFromSelf(nil),
+              let entitlement = SecTaskCopyValueForEntitlement(
+                task,
+                "com.apple.security.application-groups" as CFString,
+                nil
+              ) else {
+            return false
+        }
+
+        guard let groups = entitlement as? [String] else { return false }
+        return groups.contains(appGroupIdentifier)
+    }
+
+    private static func applicationSupportDatabaseURL() throws -> URL {
+        let directory = try FileManager.default
+            .url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            .appendingPathComponent("WWDCBuddy", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appendingPathComponent(EventBuddyStorageConfiguration.databaseFileName)
+    }
+    #else
+    static var canAccessCloudKitContainer: Bool {
+        true
+    }
+    #endif
 
     static func attendeeRowID(eventID: UUID, friendID: UUID) -> String {
         "\(eventID.uuidString)|\(friendID.uuidString)"
@@ -210,7 +292,7 @@ private enum SQLiteDataStoreMigrationBackup {
         }
 
         let createdAt = Date()
-        let directoryURL = try backupRootURL()
+        let directoryURL = try backupRootURL(for: databaseURL)
             .appendingPathComponent("SQLiteData-\(buildIdentifier.fileSystemSafe)-\(Self.timestamp.string(from: createdAt))")
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
 
@@ -246,13 +328,10 @@ private enum SQLiteDataStoreMigrationBackup {
         )
     }
 
-    private static func backupRootURL() throws -> URL {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: EventBuddyDatabase.appGroupIdentifier
-        ) else {
-            throw CocoaError(.fileNoSuchFile)
-        }
-        let url = containerURL.appendingPathComponent("SQLiteDataMigrationBackups", isDirectory: true)
+    private static func backupRootURL(for databaseURL: URL) throws -> URL {
+        let url = databaseURL
+            .deletingLastPathComponent()
+            .appendingPathComponent("SQLiteDataMigrationBackups", isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
