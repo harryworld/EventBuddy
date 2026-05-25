@@ -9,10 +9,16 @@ import SwiftUI
 #if os(iOS)
 import UIKit
 import WidgetKit
+#elseif os(macOS)
+import AppKit
 #endif
 
 @main
 struct EventBuddyApp: App {
+    #if os(macOS)
+    @NSApplicationDelegateAdaptor(EventBuddyMacAppDelegate.self) private var macAppDelegate
+    #endif
+
     private let validationMode: MigrationValidationMode?
     private let eventPersistenceService: EventPersistenceService
     #if os(macOS)
@@ -135,6 +141,37 @@ private extension WidgetCenter {
     }
 }
 #else
+@MainActor
+private final class EventBuddyMacAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard UserSettings.isCloudKitSyncFeatureEnabled else { return }
+        NSApplication.shared.registerForRemoteNotifications()
+    }
+
+    func application(
+        _ application: NSApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        print("Registered for remote notifications")
+    }
+
+    func application(
+        _ application: NSApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        print("Failed to register for remote notifications: \(error)")
+    }
+
+    func application(
+        _ application: NSApplication,
+        didReceiveRemoteNotification userInfo: [String: Any]
+    ) {
+        Task { @MainActor in
+            await CloudKitSyncPusher.syncAllChanges()
+        }
+    }
+}
+
 private struct EventBuddyLifecycleModifier: ViewModifier {
     init(
         validationMode: MigrationValidationMode?,
