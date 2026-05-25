@@ -138,6 +138,7 @@ struct EditFriendView: View {
                         .frame(minHeight: 100)
                 }
             }
+            .eventBuddyPopupFormStyle()
             .navigationTitle("Edit Friend")
             .eventBuddyInlineNavigationTitle()
             .sheet(isPresented: $showAddSocialSheet) {
@@ -159,6 +160,7 @@ struct EditFriendView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .eventBuddyPopupCancelAction()
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -166,10 +168,16 @@ struct EditFriendView: View {
                         updateFriend()
                         dismiss()
                     }
-                    .disabled(name.isEmpty)
+                    .disabled(!canSave)
+                    .eventBuddyPopupPrimaryAction()
                 }
             }
         }
+        .eventBuddyPopupFormLayout(width: 600, minHeight: 560)
+    }
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     private func updateFriend() {

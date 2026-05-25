@@ -18,6 +18,55 @@ extension View {
         listStyle(.inset)
         #endif
     }
+
+    @ViewBuilder
+    func eventBuddyPopupFormStyle() -> some View {
+        #if os(macOS)
+        self
+            .formStyle(.grouped)
+            .controlSize(.regular)
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddyPopupFormLayout(width: CGFloat = 560, minHeight: CGFloat = 460, maxHeight: CGFloat = 720) -> some View {
+        #if os(macOS)
+        self
+            .frame(
+                minWidth: width,
+                idealWidth: width,
+                maxWidth: width,
+                minHeight: minHeight,
+                idealHeight: minHeight,
+                maxHeight: maxHeight
+            )
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddyPopupPrimaryAction() -> some View {
+        #if os(macOS)
+        self
+            .keyboardShortcut(.defaultAction)
+            .buttonStyle(.borderedProminent)
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddyPopupCancelAction() -> some View {
+        #if os(macOS)
+        self
+            .keyboardShortcut(.cancelAction)
+        #else
+        self
+        #endif
+    }
 }
 
 extension Color {

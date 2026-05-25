@@ -54,7 +54,6 @@ struct MacProfileWorkspace: View {
             ProfileEditView(profile: currentProfile) {
                 refreshQRCode()
             }
-            .frame(minWidth: 520, minHeight: 560)
         }
         .onAppear {
             refreshQRCode(showFeedback: false)

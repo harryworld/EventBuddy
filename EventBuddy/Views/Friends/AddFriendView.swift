@@ -79,6 +79,7 @@ struct AddFriendView: View {
                         .frame(minHeight: 100)
                 }
             }
+            .eventBuddyPopupFormStyle()
             .navigationTitle("Add Friend")
             .eventBuddyInlineNavigationTitle()
             .toolbar {
@@ -86,13 +87,15 @@ struct AddFriendView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .eventBuddyPopupCancelAction()
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         addFriend()
                     }
-                    .disabled(name.isEmpty)
+                    .disabled(!canSave)
+                    .eventBuddyPopupPrimaryAction()
                 }
             }
             .alert("Unable to Save Friend", isPresented: $showSaveError) {
@@ -101,6 +104,11 @@ struct AddFriendView: View {
                 Text(saveErrorMessage)
             }
         }
+        .eventBuddyPopupFormLayout(width: 600, minHeight: 560)
+    }
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     private func addFriend() {

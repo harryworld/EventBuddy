@@ -51,7 +51,7 @@ struct ProfileEditView: View {
                         set: { phone = $0 }
                     ))
                         .keyboardType(.phonePad)
-                    TextField("iOS Developer passionate about SwiftUI", text: $bio, axis: .vertical)
+                    TextField("Bio", text: $bio, axis: .vertical)
                         .lineLimit(3...6)
                 }
                 
@@ -93,12 +93,16 @@ struct ProfileEditView: View {
                     .onDelete(perform: deleteSocialLink)
                     
                     Button {
+                        newSocialService = ""
+                        newSocialUsername = ""
                         showingSocialLinkSheet = true
                     } label: {
                         Label("Add Social Link", systemImage: "plus")
                     }
+                    .disabled(availableSocialServices.isEmpty)
                 }
             }
+            .eventBuddyPopupFormStyle()
             .navigationTitle("Edit Profile")
             .eventBuddyInlineNavigationTitle()
             .toolbar {
@@ -106,6 +110,7 @@ struct ProfileEditView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .eventBuddyPopupCancelAction()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -113,51 +118,29 @@ struct ProfileEditView: View {
                         onSave()
                         dismiss()
                     }
+                    .disabled(!canSave)
+                    .eventBuddyPopupPrimaryAction()
                 }
             }
             .sheet(isPresented: $showingSocialLinkSheet) {
-                addSocialLinkView
+                AddSocialLinkView(
+                    platform: $newSocialService,
+                    username: $newSocialUsername,
+                    onSave: addSocialLink,
+                    existingPlatforms: Set(socialMediaAccounts.keys),
+                    availablePlatforms: socialServices
+                )
             }
         }
+        .eventBuddyPopupFormLayout(width: 620, minHeight: 620)
     }
-    
-    private var addSocialLinkView: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    Picker("Service", selection: $newSocialService) {
-                        ForEach(socialServices, id: \.self) { service in
-                            Label {
-                                Text(service.capitalized)
-                            } icon: {
-                                Image(systemName: socialMediaIcon(for: service))
-                            }
-                            .tag(service)
-                        }
-                    }
-                    TextField("Username (without @)", text: $newSocialUsername)
-                }
-                
-                Section {
-                    Button("Add Social Link") {
-                        addSocialLink()
-                        showingSocialLinkSheet = false
-                    }
-                    .disabled(newSocialUsername.isEmpty)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .navigationTitle("Add Social Link")
-            .eventBuddyInlineNavigationTitle()
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        showingSocialLinkSheet = false
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium])
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var availableSocialServices: [String] {
+        socialServices.filter { !socialMediaAccounts.keys.contains($0) }
     }
     
     private let avatarOptions: [String] = [

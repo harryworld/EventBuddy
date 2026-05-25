@@ -76,6 +76,7 @@ struct AddEventView: View {
                         .toggleStyle(.switch)
                 }
             }
+            .eventBuddyPopupFormStyle()
             .navigationTitle("Add Event")
             .eventBuddyInlineNavigationTitle()
             .toolbar {
@@ -83,6 +84,7 @@ struct AddEventView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .eventBuddyPopupCancelAction()
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -94,6 +96,8 @@ struct AddEventView: View {
                             showValidationAlert = true
                         }
                     }
+                    .disabled(!canSave)
+                    .eventBuddyPopupPrimaryAction()
                 }
             }
             .alert("Invalid Form", isPresented: $showValidationAlert) {
@@ -105,12 +109,16 @@ struct AddEventView: View {
             .onChange(of: startDate) { _ = validateForm() }
             .onChange(of: endDate) { _ = validateForm() }
         }
+        .eventBuddyPopupFormLayout(width: 680, minHeight: 620)
+    }
+
+    private var canSave: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && endDate > startDate
     }
     
     private func validateForm() -> Bool {
         // Check required fields - only title and proper date ordering are required
-        guard !title.isEmpty,
-              endDate > startDate else {
+        guard canSave else {
             isFormValid = false
             return false
         }

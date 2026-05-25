@@ -8,13 +8,20 @@ struct AddSocialLinkView: View {
     let onSave: () -> Void
     let existingPlatforms: Set<String>
     
-    private let availablePlatforms = ["twitter", "linkedin", "github", "instagram", "facebook", "threads"]
+    private let availablePlatforms: [String]
     
-    init(platform: Binding<String>, username: Binding<String>, onSave: @escaping () -> Void, existingPlatforms: Set<String> = []) {
+    init(
+        platform: Binding<String>,
+        username: Binding<String>,
+        onSave: @escaping () -> Void,
+        existingPlatforms: Set<String> = [],
+        availablePlatforms: [String] = ["twitter", "linkedin", "github", "instagram", "facebook", "threads"]
+    ) {
         self._platform = platform
         self._username = username
         self.onSave = onSave
         self.existingPlatforms = existingPlatforms
+        self.availablePlatforms = availablePlatforms
     }
     
     var body: some View {
@@ -36,6 +43,7 @@ struct AddSocialLinkView: View {
                         .autocorrectionDisabled()
                 }
             }
+            .eventBuddyPopupFormStyle()
             .navigationTitle("Add Social Link")
             .eventBuddyInlineNavigationTitle()
             .toolbar {
@@ -43,6 +51,7 @@ struct AddSocialLinkView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .eventBuddyPopupCancelAction()
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -50,16 +59,22 @@ struct AddSocialLinkView: View {
                         onSave()
                         dismiss()
                     }
-                    .disabled(platform.isEmpty || username.isEmpty)
+                    .disabled(!canSave)
+                    .eventBuddyPopupPrimaryAction()
                 }
             }
         }
+        .eventBuddyPopupFormLayout(width: 420, minHeight: 240, maxHeight: 320)
         .onAppear {
             // Pre-select the first available platform if none is selected
-            if platform.isEmpty && !availableUnusedPlatforms.isEmpty {
-                platform = availableUnusedPlatforms.first!
+            if platform.isEmpty, let firstAvailablePlatform = availableUnusedPlatforms.first {
+                platform = firstAvailablePlatform
             }
         }
+    }
+
+    private var canSave: Bool {
+        !platform.isEmpty && !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     private var availableUnusedPlatforms: [String] {
@@ -77,4 +92,4 @@ struct AddSocialLinkView: View {
         default: return "Username"
         }
     }
-} 
+}
