@@ -14,6 +14,7 @@ struct AddFriendView: View {
     @State private var twitter = ""
     @State private var linkedin = ""
     @State private var github = ""
+    @State private var mastodon = ""
     @State private var showSaveError = false
     @State private var saveErrorMessage = ""
 
@@ -25,23 +26,23 @@ struct AddFriendView: View {
         NavigationStack {
             Form {
                 Section("Basic Info") {
-                    TextField("Name", text: $name)
+                    ClearableTextField("Name", text: $name)
                         .autocorrectionDisabled()
                     
-                    TextField("Email", text: $email)
+                    ClearableTextField("Email", text: $email)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                     
-                    TextField("Phone", text: $phone)
+                    ClearableTextField("Phone", text: $phone)
                         .keyboardType(.phonePad)
                 }
                 
                 Section("Professional Info") {
-                    TextField("Job Title", text: $jobTitle)
+                    ClearableTextField("Job Title", text: $jobTitle)
                         .autocorrectionDisabled()
                     
-                    TextField("Company", text: $company)
+                    ClearableTextField("Company", text: $company)
                         .autocorrectionDisabled()
                 }
                 
@@ -50,7 +51,7 @@ struct AddFriendView: View {
                         Image(systemName: "bubble.left")
                             .foregroundColor(.blue)
                             .frame(width: 30)
-                        TextField("Twitter/X", text: $twitter)
+                        ClearableTextField("Twitter/X", text: $twitter)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                     }
@@ -59,7 +60,7 @@ struct AddFriendView: View {
                         Image(systemName: "network")
                             .foregroundColor(.blue)
                             .frame(width: 30)
-                        TextField("LinkedIn", text: $linkedin)
+                        ClearableTextField("LinkedIn", text: $linkedin)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                     }
@@ -68,7 +69,16 @@ struct AddFriendView: View {
                         Image(systemName: "terminal")
                             .foregroundColor(.blue)
                             .frame(width: 30)
-                        TextField("GitHub", text: $github)
+                        ClearableTextField("GitHub", text: $github)
+                            .autocapitalization(.none)
+                            .autocorrectionDisabled()
+                    }
+                    
+                    HStack {
+                        Image(systemName: SocialPlatform.icon(for: "mastodon"))
+                            .foregroundColor(.blue)
+                            .frame(width: 30)
+                        ClearableTextField("Mastodon", text: $mastodon)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                     }
@@ -122,15 +132,19 @@ struct AddFriendView: View {
         var socialMediaHandles: [String: String] = [:]
         
         if !twitter.isEmpty {
-            socialMediaHandles["twitter"] = twitter
+            socialMediaHandles["twitter"] = SocialPlatform.storageUsername(twitter, for: "twitter")
         }
         
         if !linkedin.isEmpty {
-            socialMediaHandles["linkedin"] = linkedin
+            socialMediaHandles["linkedin"] = SocialPlatform.storageUsername(linkedin, for: "linkedin")
         }
         
         if !github.isEmpty {
-            socialMediaHandles["github"] = github
+            socialMediaHandles["github"] = SocialPlatform.storageUsername(github, for: "github")
+        }
+
+        if !mastodon.isEmpty {
+            socialMediaHandles["mastodon"] = SocialPlatform.storageUsername(mastodon, for: "mastodon")
         }
         
         // Create new friend

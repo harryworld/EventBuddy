@@ -483,6 +483,8 @@ class DataImportService {
             return "linkedin"
         } else if normalized.contains("github") {
             return "github"
+        } else if normalized.contains("mastodon") {
+            return "mastodon"
         } else if normalized.contains("instagram") {
             return "instagram"
         } else if normalized.contains("facebook") {

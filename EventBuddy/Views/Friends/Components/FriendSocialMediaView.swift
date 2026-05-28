@@ -39,11 +39,11 @@ struct FriendSocialMediaView: View {
                                 .frame(width: 24)
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(key.capitalized)
+                                Text(SocialPlatform.displayName(for: key))
                                     .foregroundColor(.secondary)
                                     .font(.subheadline)
                                 
-                                Text("@" + (friend.socialMediaHandles[key] ?? ""))
+                                Text(SocialPlatform.displayHandle(for: key, username: friend.socialMediaHandles[key] ?? ""))
                                     .font(.body)
                                     .foregroundColor(.primary)
                             }
@@ -62,47 +62,15 @@ struct FriendSocialMediaView: View {
     }
     
     private func openSocialProfile(platform: String, username: String) {
-        var urlString: String?
+        let urlString = SocialPlatform.urlString(for: platform, username: username)
         
-        // Strip @ from username if it exists
-        let cleanUsername = username.hasPrefix("@") ? String(username.dropFirst()) : username
-        
-        switch platform.lowercased() {
-        case "twitter":
-            urlString = "https://twitter.com/\(cleanUsername)"
-        case "github":
-            urlString = "https://github.com/\(cleanUsername)"
-        case "linkedin":
-            urlString = "https://linkedin.com/in/\(cleanUsername)"
-        case "instagram":
-            urlString = "https://instagram.com/\(cleanUsername)"
-        case "facebook":
-            urlString = "https://facebook.com/\(cleanUsername)"
-        case "threads":
-            urlString = "https://threads.net/@\(cleanUsername)"
-        default:
-            if username.contains("://") {
-                urlString = username
-            } else {
-                urlString = "https://\(username)"
-            }
-        }
-        
-        if let urlString = urlString, let url = URL(string: urlString) {
+        if let url = URL(string: urlString) {
             openURL(url)
         }
     }
     
     private func socialMediaIcon(for platform: String) -> String {
-        switch platform.lowercased() {
-        case "twitter": return "bird"
-        case "github": return "terminal"
-        case "linkedin": return "network"
-        case "instagram": return "camera"
-        case "facebook": return "person.2"
-        case "threads": return "at.badge.plus"
-        default: return "link"
-        }
+        SocialPlatform.icon(for: platform)
     }
     
     private func deleteSocialLinks(at offsets: IndexSet) {

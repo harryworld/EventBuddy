@@ -15,7 +15,7 @@ struct AddSocialLinkView: View {
         username: Binding<String>,
         onSave: @escaping () -> Void,
         existingPlatforms: Set<String> = [],
-        availablePlatforms: [String] = ["twitter", "linkedin", "github", "instagram", "facebook", "threads"]
+        availablePlatforms: [String] = SocialPlatform.allServices
     ) {
         self._platform = platform
         self._username = username
@@ -31,14 +31,14 @@ struct AddSocialLinkView: View {
                     Picker("Platform", selection: $platform) {
                         Text("Select Platform").tag("")
                         ForEach(availableUnusedPlatforms, id: \.self) { platformName in
-                            Text(platformName.capitalized).tag(platformName)
+                            Text(SocialPlatform.displayName(for: platformName)).tag(platformName)
                         }
                     }
                     .pickerStyle(.menu)
                 }
                 
                 Section("Username") {
-                    TextField(placeholderText, text: $username)
+                    ClearableTextField(placeholderText, text: $username)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                 }
@@ -82,14 +82,6 @@ struct AddSocialLinkView: View {
     }
     
     private var placeholderText: String {
-        switch platform {
-        case "twitter": return "e.g. johndoe (without @)"
-        case "linkedin": return "e.g. johndoe"
-        case "github": return "e.g. johndoe"
-        case "instagram": return "e.g. johndoe (without @)"
-        case "facebook": return "e.g. john.doe"
-        case "threads": return "e.g. johndoe (without @)"
-        default: return "Username"
-        }
+        SocialPlatform.placeholder(for: platform)
     }
 }

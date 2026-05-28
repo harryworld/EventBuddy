@@ -27,10 +27,10 @@ struct AddEventView: View {
         NavigationStack {
             Form {
                 Section("Event Details") {
-                    TextField("Title", text: $title)
+                    ClearableTextField("Title", text: $title)
                         .textInputAutocapitalization(.words)
                     
-                    TextField("Description", text: $eventDescription, axis: .vertical)
+                    ClearableTextField("Description", text: $eventDescription, axis: .vertical)
                         .lineLimit(3, reservesSpace: true)
                     
                     Picker("Event Type", selection: $eventType) {
@@ -41,10 +41,10 @@ struct AddEventView: View {
                 }
                 
                 Section("Location") {
-                    TextField("Location", text: $location)
+                    ClearableTextField("Location", text: $location)
                         .textInputAutocapitalization(.words)
                     
-                    TextField("Address", text: $address)
+                    ClearableTextField("Address", text: $address)
                         .textInputAutocapitalization(.words)
                 }
                 
@@ -59,10 +59,10 @@ struct AddEventView: View {
                 }
                 
                 Section("Additional Information") {
-                    TextField("Notes", text: $notes, axis: .vertical)
+                    ClearableTextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3, reservesSpace: true)
                     
-                    TextField("URL", text: $url)
+                    ClearableTextField("URL", text: $url)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()

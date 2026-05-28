@@ -140,24 +140,7 @@ extension Profile {
     
     // Helper methods for social media
     private func socialMediaURL(for service: String, username: String) -> String {
-        switch service.lowercased() {
-        case "twitter":
-            return "https://twitter.com/\(username)"
-        case "linkedin":
-            return "https://linkedin.com/in/\(username)"
-        case "github":
-            return "https://github.com/\(username)"
-        case "instagram":
-            return "https://instagram.com/\(username)"
-        case "facebook":
-            return "https://facebook.com/\(username)"
-        case "threads":
-            return "https://threads.net/\(username)"
-        case "youtube":
-            return "https://youtube.com/\(username)"
-        default:
-            return "https://\(username)"
-        }
+        SocialPlatform.urlString(for: service, username: username)
     }
     
     private func contactServiceName(for service: String) -> String {
@@ -165,11 +148,12 @@ extension Profile {
         case "twitter": return CNSocialProfileServiceTwitter
         case "linkedin": return CNSocialProfileServiceLinkedIn
         case "github": return "GitHub"
+        case "mastodon": return "Mastodon"
         case "instagram": return "Instagram"
         case "facebook": return CNSocialProfileServiceFacebook
         case "threads": return "Threads"
         case "youtube": return "YouTube"
-        default: return service.capitalized
+        default: return SocialPlatform.displayName(for: service)
         }
     }
     
@@ -177,10 +161,11 @@ extension Profile {
     var socialLinks: [SocialLinkInfo] {
         socialMediaAccounts.compactMap { (service, username) in
             guard !username.isEmpty else { return nil }
+            let cleanUsername = SocialPlatform.storageUsername(username, for: service)
             return SocialLinkInfo(
                 service: service,
-                username: username,
-                url: socialMediaURL(for: service, username: username)
+                username: cleanUsername,
+                url: socialMediaURL(for: service, username: cleanUsername)
             )
         }
     }
@@ -195,10 +180,28 @@ struct SocialLinkInfo: Identifiable {
     let url: String
     
     var displayName: String {
+        SocialPlatform.displayName(for: service)
+    }
+    
+    var displayHandle: String {
+        SocialPlatform.displayHandle(for: service, username: username)
+    }
+
+    var icon: String {
+        SocialPlatform.icon(for: service)
+    }
+}
+
+enum SocialPlatform {
+    static let coreServices = ["twitter", "linkedin", "github", "mastodon"]
+    static let allServices = coreServices + ["instagram", "facebook", "threads", "youtube"]
+
+    static func displayName(for service: String) -> String {
         switch service.lowercased() {
         case "twitter": return "Twitter / X"
         case "linkedin": return "LinkedIn"
         case "github": return "GitHub"
+        case "mastodon": return "Mastodon"
         case "instagram": return "Instagram"
         case "facebook": return "Facebook"
         case "threads": return "Threads"
@@ -206,18 +209,92 @@ struct SocialLinkInfo: Identifiable {
         default: return service.capitalized
         }
     }
-    
-    var icon: String {
+
+    static func icon(for service: String) -> String {
         switch service.lowercased() {
         case "twitter": return "bird"
         case "linkedin": return "network"
         case "github": return "chevron.left.forwardslash.chevron.right"
+        case "mastodon": return "at"
         case "instagram": return "camera"
         case "facebook": return "person.2.fill"
         case "threads": return "text.bubble"
         case "youtube": return "play.rectangle"
         default: return "link"
         }
+    }
+
+    static func placeholder(for service: String) -> String {
+        switch service.lowercased() {
+        case "twitter", "instagram", "threads":
+            return "e.g. johndoe (without @)"
+        case "linkedin", "github":
+            return "e.g. johndoe"
+        case "mastodon":
+            return "e.g. johndoe@mastodon.social"
+        case "facebook":
+            return "e.g. john.doe"
+        default:
+            return "Username"
+        }
+    }
+
+    static func storageUsername(_ username: String, for service: String) -> String {
+        let trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard service.lowercased() != "mastodon" else {
+            return trimmed.hasPrefix("@") ? String(trimmed.dropFirst()) : trimmed
+        }
+
+        return trimmed.hasPrefix("@") ? String(trimmed.dropFirst()) : trimmed
+    }
+
+    static func displayHandle(for service: String, username: String) -> String {
+        let cleanUsername = storageUsername(username, for: service)
+        guard !cleanUsername.isEmpty else { return "" }
+        return "@\(cleanUsername)"
+    }
+
+    static func urlString(for service: String, username: String) -> String {
+        let trimmedUsername = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedUsername.contains("://") {
+            return trimmedUsername
+        }
+
+        let cleanUsername = storageUsername(trimmedUsername, for: service)
+
+        switch service.lowercased() {
+        case "twitter":
+            return "https://twitter.com/\(cleanUsername)"
+        case "linkedin":
+            return "https://linkedin.com/in/\(cleanUsername)"
+        case "github":
+            return "https://github.com/\(cleanUsername)"
+        case "mastodon":
+            return mastodonURLString(for: cleanUsername)
+        case "instagram":
+            return "https://instagram.com/\(cleanUsername)"
+        case "facebook":
+            return "https://facebook.com/\(cleanUsername)"
+        case "threads":
+            return "https://threads.net/@\(cleanUsername)"
+        case "youtube":
+            return "https://youtube.com/\(cleanUsername)"
+        default:
+            return "https://\(cleanUsername)"
+        }
+    }
+
+    private static func mastodonURLString(for username: String) -> String {
+        let components = username.split(separator: "@", omittingEmptySubsequences: true)
+
+        if components.count >= 2 {
+            let user = components[0]
+            let host = components.dropFirst().joined(separator: "@")
+            return "https://\(host)/@\(user)"
+        }
+
+        return "https://mastodon.social/@\(username)"
     }
 }
 

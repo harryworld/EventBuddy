@@ -93,7 +93,8 @@ struct FriendDetailView: View {
     private func addSocialLink() {
         guard !newSocialPlatform.isEmpty && !newSocialUsername.isEmpty else { return }
         
-        friend.socialMediaHandles[newSocialPlatform.lowercased()] = newSocialUsername.trimmingCharacters(in: .whitespacesAndNewlines)
+        let platform = newSocialPlatform.lowercased()
+        friend.socialMediaHandles[platform] = SocialPlatform.storageUsername(newSocialUsername, for: platform)
         friend.updatedAt = Date()
         
         eventPersistenceService?.save(friend)

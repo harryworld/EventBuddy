@@ -37,8 +37,8 @@ struct ProfileEditView: View {
         NavigationStack {
             Form {
                 Section("Basic Information") {
-                    TextField("Name", text: $name)
-                    TextField("Email", text: Binding(
+                    ClearableTextField("Name", text: $name)
+                    ClearableTextField("Email", text: Binding(
                         get: { email },
                         set: { email = Profile.normalizedEmail($0) ?? "" }
                     ))
@@ -46,18 +46,18 @@ struct ProfileEditView: View {
                         .textContentType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    TextField("Phone", text: Binding(
+                    ClearableTextField("Phone", text: Binding(
                         get: { phone },
                         set: { phone = $0 }
                     ))
                         .keyboardType(.phonePad)
-                    TextField("Bio", text: $bio, axis: .vertical)
+                    ClearableTextField("Bio", text: $bio, axis: .vertical)
                         .lineLimit(3...6)
                 }
                 
                 Section("Professional Information") {
-                    TextField("Job Title", text: $title)
-                    TextField("Company", text: $company)
+                    ClearableTextField("Job Title", text: $title)
+                    ClearableTextField("Company", text: $company)
                 }
                 
                 Section("Avatar") {
@@ -81,11 +81,11 @@ struct ProfileEditView: View {
                     ForEach(Array(socialMediaAccounts.keys.sorted()), id: \.self) { service in
                         if let username = socialMediaAccounts[service], !username.isEmpty {
                             HStack {
-                                Image(systemName: socialMediaIcon(for: service))
+                                Image(systemName: SocialPlatform.icon(for: service))
                                     .foregroundColor(.blue)
-                                Text(service.capitalized)
+                                Text(SocialPlatform.displayName(for: service))
                                 Spacer()
-                                Text("@\(username)")
+                                Text(SocialPlatform.displayHandle(for: service, username: username))
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -169,23 +169,7 @@ struct ProfileEditView: View {
         "briefcase.fill": "Professional"
     ]
     
-    private let socialServices = [
-        "twitter", "linkedin", "github", "instagram",
-        "facebook", "threads", "youtube"
-    ]
-    
-    private func socialMediaIcon(for service: String) -> String {
-        switch service.lowercased() {
-        case "twitter": return "bird"
-        case "linkedin": return "network"
-        case "github": return "chevron.left.forwardslash.chevron.right"
-        case "instagram": return "camera"
-        case "facebook": return "person.2.fill"
-        case "threads": return "text.bubble"
-        case "youtube": return "play.rectangle"
-        default: return "link"
-        }
-    }
+    private let socialServices = SocialPlatform.allServices
     
     private func deleteSocialLink(at offsets: IndexSet) {
         let sortedKeys = Array(socialMediaAccounts.keys.sorted())
@@ -196,7 +180,7 @@ struct ProfileEditView: View {
     }
     
     private func addSocialLink() {
-        let cleanUsername = newSocialUsername.hasPrefix("@") ? String(newSocialUsername.dropFirst()) : newSocialUsername
+        let cleanUsername = SocialPlatform.storageUsername(newSocialUsername, for: newSocialService)
         socialMediaAccounts[newSocialService] = cleanUsername
         newSocialUsername = ""
         newSocialService = "twitter"

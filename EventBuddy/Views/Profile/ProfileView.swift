@@ -290,7 +290,7 @@ struct ProfileView: View {
                 Text(link.displayName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("@\(link.username)")
+                Text(link.displayHandle)
                     .font(.body)
             }
             

@@ -399,7 +399,7 @@ private struct MacProfileSocialRow: View {
                 Text(link.displayName)
                     .font(.callout.weight(.medium))
 
-                Text("@\(link.username)")
+                Text(link.displayHandle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)

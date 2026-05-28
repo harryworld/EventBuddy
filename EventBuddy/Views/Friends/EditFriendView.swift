@@ -36,75 +36,44 @@ struct EditFriendView: View {
         NavigationStack {
             Form {
                 Section("Basic Info") {
-                    TextField("Name", text: $name)
+                    ClearableTextField("Name", text: $name)
                         .autocorrectionDisabled()
                     
-                    TextField("Email", text: $email)
+                    ClearableTextField("Email", text: $email)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                     
-                    TextField("Phone", text: $phone)
+                    ClearableTextField("Phone", text: $phone)
                         .keyboardType(.phonePad)
                 }
                 
                 Section("Professional Info") {
-                    TextField("Job Title", text: $jobTitle)
+                    ClearableTextField("Job Title", text: $jobTitle)
                         .autocorrectionDisabled()
                     
-                    TextField("Company", text: $company)
+                    ClearableTextField("Company", text: $company)
                         .autocorrectionDisabled()
                 }
                 
                 Section("Social Media") {
                     // Common social media platforms
-                    HStack {
-                        Image(systemName: "bubble.left")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("Twitter/X", text: Binding(
-                            get: { socialMediaHandles["twitter"] ?? "" },
-                            set: { socialMediaHandles["twitter"] = $0.isEmpty ? nil : $0 }
-                        ))
-                        .autocapitalization(.none)
-                        .autocorrectionDisabled()
-                    }
-                    
-                    HStack {
-                        Image(systemName: "network")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("LinkedIn", text: Binding(
-                            get: { socialMediaHandles["linkedin"] ?? "" },
-                            set: { socialMediaHandles["linkedin"] = $0.isEmpty ? nil : $0 }
-                        ))
-                        .autocapitalization(.none)
-                        .autocorrectionDisabled()
-                    }
-                    
-                    HStack {
-                        Image(systemName: "terminal")
-                            .foregroundColor(.blue)
-                            .frame(width: 30)
-                        TextField("GitHub", text: Binding(
-                            get: { socialMediaHandles["github"] ?? "" },
-                            set: { socialMediaHandles["github"] = $0.isEmpty ? nil : $0 }
-                        ))
-                        .autocapitalization(.none)
-                        .autocorrectionDisabled()
-                    }
+                    socialMediaRow(platform: "twitter", title: "Twitter/X")
+                    socialMediaRow(platform: "linkedin", title: "LinkedIn")
+                    socialMediaRow(platform: "github", title: "GitHub")
+                    socialMediaRow(platform: "mastodon", title: "Mastodon")
                     
                     // Additional social media platforms
                     ForEach(Array(additionalSocialPlatforms.sorted()), id: \.self) { platform in
                         HStack {
-                            Image(systemName: socialMediaIcon(for: platform))
+                            Image(systemName: SocialPlatform.icon(for: platform))
                                 .foregroundColor(.blue)
                                 .frame(width: 30)
                             
-                            TextField(platform.capitalized, text: Binding(
-                                get: { socialMediaHandles[platform] ?? "" },
-                                set: { socialMediaHandles[platform] = $0.isEmpty ? nil : $0 }
-                            ))
+                            ClearableTextField(
+                                SocialPlatform.displayName(for: platform),
+                                text: socialMediaBinding(for: platform)
+                            )
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                             
@@ -199,20 +168,30 @@ struct EditFriendView: View {
     }
     
     private var additionalSocialPlatforms: Set<String> {
-        let commonPlatforms: Set<String> = ["twitter", "linkedin", "github"]
+        let commonPlatforms = Set(SocialPlatform.coreServices)
         return Set(socialMediaHandles.keys).subtracting(commonPlatforms)
     }
-    
-    private func socialMediaIcon(for platform: String) -> String {
-        switch platform.lowercased() {
-        case "twitter": return "bubble.left"
-        case "github": return "terminal"
-        case "linkedin": return "network"
-        case "instagram": return "camera"
-        case "facebook": return "person.2"
-        case "threads": return "at.badge.plus"
-        default: return "link"
+
+    private func socialMediaRow(platform: String, title: String) -> some View {
+        HStack {
+            Image(systemName: SocialPlatform.icon(for: platform))
+                .foregroundColor(.blue)
+                .frame(width: 30)
+
+            ClearableTextField(title, text: socialMediaBinding(for: platform))
+                .autocapitalization(.none)
+                .autocorrectionDisabled()
         }
+    }
+
+    private func socialMediaBinding(for platform: String) -> Binding<String> {
+        Binding(
+            get: { socialMediaHandles[platform] ?? "" },
+            set: {
+                let cleanUsername = SocialPlatform.storageUsername($0, for: platform)
+                socialMediaHandles[platform] = cleanUsername.isEmpty ? nil : cleanUsername
+            }
+        )
     }
 }
 
