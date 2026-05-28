@@ -40,6 +40,9 @@ struct EventListView: View {
                 
                 // Filter view
                 filterView
+
+                // Search bar
+                searchBar
                 
                 // Event list
                 eventListByDate
@@ -251,9 +254,6 @@ struct EventListView: View {
     private var eventListByDate: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                // Search bar
-                searchBar
-
                 LazyVStack(alignment: .leading, spacing: 25) {
                 if filteredEvents.isEmpty {
                     ContentUnavailableView {
