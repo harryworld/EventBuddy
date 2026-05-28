@@ -42,7 +42,7 @@ struct MacContentView: View {
             AddFriendView(eventPersistenceService: eventPersistenceService)
         }
         .onChange(of: navigationCoordinator.selectedTab) { _, selectedTab in
-            if let sidebarSelection = MacSidebarSelection(tabIndex: selectedTab) {
+            if let sidebarSelection = MacSidebarSelection(appTab: selectedTab) {
                 selection = sidebarSelection
             }
         }
@@ -109,13 +109,16 @@ private enum MacSidebarSelection: String, CaseIterable, Identifiable, Hashable {
 
     var id: String { rawValue }
 
-    init?(tabIndex: Int) {
-        switch tabIndex {
-        case 0: self = .events
-        case 1: self = .friends
-        case 2: self = .profile
-        case 3: self = .settings
-        default: return nil
+    init?(appTab: NavigationCoordinator.AppTab) {
+        switch appTab {
+        case .events, .eventSearch:
+            self = .events
+        case .friends:
+            self = .friends
+        case .profile:
+            self = .profile
+        case .settings:
+            self = .settings
         }
     }
 

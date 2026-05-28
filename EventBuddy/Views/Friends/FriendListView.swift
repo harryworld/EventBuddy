@@ -9,82 +9,42 @@ struct FriendListView: View {
     @State private var searchText = ""
     @State private var selectedFilter: FriendFilter = .all
     @State private var showingAddFriendSheet = false
+    let searchPresentation: SearchPresentation
     
     enum FriendFilter: String, CaseIterable {
         case all = "All Friends"
         case favorites = "Favorites"
     }
+
+    enum SearchPresentation {
+        case hidden
+        case inline
+        case toolbar
+        case tab
+
+        var searchFieldPlacement: SearchFieldPlacement? {
+            switch self {
+            case .hidden, .inline:
+                return nil
+            case .toolbar:
+                return .toolbar
+            case .tab:
+                return .eventBuddyTabSearch
+            }
+        }
+    }
+
+    init(searchPresentation: SearchPresentation = .hidden) {
+        self.searchPresentation = searchPresentation
+    }
     
     var body: some View {
+        friendsNavigationContent
+    }
+
+    private var friendsNavigationContent: some View {
         NavigationStack {
-            VStack {
-                // Friends count and filter
-                friendsCount
-
-                // Filter buttons
-                filterView
-
-                // Search bar
-                searchBar
-
-                // Friends list
-                List {
-                    ForEach(filteredFriends) { friendRow in
-                        NavigationLink {
-                            FriendDetailByIDView(friendID: friendRow.id)
-                        } label: {
-                            FriendRowView(friendRow: friendRow)
-                            .swipeActions {
-                                NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
-                                        Label("Edit", systemImage: "pencil")
-                                    }
-                                    .tint(.blue)
-                                    
-                                    Button(role: .destructive) {
-                                        deleteFriend(friendRow)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                    
-                                    Button {
-                                        toggleFavorite(friendRow)
-                                    } label: {
-                                        Label(friendRow.isFavorite ? "Unfavorite" : "Favorite",
-                                              systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
-                                    }
-                                    .tint(.yellow)
-                                }
-                                .contextMenu {
-                                    NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
-                                        Label("Edit Friend", systemImage: "pencil")
-                                    }
-                                    
-                                    Button {
-                                        toggleFavorite(friendRow)
-                                    } label: {
-                                        Label(friendRow.isFavorite ? "Remove from Favorites" : "Add to Favorites",
-                                              systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    Button(role: .destructive) {
-                                        deleteFriend(friendRow)
-                                    } label: {
-                                        Label("Delete Friend", systemImage: "trash")
-                                    }
-                                }
-                        }
-                    }
-                    .onDelete(perform: deleteFriends)
-                }
-                .listStyle(.plain)
-                .overlay {
-                    if filteredFriends.isEmpty {
-                        noFriends
-                    }
-                }
-            }
+            searchableFriendsContent
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -102,6 +62,95 @@ struct FriendListView: View {
                     AddFriendView(eventPersistenceService: eventPersistenceService)
                 } else {
                     AddFriendView(eventPersistenceService: nil)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var searchableFriendsContent: some View {
+        if let searchFieldPlacement = searchPresentation.searchFieldPlacement {
+            EventBuddyDebouncedSearchable(
+                text: $searchText,
+                prompt: "Search friends",
+                placement: searchFieldPlacement
+            ) {
+                friendsContent
+            }
+        } else {
+            friendsContent
+        }
+    }
+
+    private var friendsContent: some View {
+        VStack {
+            // Friends count and filter
+            friendsCount
+
+            // Filter buttons
+            filterView
+
+            if searchPresentation == .inline {
+                // Search bar
+                searchBar
+            }
+
+            // Friends list
+            List {
+                ForEach(filteredFriends) { friendRow in
+                    NavigationLink {
+                        FriendDetailByIDView(friendID: friendRow.id)
+                    } label: {
+                        FriendRowView(friendRow: friendRow)
+                        .swipeActions {
+                            NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.blue)
+                                
+                                Button(role: .destructive) {
+                                    deleteFriend(friendRow)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                
+                                Button {
+                                    toggleFavorite(friendRow)
+                                } label: {
+                                    Label(friendRow.isFavorite ? "Unfavorite" : "Favorite",
+                                          systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
+                                }
+                                .tint(.yellow)
+                            }
+                            .contextMenu {
+                                NavigationLink(destination: EditFriendView(friend: friendFromRow(friendRow))) {
+                                    Label("Edit Friend", systemImage: "pencil")
+                                }
+                                
+                                Button {
+                                    toggleFavorite(friendRow)
+                                } label: {
+                                    Label(friendRow.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                                          systemImage: friendRow.isFavorite ? "star.slash" : "star.fill")
+                                }
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    deleteFriend(friendRow)
+                                } label: {
+                                    Label("Delete Friend", systemImage: "trash")
+                                }
+                        }
+                    }
+                }
+                .onDelete(perform: deleteFriends)
+            }
+            .listStyle(.plain)
+            .eventBuddyScrollDismissesKeyboardInteractively()
+            .overlay {
+                if filteredFriends.isEmpty {
+                    noFriends
                 }
             }
         }

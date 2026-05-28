@@ -20,6 +20,7 @@ struct EventListView: View {
     
     // Navigation coordinator for deep linking
     var navigationCoordinator: NavigationCoordinator?
+    let searchPresentation: SearchPresentation
     
     enum EventFilter: String, CaseIterable {
         case all = "All"
@@ -29,24 +30,39 @@ struct EventListView: View {
         case meetup = "Meetup"
     }
 
-    var body: some View {
-        NavigationStack(path: $navigationPath) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Title and dates
-                eventHeaderInfo
-                
-                // Attending toggle
-                attendingToggle
-                
-                // Filter view
-                filterView
+    enum SearchPresentation {
+        case hidden
+        case inline
+        case toolbar
+        case tab
 
-                // Search bar
-                searchBar
-                
-                // Event list
-                eventListByDate
+        var searchFieldPlacement: SearchFieldPlacement? {
+            switch self {
+            case .hidden, .inline:
+                return nil
+            case .toolbar:
+                return .toolbar
+            case .tab:
+                return .eventBuddyTabSearch
             }
+        }
+    }
+
+    init(
+        navigationCoordinator: NavigationCoordinator? = nil,
+        searchPresentation: SearchPresentation = .hidden
+    ) {
+        self.navigationCoordinator = navigationCoordinator
+        self.searchPresentation = searchPresentation
+    }
+
+    var body: some View {
+        eventNavigationContent
+    }
+
+    private var eventNavigationContent: some View {
+        NavigationStack(path: $navigationPath) {
+            searchableEventContent
             .eventBuddyInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -131,6 +147,42 @@ struct EventListView: View {
                     .animation(.spring(duration: 0.3), value: eventSyncService?.isManualSyncBlocked)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var searchableEventContent: some View {
+        if let searchFieldPlacement = searchPresentation.searchFieldPlacement {
+            EventBuddyDebouncedSearchable(
+                text: $searchText,
+                prompt: "Search events",
+                placement: searchFieldPlacement
+            ) {
+                eventContent
+            }
+        } else {
+            eventContent
+        }
+    }
+
+    private var eventContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Title and dates
+            eventHeaderInfo
+            
+            // Attending toggle
+            attendingToggle
+            
+            // Filter view
+            filterView
+
+            if searchPresentation == .inline {
+                // Search bar
+                searchBar
+            }
+            
+            // Event list
+            eventListByDate
         }
     }
     
@@ -289,6 +341,8 @@ struct EventListView: View {
                     .padding(.bottom, 20)
                 }
             }
+            }
+            .eventBuddyScrollDismissesKeyboardInteractively()
             .animation(.spring(duration: 0.2), value: showOnlyAttending)
             .animation(.spring(duration: 0.2), value: selectedEventFilter)
             .animation(.spring(duration: 0.2), value: showHistoricalEvents)
@@ -305,7 +359,6 @@ struct EventListView: View {
                     }
                 }
             }
-        }
         }
     }
     

@@ -3,37 +3,72 @@ import SwiftUI
 @MainActor
 @Observable
 class NavigationCoordinator {
-    var selectedTab: Int = 0
+    enum AppTab: Hashable {
+        case events
+        case friends
+        case profile
+        case settings
+        case eventSearch
+    }
+
+    enum SearchContext {
+        case events
+        case friends
+    }
+
+    var selectedTab: AppTab = .events {
+        didSet {
+            updateSearchContext(from: oldValue)
+        }
+    }
+    var searchContext: SearchContext = .events
     var eventToShowID: UUID?
     var shouldNavigateToEvent: Bool = false
     var shouldScrollToEvent: Bool = false
     
     func navigateToEvent(with id: UUID) {
-        selectedTab = 0 // Events tab
+        selectedTab = .events
         eventToShowID = id
         shouldScrollToEvent = true
         shouldNavigateToEvent = true
     }
     
     func navigateToEventsTab() {
-        selectedTab = 0
+        selectedTab = .events
     }
     
     func navigateToFriendsTab() {
-        selectedTab = 1
+        selectedTab = .friends
     }
     
     func navigateToProfileTab() {
-        selectedTab = 2
+        selectedTab = .profile
     }
     
     func navigateToSettingsTab() {
-        selectedTab = 3
+        selectedTab = .settings
     }
     
     func resetNavigation() {
         eventToShowID = nil
         shouldNavigateToEvent = false
         shouldScrollToEvent = false
+    }
+
+    private func updateSearchContext(from previousTab: AppTab) {
+        switch selectedTab {
+        case .events:
+            searchContext = .events
+        case .friends:
+            searchContext = .friends
+        case .eventSearch:
+            if previousTab == .friends {
+                searchContext = .friends
+            } else if previousTab == .events {
+                searchContext = .events
+            }
+        case .profile, .settings:
+            break
+        }
     }
 }

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
     @State private var navigationCoordinator = NavigationCoordinator()
@@ -63,32 +66,122 @@ struct ContentView: View {
             navigationCoordinator: navigationCoordinator
         )
         #else
+        if #available(iOS 18, *) {
+            modernTabContent
+        } else {
+            legacyTabContent
+        }
+        #endif
+    }
+
+    @available(iOS 18, *)
+    private var modernTabContent: some View {
         TabView(selection: $navigationCoordinator.selectedTab) {
-            EventListView(navigationCoordinator: navigationCoordinator)
+            Tab("Events", systemImage: "calendar", value: .events) {
+                EventListView(
+                    navigationCoordinator: navigationCoordinator,
+                    searchPresentation: eventMainSearchPresentation
+                )
+            }
+
+            if includesSearchTab {
+                Tab("Search", systemImage: "magnifyingglass", value: .eventSearch, role: .search) {
+                    contextualSearchContent
+                }
+            }
+
+            Tab("Friends", systemImage: "person.2", value: .friends) {
+                FriendListView(searchPresentation: friendMainSearchPresentation)
+            }
+
+            Tab("Profile", systemImage: "person.circle", value: .profile) {
+                ProfileView()
+            }
+
+            Tab("Settings", systemImage: "gear", value: .settings) {
+                SettingsView(settingsStore: settingsStore)
+            }
+        }
+        .eventBuddySearchTabActivation()
+    }
+
+    private var legacyTabContent: some View {
+        TabView(selection: $navigationCoordinator.selectedTab) {
+            EventListView(
+                navigationCoordinator: navigationCoordinator,
+                searchPresentation: eventMainSearchPresentation
+            )
                 .tabItem {
                     Label("Events", systemImage: "calendar")
                 }
-                .tag(0)
+                .tag(NavigationCoordinator.AppTab.events)
 
-            FriendListView()
+            if includesSearchTab {
+                contextualSearchContent
+                    .tabItem {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                    .tag(NavigationCoordinator.AppTab.eventSearch)
+            }
+
+            FriendListView(searchPresentation: friendMainSearchPresentation)
                 .tabItem {
                     Label("Friends", systemImage: "person.2")
                 }
-                .tag(1)
+                .tag(NavigationCoordinator.AppTab.friends)
 
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }
-                .tag(2)
+                .tag(NavigationCoordinator.AppTab.profile)
 
             SettingsView(settingsStore: settingsStore)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(3)
+                .tag(NavigationCoordinator.AppTab.settings)
         }
+    }
+
+    private var includesSearchTab: Bool {
+        #if os(iOS)
+        horizontalSizeClass == .compact
+        #elseif os(visionOS)
+        false
+        #else
+        true
         #endif
+    }
+
+    private var eventMainSearchPresentation: EventListView.SearchPresentation {
+        #if os(iOS)
+        includesSearchTab ? .hidden : .toolbar
+        #elseif os(visionOS)
+        .toolbar
+        #else
+        .hidden
+        #endif
+    }
+
+    private var friendMainSearchPresentation: FriendListView.SearchPresentation {
+        #if os(iOS)
+        includesSearchTab ? .hidden : .toolbar
+        #elseif os(visionOS)
+        .toolbar
+        #else
+        .hidden
+        #endif
+    }
+
+    @ViewBuilder
+    private var contextualSearchContent: some View {
+        switch navigationCoordinator.searchContext {
+        case .events:
+            EventListView(searchPresentation: .tab)
+        case .friends:
+            FriendListView(searchPresentation: .tab)
+        }
     }
     
     private func setupServices() {
@@ -173,6 +266,20 @@ extension View {
         if #available(iOS 26, *) {
             self
                 .tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddySearchTabActivation() -> some View {
+        #if os(iOS)
+        if #available(iOS 26, *) {
+            self
+                .tabViewSearchActivation(.searchTabSelection)
         } else {
             self
         }

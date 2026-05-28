@@ -65,13 +65,26 @@ struct EventBuddyDebouncedSearchField: View {
 struct EventBuddyDebouncedSearchable<Content: View>: View {
     @Binding var text: String
     let prompt: String
+    let placement: SearchFieldPlacement
     @ViewBuilder let content: Content
 
     @State private var draftText = ""
 
+    init(
+        text: Binding<String>,
+        prompt: String,
+        placement: SearchFieldPlacement = .toolbar,
+        @ViewBuilder content: () -> Content
+    ) {
+        self._text = text
+        self.prompt = prompt
+        self.placement = placement
+        self.content = content()
+    }
+
     var body: some View {
         content
-            .searchable(text: $draftText, placement: .toolbar, prompt: Text(prompt))
+            .searchable(text: $draftText, placement: placement, prompt: Text(prompt))
             .onAppear {
                 draftText = text
             }
@@ -95,6 +108,18 @@ struct EventBuddyDebouncedSearchable<Content: View>: View {
         if text != query {
             text = query
         }
+    }
+}
+
+extension SearchFieldPlacement {
+    static var eventBuddyTabSearch: SearchFieldPlacement {
+        #if os(iOS)
+        if #available(iOS 26, *) {
+            return .automatic
+        }
+        #endif
+
+        return .toolbar
     }
 }
 
@@ -163,6 +188,15 @@ extension View {
             .keyboardShortcut(.cancelAction)
         #else
         self
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddyScrollDismissesKeyboardInteractively() -> some View {
+        #if os(visionOS)
+        self
+        #else
+        self.scrollDismissesKeyboard(.interactively)
         #endif
     }
 
