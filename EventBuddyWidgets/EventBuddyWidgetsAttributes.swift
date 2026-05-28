@@ -5,8 +5,9 @@
 //  Created by Harry Ng on 2/6/2025.
 //
 
+#if os(iOS) && canImport(ActivityKit)
 import ActivityKit
-import Foundation // Added for Date type
+import Foundation
 
 struct EventBuddyWidgetsAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
@@ -23,4 +24,5 @@ struct EventBuddyWidgetsAttributes: ActivityAttributes {
     var location: String
     var eventId: String // UUID string for deep linking
 }
+#endif
 

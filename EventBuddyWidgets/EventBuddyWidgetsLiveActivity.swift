@@ -5,6 +5,7 @@
 //  Created by Harry Ng on 2/6/2025.
 //
 
+#if os(iOS) && canImport(ActivityKit)
 import ActivityKit
 import WidgetKit
 import SwiftUI
@@ -371,3 +372,4 @@ extension EventBuddyWidgetsAttributes.ContentState {
     EventBuddyWidgetsAttributes.ContentState.endingSoon
     EventBuddyWidgetsAttributes.ContentState.ended
 }
+#endif

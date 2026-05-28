@@ -47,13 +47,6 @@ struct EventDetailView: View {
             maxHeight: .infinity,
             alignment: .topLeading
         )
-        #if os(macOS)
-        .overlay(alignment: .topTrailing) {
-            EventAttendanceButton(event: event, eventPersistenceService: eventPersistenceService)
-                .padding(.top, 70)
-                .padding(.trailing, 56)
-        }
-        #endif
         .navigationTitle("Event Details")
         .eventBuddyInlineNavigationTitle()
         .toolbar {
@@ -152,17 +145,16 @@ struct EventHeaderView: View {
     @State private var showingDescriptionPopover = false
     
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .top, spacing: 12) {
             headerText
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
 
-            #if os(iOS)
             Spacer(minLength: 12)
 
             EventAttendanceButton(event: event, eventPersistenceService: eventPersistenceService)
-            #endif
         }
         .padding(.bottom, 8)
-        .padding(.trailing, 40)
     }
 
     private var headerText: some View {

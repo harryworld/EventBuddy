@@ -145,11 +145,10 @@ struct EventListView: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
                 }
+                .buttonStyle(.plain)
             }
         }
-        .padding(10)
-        .background(Color.eventBuddySystemGray6)
-        .cornerRadius(20)
+        .eventBuddySearchFieldChrome(cornerRadius: 20)
         .padding(.horizontal)
         .padding(.top, 10)
         .padding(.bottom, 20)
@@ -245,14 +244,10 @@ struct EventListView: View {
                         Text(filter.rawValue)
                             .font(.subheadline)
                             .fontWeight(selectedEventFilter == filter ? .semibold : .regular)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(
-                                Capsule()
-                                    .fill(selectedEventFilter == filter ? Color.blue : Color.eventBuddySystemGray6)
-                            )
+                            .eventBuddyFilterChip(isSelected: selectedEventFilter == filter, selectedFill: .blue)
                             .foregroundStyle(selectedEventFilter == filter ? .white : .primary)
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal)

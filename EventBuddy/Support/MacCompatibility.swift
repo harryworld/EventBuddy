@@ -1,4 +1,10 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 extension View {
     @ViewBuilder
@@ -67,30 +73,91 @@ extension View {
         self
         #endif
     }
+
+    @ViewBuilder
+    func eventBuddySearchFieldChrome(cornerRadius: CGFloat = 20) -> some View {
+        #if os(visionOS)
+        self
+            .padding(12)
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(.white.opacity(0.16), lineWidth: 1)
+            )
+        #else
+        self
+            .padding(10)
+            .background(Color.eventBuddySystemGray6)
+            .cornerRadius(cornerRadius)
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddyFilterChip(isSelected: Bool, tint: Color = .blue, selectedFill: Color? = nil) -> some View {
+        #if os(visionOS)
+        self
+            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .background(
+                Capsule()
+                    .fill(isSelected ? (selectedFill ?? tint.opacity(0.22)) : Color.white.opacity(0.08))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(isSelected ? tint.opacity(0.5) : Color.white.opacity(0.14), lineWidth: 1)
+            )
+        #else
+        self
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(
+                Capsule()
+                    .fill(isSelected ? (selectedFill ?? Color.eventBuddySystemGray5) : Color.eventBuddySystemGray6)
+            )
+        #endif
+    }
+
+    @ViewBuilder
+    func eventBuddySettingsListChrome() -> some View {
+        #if os(visionOS)
+        self
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.eventBuddySystemBackground)
+        #else
+        self
+        #endif
+    }
 }
 
 extension Color {
     static var eventBuddySystemBackground: Color {
-        #if os(iOS)
+        #if canImport(UIKit)
         Color(uiColor: .systemBackground)
-        #else
+        #elseif canImport(AppKit)
         Color(nsColor: .windowBackgroundColor)
+        #else
+        Color(.background)
         #endif
     }
 
     static var eventBuddySystemGray6: Color {
-        #if os(iOS)
+        #if canImport(UIKit)
         Color(uiColor: .systemGray6)
-        #else
+        #elseif canImport(AppKit)
         Color(nsColor: .controlBackgroundColor)
+        #else
+        Color(.secondary.opacity(0.1))
         #endif
     }
 
     static var eventBuddySystemGray5: Color {
-        #if os(iOS)
+        #if canImport(UIKit)
         Color(uiColor: .systemGray5)
-        #else
+        #elseif canImport(AppKit)
         Color(nsColor: .selectedControlColor)
+        #else
+        Color(.secondary.opacity(0.2))
         #endif
     }
 }

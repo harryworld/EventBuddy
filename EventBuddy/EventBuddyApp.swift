@@ -144,7 +144,7 @@ private extension WidgetCenter {
         reloadTimelines(ofKind: "QRCodeWidget")
     }
 }
-#else
+#elseif os(macOS)
 @MainActor
 private final class EventBuddyMacAppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -176,6 +176,18 @@ private final class EventBuddyMacAppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+private struct EventBuddyLifecycleModifier: ViewModifier {
+    init(
+        validationMode: MigrationValidationMode?,
+        eventPersistenceService: EventPersistenceService,
+        liveActivityService: LiveActivityService
+    ) {}
+
+    func body(content: Content) -> some View {
+        content
+    }
+}
+#else
 private struct EventBuddyLifecycleModifier: ViewModifier {
     init(
         validationMode: MigrationValidationMode?,

@@ -25,6 +25,7 @@ struct SettingsView: View {
                 creditsSection
                 aboutProjectSection
             }
+            .eventBuddySettingsListChrome()
             .navigationTitle("Settings")
         }
         .onChange(of: scenePhase) { _, newPhase in

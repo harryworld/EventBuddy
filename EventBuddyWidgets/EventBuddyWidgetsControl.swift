@@ -9,6 +9,7 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
+#if os(iOS)
 @available(iOS 18, *)
 struct EventBuddyWidgetsControl: ControlWidget {
     static let kind: String = "com.buildwithharry.EventBuddy.EventBuddyWidgets"
@@ -79,3 +80,4 @@ struct StartTimerIntent: SetValueIntent {
         return .result()
     }
 }
+#endif

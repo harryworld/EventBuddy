@@ -112,6 +112,7 @@ struct FriendListView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
             TextField("Search friends", text: $searchText)
+                .textFieldStyle(.plain)
                 .autocorrectionDisabled()
             
             if !searchText.isEmpty {
@@ -121,11 +122,10 @@ struct FriendListView: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary)
                 }
+                .buttonStyle(.plain)
             }
         }
-        .padding(10)
-        .background(Color.eventBuddySystemGray6)
-        .cornerRadius(8)
+        .eventBuddySearchFieldChrome(cornerRadius: 12)
         .padding(.horizontal)
     }
 
@@ -154,15 +154,9 @@ struct FriendListView: View {
                     Text(FriendFilter.all.rawValue)
                         .foregroundColor(.primary)
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    Capsule()
-                        .fill(selectedFilter == .all ?
-                              Color.eventBuddySystemGray5 :
-                              Color.eventBuddySystemGray6)
-                )
+                .eventBuddyFilterChip(isSelected: selectedFilter == .all)
             }
+            .buttonStyle(.plain)
 
             // Favorites filter
             Button {
@@ -175,15 +169,9 @@ struct FriendListView: View {
                     Text(FriendFilter.favorites.rawValue)
                         .foregroundColor(.primary)
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    Capsule()
-                        .fill(selectedFilter == .favorites ?
-                              Color.eventBuddySystemGray5 :
-                              Color.eventBuddySystemGray6)
-                )
+                .eventBuddyFilterChip(isSelected: selectedFilter == .favorites, tint: .yellow)
             }
+            .buttonStyle(.plain)
 
             Spacer()
         }
