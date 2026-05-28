@@ -6,6 +6,8 @@ struct EventListView: View {
     @Environment(LiveActivityService.self) private var liveActivityService: LiveActivityService
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
     private var storedEvents: [StoredEvent]
+    @FetchAll(StoredEventAttendance.all, animation: .default)
+    private var storedEventAttendances: [StoredEventAttendance]
     
     @State private var showingAddEventSheet = false
     @State private var selectedEventFilter: EventFilter = .all
@@ -287,7 +289,10 @@ struct EventListView: View {
                                 
                                 ForEach(dayEvents) { eventRow in
                                     NavigationLink(value: eventRow.id) {
-                                        EventNavigationRow(eventRow: eventRow)
+                                        EventNavigationRow(
+                                            eventRow: eventRow,
+                                            isAttending: isAttending(eventRow)
+                                        )
                                     }
                                     .buttonStyle(.plain)
                                     .id(eventRow.id)
@@ -344,9 +349,7 @@ struct EventListView: View {
         
         // Filter attending events
         if showOnlyAttending {
-            // In a real app, this would filter based on user's attending status
-            // For now, let's use requiresTicket as a stand-in for attending
-            result = result.filter { $0.isAttending }
+            result = result.filter { isAttending($0) }
         }
         
         // Apply category filter
@@ -375,6 +378,14 @@ struct EventListView: View {
             grouped[date, default: []].append(event)
         }
         return grouped
+    }
+
+    private var attendanceByEventID: [UUID: Bool] {
+        Dictionary(uniqueKeysWithValues: storedEventAttendances.map { ($0.eventID, $0.isAttending) })
+    }
+
+    private func isAttending(_ eventRow: StoredEvent) -> Bool {
+        attendanceByEventID[eventRow.id] ?? eventRow.isAttending
     }
     
     private func formatDateHeader(_ date: Date) -> String {
@@ -410,9 +421,10 @@ struct EventListView: View {
 
 private struct EventNavigationRow: View {
     let eventRow: StoredEvent
+    let isAttending: Bool
 
     var body: some View {
-        EventRowView(eventRow: eventRow)
+        EventRowView(eventRow: eventRow, isAttending: isAttending)
     }
 }
 
@@ -424,6 +436,8 @@ struct EventDetailByIDView: View {
     private var storedEventAttendees: [StoredEventAttendee]
     @FetchAll(StoredEventWish.all, animation: .default)
     private var storedEventWishes: [StoredEventWish]
+    @FetchAll(StoredEventAttendance.all, animation: .default)
+    private var storedEventAttendances: [StoredEventAttendance]
     let eventID: UUID
     @State private var event: Event?
     @State private var checkedEventID: UUID?
@@ -452,6 +466,9 @@ struct EventDetailByIDView: View {
         .onChange(of: storedEventWishes.map(\.id)) { _, _ in
             refreshEvent()
         }
+        .onChange(of: storedEventAttendances.map { "\($0.id):\($0.isAttending):\($0.updatedAt.timeIntervalSinceReferenceDate)" }) { _, _ in
+            refreshEvent()
+        }
         .onAppear {
             refreshEvent()
         }
@@ -464,7 +481,11 @@ struct EventDetailByIDView: View {
             return
         }
 
-        if let storedEvent = storedEvents.first(where: { $0.id == eventID }).map(StoredEvent.initEventFromStored) {
+        if let storedEventRow = storedEvents.first(where: { $0.id == eventID }) {
+            let storedEvent = StoredEvent.initEventFromStored(
+                storedEventRow,
+                attendance: storedEventAttendances.first { $0.eventID == eventID }
+            )
             event = storedEvent
             checkedEventID = eventID
             return
@@ -476,7 +497,10 @@ struct EventDetailByIDView: View {
 }
 
 private extension StoredEvent {
-    static func initEventFromStored(_ storedEvent: StoredEvent) -> Event {
+    static func initEventFromStored(
+        _ storedEvent: StoredEvent,
+        attendance: StoredEventAttendance? = nil
+    ) -> Event {
         let event = Event(
             id: storedEvent.id,
             title: storedEvent.title,
@@ -490,12 +514,12 @@ private extension StoredEvent {
             requiresTicket: storedEvent.requiresTicket,
             requiresRegistration: storedEvent.requiresRegistration,
             url: storedEvent.url,
-            isAttending: storedEvent.isAttending,
+            isAttending: attendance?.isAttending ?? storedEvent.isAttending,
             originalTimezoneIdentifier: storedEvent.originalTimezoneIdentifier,
             isCustomEvent: storedEvent.isCustomEvent
         )
         event.createdAt = storedEvent.createdAt
-        event.updatedAt = storedEvent.updatedAt
+        event.updatedAt = Swift.max(storedEvent.updatedAt, attendance?.updatedAt ?? storedEvent.updatedAt)
         return event
     }
 }

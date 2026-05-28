@@ -269,7 +269,7 @@ class EventSyncService {
             }
         }
         
-        try persistenceService.persist(eventsToAdd + eventsToUpdate)
+        try persistenceService.persistCatalogEvents(eventsToAdd + eventsToUpdate)
         
         print("Sync completed: \(eventsToAdd.count) added, \(eventsToUpdate.count) updated")
     }
@@ -290,7 +290,7 @@ class EventSyncService {
         do {
             let events = eventsResponse.events.compactMap { $0.toEvent() }
 
-            try persistenceService.persist(events)
+            try persistenceService.persistCatalogEvents(events)
             print("Loaded \(eventsResponse.events.count) fallback events from bundle")
         } catch {
             print("Failed to save fallback events: \(error)")

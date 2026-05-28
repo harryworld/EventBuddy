@@ -11,6 +11,7 @@ enum EventBuddyStorageConfiguration {
     static let storedProfilesTableName = "storedProfiles"
     static let storedEventAttendeesTableName = "storedEventAttendees"
     static let storedEventWishesTableName = "storedEventWishes"
+    static let storedEventAttendancesTableName = "storedEventAttendances"
 
     static let createStoredEventsTableSQL = """
         CREATE TABLE IF NOT EXISTS "\(storedEventsTableName)" (
@@ -81,6 +82,15 @@ enum EventBuddyStorageConfiguration {
           "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
           "eventID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "\(storedEventsTableName)"("id") ON DELETE CASCADE,
           "friendID" TEXT NOT NULL ON CONFLICT REPLACE REFERENCES "\(storedFriendsTableName)"("id") ON DELETE CASCADE
+        ) STRICT
+        """
+
+    static let createStoredEventAttendancesTableSQL = """
+        CREATE TABLE IF NOT EXISTS "\(storedEventAttendancesTableName)" (
+          "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE,
+          "eventID" TEXT NOT NULL ON CONFLICT REPLACE,
+          "isAttending" INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0,
+          "updatedAt" TEXT NOT NULL ON CONFLICT REPLACE
         ) STRICT
         """
 }

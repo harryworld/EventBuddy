@@ -93,6 +93,10 @@ final class EventPersistenceService {
         try persist([event])
     }
 
+    func persistCatalogEvents(_ events: [Event]) throws {
+        try persist(events, persistsAttendance: false)
+    }
+
     func persist(_ friend: Friend) throws {
         try database.write { db in
             try upsert(friend, in: db)
@@ -108,6 +112,15 @@ final class EventPersistenceService {
     }
 
     func persist(_ events: [Event], friends: [Friend] = [], profiles: [Profile] = []) throws {
+        try persist(events, friends: friends, profiles: profiles, persistsAttendance: true)
+    }
+
+    private func persist(
+        _ events: [Event],
+        friends: [Friend] = [],
+        profiles: [Profile] = [],
+        persistsAttendance: Bool
+    ) throws {
         try database.write { db in
             var friendsByID = Dictionary(uniqueKeysWithValues: friends.map { ($0.id, $0) })
             for event in events {
@@ -127,6 +140,9 @@ final class EventPersistenceService {
             }
             for event in events {
                 try replaceRelations(for: event, in: db)
+                if persistsAttendance {
+                    try upsertAttendance(for: event, in: db)
+                }
             }
         }
         saveDidComplete()
@@ -239,6 +255,7 @@ final class EventPersistenceService {
 
     func removeEvents() throws {
         try database.write { db in
+            try db.execute(sql: #"DELETE FROM "storedEventAttendances""#)
             try db.execute(sql: #"DELETE FROM "storedEventAttendees""#)
             try db.execute(sql: #"DELETE FROM "storedEventWishes""#)
             try db.execute(sql: #"DELETE FROM "storedEvents""#)
@@ -264,6 +281,7 @@ final class EventPersistenceService {
 
     func replace(events: [Event], friends: [Friend], profiles: [Profile]) throws {
         try database.write { db in
+            try db.execute(sql: #"DELETE FROM "storedEventAttendances""#)
             try db.execute(sql: #"DELETE FROM "storedEventAttendees""#)
             try db.execute(sql: #"DELETE FROM "storedEventWishes""#)
             try db.execute(sql: #"DELETE FROM "storedEvents""#)
@@ -281,6 +299,7 @@ final class EventPersistenceService {
             }
             for event in events {
                 try replaceRelations(for: event, in: db)
+                try upsertAttendance(for: event, in: db)
             }
         }
         saveDidComplete()
@@ -292,6 +311,7 @@ final class EventPersistenceService {
                 events: try StoredEvent.fetchAll(db),
                 friends: try StoredFriend.fetchAll(db),
                 profiles: try StoredProfile.fetchAll(db),
+                attendances: try StoredEventAttendance.fetchAll(db),
                 attendees: try StoredEventAttendee.fetchAll(db),
                 wishes: try StoredEventWish.fetchAll(db)
             )
@@ -306,6 +326,14 @@ final class EventPersistenceService {
             let event = row.event
             return (event.id, event)
         })
+
+        for attendance in rows.attendances {
+            guard let event = eventMap[attendance.eventID] else {
+                continue
+            }
+            event.isAttending = attendance.isAttending
+            event.updatedAt = Swift.max(event.updatedAt, attendance.updatedAt)
+        }
 
         for relation in rows.attendees {
             guard let event = eventMap[relation.eventID], let friend = friendMap[relation.friendID] else {
@@ -374,7 +402,21 @@ final class EventPersistenceService {
         }
     }
 
+    private func upsertAttendance(for event: Event, in db: Database) throws {
+        let row = StoredEventAttendance(
+            id: EventBuddyDatabase.eventAttendanceRowID(eventID: event.id),
+            eventID: event.id,
+            isAttending: event.isAttending,
+            updatedAt: event.updatedAt
+        )
+        try StoredEventAttendance.upsert { row.draft }.execute(db)
+    }
+
     private func deleteEvent(id: UUID, in db: Database) throws {
+        try db.execute(
+            sql: #"DELETE FROM "storedEventAttendances" WHERE "eventID" = ?"#,
+            arguments: [sqliteUUIDString(id)]
+        )
         try db.execute(
             sql: #"DELETE FROM "storedEventAttendees" WHERE "eventID" = ?"#,
             arguments: [sqliteUUIDString(id)]
@@ -451,6 +493,7 @@ final class EventPersistenceService {
         let events: [StoredEvent]
         let friends: [StoredFriend]
         let profiles: [StoredProfile]
+        let attendances: [StoredEventAttendance]
         let attendees: [StoredEventAttendee]
         let wishes: [StoredEventWish]
     }
@@ -680,5 +723,11 @@ private extension StoredEventAttendee {
 private extension StoredEventWish {
     var draft: Draft {
         Draft(id: id, eventID: eventID, friendID: friendID)
+    }
+}
+
+private extension StoredEventAttendance {
+    var draft: Draft {
+        Draft(id: id, eventID: eventID, isAttending: isAttending, updatedAt: updatedAt)
     }
 }

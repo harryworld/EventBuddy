@@ -11,6 +11,8 @@ struct MacProfileWorkspace: View {
     private var storedFriends: [StoredFriend]
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
     private var storedEvents: [StoredEvent]
+    @FetchAll(StoredEventAttendance.all, animation: .default)
+    private var storedEventAttendances: [StoredEventAttendance]
 
     @State private var showingEditSheet = false
     @State private var qrCodeContact: CNContact?
@@ -257,7 +259,15 @@ struct MacProfileWorkspace: View {
     }
 
     private var attendingEventCount: Int {
-        storedEvents.filter { $0.isAttending }.count
+        storedEvents.filter { isAttending($0) }.count
+    }
+
+    private var attendanceByEventID: [UUID: Bool] {
+        Dictionary(uniqueKeysWithValues: storedEventAttendances.map { ($0.eventID, $0.isAttending) })
+    }
+
+    private func isAttending(_ eventRow: StoredEvent) -> Bool {
+        attendanceByEventID[eventRow.id] ?? eventRow.isAttending
     }
 
     private var contactSummary: String {

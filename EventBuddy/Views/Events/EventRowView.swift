@@ -25,7 +25,7 @@ struct EventRowView: View {
         self.originalTimezoneIdentifier = event.originalTimezoneIdentifier
     }
 
-    init(eventRow: StoredEvent) {
+    init(eventRow: StoredEvent, isAttending: Bool? = nil) {
         self.title = eventRow.title
         self.eventDescription = eventRow.eventDescription
         self.location = eventRow.location
@@ -34,7 +34,7 @@ struct EventRowView: View {
         self.eventType = eventRow.eventType
         self.requiresTicket = eventRow.requiresTicket
         self.requiresRegistration = eventRow.requiresRegistration
-        self.isAttending = eventRow.isAttending
+        self.isAttending = isAttending ?? eventRow.isAttending
         self.originalTimezoneIdentifier = eventRow.originalTimezoneIdentifier
     }
     

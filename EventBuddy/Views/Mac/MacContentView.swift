@@ -209,6 +209,8 @@ private struct MacEventsWorkspace: View {
     @Environment(EventSyncService.self) private var eventSyncService
     @FetchAll(StoredEvent.order(by: \.startDate), animation: .default)
     private var storedEvents: [StoredEvent]
+    @FetchAll(StoredEventAttendance.all, animation: .default)
+    private var storedEventAttendances: [StoredEventAttendance]
 
     @Binding var selectedEventID: UUID?
     @State private var selectedFilter: MacEventFilter = .all
@@ -240,7 +242,10 @@ private struct MacEventsWorkspace: View {
                 } else {
                     List(selection: $selectedEventID) {
                         ForEach(groupedEventSections) { section in
-                            MacEventDaySection(section: section)
+                            MacEventDaySection(
+                                section: section,
+                                attendanceByEventID: attendanceByEventID
+                            )
                         }
                     }
                     .macWorkspaceContentList()
@@ -278,7 +283,7 @@ private struct MacEventsWorkspace: View {
         }
 
         if showOnlyAttending {
-            result = result.filter { $0.isAttending }
+            result = result.filter { isAttending($0) }
         }
 
         switch selectedFilter {
@@ -308,6 +313,14 @@ private struct MacEventsWorkspace: View {
         }
     }
 
+    private var attendanceByEventID: [UUID: Bool] {
+        Dictionary(uniqueKeysWithValues: storedEventAttendances.map { ($0.eventID, $0.isAttending) })
+    }
+
+    private func isAttending(_ eventRow: StoredEvent) -> Bool {
+        attendanceByEventID[eventRow.id] ?? eventRow.isAttending
+    }
+
     private func selectFirstEventIfNeeded() {
         guard !filteredEvents.contains(where: { $0.id == selectedEventID }) else { return }
         selectedEventID = filteredEvents.first?.id
@@ -323,11 +336,15 @@ private struct MacEventDayGroup: Identifiable {
 
 private struct MacEventDaySection: View {
     let section: MacEventDayGroup
+    let attendanceByEventID: [UUID: Bool]
 
     var body: some View {
         Section(formatDateHeader(section.date)) {
             ForEach(section.events) { eventRow in
-                MacEventRow(eventRow: eventRow)
+                MacEventRow(
+                    eventRow: eventRow,
+                    isAttending: attendanceByEventID[eventRow.id] ?? eventRow.isAttending
+                )
                     .tag(eventRow.id)
             }
         }
@@ -416,6 +433,7 @@ private struct MacEventFilterBar: View {
 
 private struct MacEventRow: View {
     let eventRow: StoredEvent
+    let isAttending: Bool
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -435,7 +453,7 @@ private struct MacEventRow: View {
                         .font(.callout.weight(.medium))
                         .lineLimit(1)
 
-                    if eventRow.isAttending {
+                    if isAttending {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                             .font(.caption)

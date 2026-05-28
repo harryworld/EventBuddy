@@ -73,11 +73,16 @@ class WidgetDataProvider {
         
         do {
             let rows = try database.read { db in
-                try StoredEvent.fetchAll(db)
+                let events = try StoredEvent.fetchAll(db)
+                let attendances = try StoredEventAttendance.fetchAll(db)
+                return (events: events, attendances: attendances)
             }
+            let attendanceByEventID = Dictionary(
+                uniqueKeysWithValues: rows.attendances.map { ($0.eventID, $0.isAttending) }
+            )
             
-            let allEvents = rows.map { row in
-                Event.fromStoredEvent(row)
+            let allEvents = rows.events.map { row in
+                Event.fromStoredEvent(row, isAttending: attendanceByEventID[row.id])
             }
                 .filter { event in
                     event.startDate >= startDate && event.startDate < endDate
@@ -161,7 +166,7 @@ private func decodeBoolDictionary(_ json: String) -> [String: Bool] {
 }
 
 private extension Event {
-    static func fromStoredEvent(_ event: StoredEvent) -> Event {
+    static func fromStoredEvent(_ event: StoredEvent, isAttending: Bool? = nil) -> Event {
         let mapped = Event(
             id: event.id,
             title: event.title,
@@ -175,7 +180,7 @@ private extension Event {
             requiresTicket: event.requiresTicket,
             requiresRegistration: event.requiresRegistration,
             url: event.url,
-            isAttending: event.isAttending,
+            isAttending: isAttending ?? event.isAttending,
             originalTimezoneIdentifier: event.originalTimezoneIdentifier,
             isCustomEvent: event.isCustomEvent
         )

@@ -72,6 +72,14 @@ nonisolated struct StoredEventWish: Identifiable {
     var friendID: UUID
 }
 
+@Table
+nonisolated struct StoredEventAttendance: Identifiable {
+    let id: String
+    var eventID: UUID
+    var isAttending = false
+    var updatedAt: Date
+}
+
 enum EventBuddyDatabase {
     static let appGroupIdentifier = EventBuddyStorageConfiguration.appGroupIdentifier
     static let cloudKitContainerIdentifier = EventBuddyStorageConfiguration.cloudKitContainerIdentifier
@@ -152,6 +160,7 @@ enum EventBuddyDatabase {
                     StoredProfile.self,
                     StoredEventAttendee.self,
                     StoredEventWish.self,
+                    StoredEventAttendance.self,
                     containerIdentifier: cloudKitContainerIdentifier,
                     startImmediately: startSyncEngine
                 )
@@ -219,12 +228,31 @@ enum EventBuddyDatabase {
         "\(eventID.uuidString)|\(friendID.uuidString)"
     }
 
+    static func eventAttendanceRowID(eventID: UUID) -> String {
+        // Keep CloudKit attendance records keyed by the same UUID shipped in events.json.
+        eventID.uuidString.lowercased()
+    }
+
     private static func createSQLiteDataTablesIfNeeded(in db: Database) throws {
         try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventsTableSQL)
         try db.execute(sql: EventBuddyStorageConfiguration.createStoredFriendsTableSQL)
         try db.execute(sql: EventBuddyStorageConfiguration.createStoredProfilesTableSQL)
         try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventAttendeesTableSQL)
         try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventWishesTableSQL)
+        try db.execute(sql: EventBuddyStorageConfiguration.createStoredEventAttendancesTableSQL)
+        try backfillStoredEventAttendances(in: db)
+    }
+
+    private static func backfillStoredEventAttendances(in db: Database) throws {
+        try db.execute(
+            sql: """
+                INSERT OR IGNORE INTO "\(EventBuddyStorageConfiguration.storedEventAttendancesTableName)"
+                    ("id", "eventID", "isAttending", "updatedAt")
+                SELECT lower("id"), "id", "isAttending", "updatedAt"
+                FROM "\(EventBuddyStorageConfiguration.storedEventsTableName)"
+                WHERE "isAttending" = 1
+                """
+        )
     }
 }
 
@@ -349,6 +377,7 @@ private enum SQLiteDataStoreMigrationBackup {
             events: countRows(in: "storedEvents", db: db),
             friends: countRows(in: "storedFriends", db: db),
             profiles: countRows(in: "storedProfiles", db: db),
+            attendances: countRows(in: "storedEventAttendances", db: db),
             attendeeLinks: countRows(in: "storedEventAttendees", db: db),
             wishLinks: countRows(in: "storedEventWishes", db: db)
         )
@@ -393,6 +422,7 @@ private struct SQLiteDataStoreCounts: Codable {
     let events: Int
     let friends: Int
     let profiles: Int
+    let attendances: Int
     let attendeeLinks: Int
     let wishLinks: Int
 }
