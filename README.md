@@ -81,9 +81,11 @@ WWDCBuddy is an iOS app designed to help you manage WWDC events, connect with fr
 
 ## Command Line Tool
 
-The macOS app bundles `wwdcbuddy` and can install it from Settings > Data. The CLI reads events, friends, and relationships from the shared app-group SQLite database. Mutating commands queue work to the running Mac app so saves go through SQLiteData and trigger iCloud push when sync is enabled.
+The macOS app bundles `wwdcbuddy`, a command line tool for reading and updating WWDCBuddy data from Terminal. Install or remove the command from Settings > Data & CLI.
 
-See [docs/wwdcbuddy-cli.md](docs/wwdcbuddy-cli.md) for commands and install details.
+Read-only commands work directly against the shared app-group SQLite database, even when the app is not running. Mutating commands queue work for the Mac app, ask macOS to launch WWDCBuddy if needed, then save through the app persistence layer so SQLiteData and iCloud sync behavior stay consistent.
+
+See [docs/wwdcbuddy-cli.md](docs/wwdcbuddy-cli.md) for install steps, commands, and detailed app interaction behavior.
 
 ## Requirements
 

@@ -2,6 +2,28 @@
 
 The macOS app bundles `wwdcbuddy`, a Rust command line tool for reading and updating WWDCBuddy data.
 
+## How It Works With the App
+
+The installed `wwdcbuddy` command is a small shell shim that runs the CLI helper bundled inside the WWDCBuddy macOS app. Updating the app updates the CLI helper too.
+
+Read-only commands open the shared app-group SQLite database directly, so they work whether or not WWDCBuddy is running:
+
+```sh
+wwdcbuddy event list
+wwdcbuddy friend list
+wwdcbuddy relation list
+wwdcbuddy path
+```
+
+Mutating commands do not write app tables directly. They write a command file into the app-group inbox, ask Launch Services to open WWDCBuddy, then wait for the Mac app to process the command:
+
+```sh
+wwdcbuddy friend update <friend-id> --company "Apple"
+wwdcbuddy relation link <event-id> <friend-id> --kind attending
+```
+
+When WWDCBuddy starts, it polls the CLI inbox, saves changes through the app persistence layer, and triggers an iCloud push when sync is enabled. By default the CLI waits up to 15 seconds for a response. If the app cannot launch or does not process the command in time, the CLI exits with a timeout. Use `--no-wait` to queue a mutation and return immediately; the Mac app will process it the next time it opens.
+
 ## Install
 
 Open WWDCBuddy on macOS, go to Settings > Data & CLI, then choose Install CLI. The app installs `wwdcbuddy` into `~/.local/bin` by default; sandboxed builds may ask you to confirm that folder.
