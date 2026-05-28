@@ -397,10 +397,70 @@ struct SettingsView: View {
                 Text("Codex")
                     .foregroundStyle(.secondary)
             }
+
+            Link(destination: URL(string: "https://github.com/twostraws/wwdc")!) {
+                HStack {
+                    Label("twostraws/wwdc", systemImage: "chevron.left.forwardslash.chevron.right")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+            .accessibilityLabel("twostraws WWDC event list")
+            .accessibilityHint("Opens the community-maintained WWDC event list on GitHub.")
+
+            Link(destination: URL(string: "https://communitykit.social/schedule/")!) {
+                HStack {
+                    Label("CommunityKit Schedule", systemImage: "calendar")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+            .accessibilityLabel("CommunityKit Schedule")
+            .accessibilityHint("Opens the CommunityKit WWDC schedule.")
+
+            Link(destination: URL(string: "https://developer.apple.com/community/events/")!) {
+                HStack {
+                    Label("Apple Community Events", systemImage: "apple.logo")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+            .accessibilityLabel("Apple Community Events")
+            .accessibilityHint("Opens Apple's community event directory.")
+
+            Link(destination: URL(string: "https://github.com/harryworld/EventBuddy/blob/main/EventBuddy-WWDC26-EventSources.md")!) {
+                HStack {
+                    Label("WWDC26 Event Source Notes", systemImage: "list.bullet.rectangle")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+            }
+            .accessibilityLabel("WWDC26 Event Source Notes")
+            .accessibilityHint("Opens the detailed source log for WWDC26 event data.")
         } header: {
             Text("Credits")
         } footer: {
-            Text("Special thanks to everyone who contributed to making WWDCBuddy better!")
+            Text("Thanks to the organizers and community members who publish WWDC event details and keep the ecosystem discoverable.")
         }
     }
     

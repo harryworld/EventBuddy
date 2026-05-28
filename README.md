@@ -93,9 +93,11 @@ See [docs/wwdcbuddy-cli.md](docs/wwdcbuddy-cli.md) for install steps, commands, 
 - Xcode 15.0+
 - Swift 5.9+
 
-## WWDC26 Event Data
+## WWDC26 Event Sources and Credits
 
 WWDCBuddy includes a curated WWDC26 event list for Apple Park, Cupertino, San Jose, Sunnyvale, nearby Bay Area gatherings, online events, and selected watch parties. Event details are refreshed from organizer pages first, then checked against aggregate and discovery sources.
+
+The full source log, import notes, and per-event links live in [EventBuddy-WWDC26-EventSources.md](EventBuddy-WWDC26-EventSources.md).
 
 Source priority:
 
@@ -104,15 +106,13 @@ Source priority:
 3. Apple Community-driven events for curated WWDC26 discovery.
 4. Community aggregators and social posts for discovery and cross-checking.
 
-Credits for event data and discovery:
+Credits and thanks for event data and discovery:
 
 - [Apple WWDC26](https://developer.apple.com/wwdc26/) and [Apple Community-driven events](https://developer.apple.com/community/events/)
-- [CommunityKit](https://communitykit.social/schedule/) and the [CommunityKit Luma calendar](https://luma.com/communitykit)
-- [twostraws/wwdc](https://github.com/twostraws/wwdc)
+- [CommunityKit](https://communitykit.social/schedule/) and the [CommunityKit Luma calendar](https://luma.com/communitykit) for WWDC community scheduling
+- [twostraws/wwdc](https://github.com/twostraws/wwdc) for community-maintained WWDC event discovery
 - Event organizers publishing details through Luma, Eventbrite, TicketTailor, Meetup, Kommunity, Framna, MacPaw, and other public event pages
 - Community members sharing event announcements on X and other public channels
-
-The detailed import notes live in [EventBuddy-WWDC26-EventSources.md](EventBuddy-WWDC26-EventSources.md).
 
 ## Project Structure
 

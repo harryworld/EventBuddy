@@ -353,7 +353,33 @@ struct MacSettingsWorkspace: View {
             }
 
             MacSettingsSection(title: "Credits", systemImage: "sparkles") {
-                MacSettingsValueRow(icon: "app.badge", title: "App Icon", value: "Codex")
+                VStack(spacing: 0) {
+                    MacSettingsValueRow(icon: "app.badge", title: "App Icon", value: "Codex")
+                    MacSettingsLinkRow(
+                        title: "twostraws/wwdc",
+                        systemImage: "chevron.left.forwardslash.chevron.right",
+                        urlString: "https://github.com/twostraws/wwdc"
+                    )
+                    .accessibilityHint("Opens the community-maintained WWDC event list on GitHub.")
+                    MacSettingsLinkRow(
+                        title: "CommunityKit Schedule",
+                        systemImage: "calendar",
+                        urlString: "https://communitykit.social/schedule/"
+                    )
+                    .accessibilityHint("Opens the CommunityKit WWDC schedule.")
+                    MacSettingsLinkRow(
+                        title: "Apple Community Events",
+                        systemImage: "apple.logo",
+                        urlString: "https://developer.apple.com/community/events/"
+                    )
+                    .accessibilityHint("Opens Apple's community event directory.")
+                    MacSettingsLinkRow(
+                        title: "WWDC26 Event Source Notes",
+                        systemImage: "list.bullet.rectangle",
+                        urlString: "https://github.com/harryworld/EventBuddy/blob/main/EventBuddy-WWDC26-EventSources.md"
+                    )
+                    .accessibilityHint("Opens the detailed source log for WWDC26 event data.")
+                }
             }
         }
     }
