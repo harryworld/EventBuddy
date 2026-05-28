@@ -299,19 +299,23 @@ struct MacSettingsWorkspace: View {
                         } label: {
                             Label("Install wwdcbuddy", systemImage: "terminal")
                         }
+                        .accessibilityLabel("Install wwdcbuddy")
+                        .accessibilityHint("Installs the command line shim into your shell path.")
 
-                        Button {
-                            chooseCLIInstallFolder()
+                        Button(role: .destructive) {
+                            removeCLI()
                         } label: {
-                            Label("Choose Folder", systemImage: "folder")
+                            Label("Remove wwdcbuddy", systemImage: "trash")
                         }
+                        .accessibilityLabel("Remove wwdcbuddy")
+                        .accessibilityHint("Removes the installed command line shim from your shell path.")
                     }
 
                     if let cliInstallerStatus {
                         MacSettingsInlineStatus(
-                            icon: cliInstallerStatus.hasPrefix("Installed") ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
+                            icon: cliStatusIsSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
                             message: cliInstallerStatus,
-                            tint: cliInstallerStatus.hasPrefix("Installed") ? .green : .orange
+                            tint: cliStatusIsSuccess ? .green : .orange
                         )
                     }
                 }
@@ -362,6 +366,13 @@ struct MacSettingsWorkspace: View {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 
+    private var cliStatusIsSuccess: Bool {
+        guard let cliInstallerStatus else { return false }
+        return cliInstallerStatus.hasPrefix("Installed")
+            || cliInstallerStatus.hasPrefix("Removed")
+            || cliInstallerStatus.hasPrefix("No CLI found")
+    }
+
     private func requestCalendarAccess() {
         Task { @MainActor in
             _ = await calendarStore.requestFullAccess()
@@ -395,11 +406,10 @@ struct MacSettingsWorkspace: View {
         }
     }
 
-    private func chooseCLIInstallFolder() {
-        guard let directoryURL = CLIInstaller.chooseInstallDirectory() else { return }
+    private func removeCLI() {
         do {
-            let installedURL = try CLIInstaller.installShim(in: directoryURL)
-            cliInstallerStatus = "Installed \(installedURL.path)"
+            let result = try CLIInstaller.removeShim()
+            cliInstallerStatus = result.statusMessage
         } catch {
             cliInstallerStatus = error.localizedDescription
         }

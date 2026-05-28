@@ -1,6 +1,7 @@
 use std::{
     collections::BTreeMap,
-    env, fs,
+    ffi::CStr,
+    fs,
     io::ErrorKind,
     path::{Path, PathBuf},
     process::Command,
@@ -48,10 +49,6 @@ enum Commands {
         command: RelationCommand,
     },
     Path,
-    InstallShim {
-        #[arg(long, default_value = "~/.local/bin/wwdcbuddy")]
-        destination: PathBuf,
-    },
 }
 
 #[derive(Subcommand)]
@@ -341,14 +338,6 @@ fn run() -> Result<()> {
                 print_json(&json!({ "database": database_path }))?;
             } else {
                 println!("{}", database_path.display());
-            }
-        }
-        Commands::InstallShim { destination } => {
-            let installed_path = install_shim(&destination)?;
-            if cli.json {
-                print_json(&json!({ "installed": installed_path }))?;
-            } else {
-                println!("installed {}", installed_path.display());
             }
         }
     }
@@ -689,11 +678,25 @@ fn command_root_dir() -> Result<PathBuf> {
 }
 
 fn app_group_dir() -> Result<PathBuf> {
-    let home = env::var_os("HOME").ok_or_else(|| anyhow!("HOME is not set"))?;
-    Ok(PathBuf::from(home)
+    Ok(real_home_dir()?
         .join("Library")
         .join("Group Containers")
         .join(APP_GROUP_ID))
+}
+
+fn real_home_dir() -> Result<PathBuf> {
+    unsafe {
+        let passwd = libc::getpwuid(libc::getuid());
+        if passwd.is_null() || (*passwd).pw_dir.is_null() {
+            bail!("failed to resolve home directory for current user");
+        }
+
+        Ok(PathBuf::from(
+            CStr::from_ptr((*passwd).pw_dir)
+                .to_string_lossy()
+                .into_owned(),
+        ))
+    }
 }
 
 fn normalize_uuid(value: &str) -> Result<String> {
@@ -711,42 +714,6 @@ fn parse_social(value: &str) -> Result<(String, String), String> {
         return Err("social platform cannot be empty".to_string());
     }
     Ok((platform.trim().to_string(), handle.trim().to_string()))
-}
-
-fn install_shim(destination: &Path) -> Result<PathBuf> {
-    let destination = expand_tilde(destination)?;
-    let parent = destination
-        .parent()
-        .ok_or_else(|| anyhow!("destination has no parent directory"))?;
-    fs::create_dir_all(parent)?;
-
-    let executable = env::current_exe().context("failed to resolve current executable")?;
-    let script = format!("#!/bin/sh\nexec {} \"$@\"\n", shell_quote(&executable));
-    fs::write(&destination, script)?;
-
-    let mut permissions = fs::metadata(&destination)?.permissions();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        permissions.set_mode(0o755);
-    }
-    fs::set_permissions(&destination, permissions)?;
-    Ok(destination)
-}
-
-fn expand_tilde(path: &Path) -> Result<PathBuf> {
-    let path_string = path.to_string_lossy();
-    if path_string == "~" || path_string.starts_with("~/") {
-        let home = env::var_os("HOME").ok_or_else(|| anyhow!("HOME is not set"))?;
-        let suffix = path_string.trim_start_matches("~/");
-        return Ok(PathBuf::from(home).join(suffix));
-    }
-    Ok(path.to_path_buf())
-}
-
-fn shell_quote(path: &Path) -> String {
-    let value = path.to_string_lossy();
-    format!("'{}'", value.replace('\'', "'\\''"))
 }
 
 fn print_json<T: Serialize>(value: &T) -> Result<()> {

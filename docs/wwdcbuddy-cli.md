@@ -4,13 +4,15 @@ The macOS app bundles `wwdcbuddy`, a Rust command line tool for reading and upda
 
 ## Install
 
-Open WWDCBuddy on macOS, go to Settings > Data, then choose Install CLI. The app writes `wwdcbuddy` into `~/.local/bin` by default. If the App Store sandbox blocks that path, choose a folder manually with Choose CLI Install Folder.
+Open WWDCBuddy on macOS, go to Settings > Data & CLI, then choose Install CLI. The app installs `wwdcbuddy` into `~/.local/bin` by default; sandboxed builds may ask you to confirm that folder.
 
 Make sure the install folder is on your shell path:
 
 ```sh
 export PATH="$HOME/.local/bin:$PATH"
 ```
+
+To uninstall the command, choose Remove CLI in the same settings section. This removes the installed shim only; the CLI helper remains bundled inside WWDCBuddy.
 
 ## Read Data
 

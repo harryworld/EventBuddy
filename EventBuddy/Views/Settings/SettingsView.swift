@@ -348,12 +348,16 @@ struct SettingsView: View {
             } label: {
                 Label("Install CLI", systemImage: "terminal")
             }
+            .accessibilityLabel("Install CLI")
+            .accessibilityHint("Installs the wwdcbuddy command line shim into your shell path.")
 
-            Button {
-                chooseCLIInstallFolder()
+            Button(role: .destructive) {
+                removeCLI()
             } label: {
-                Label("Choose CLI Install Folder", systemImage: "folder")
+                Label("Remove CLI", systemImage: "trash")
             }
+            .accessibilityLabel("Remove CLI")
+            .accessibilityHint("Removes the installed wwdcbuddy command line shim from your shell path.")
 
             if let cliInstallerStatus {
                 Text(cliInstallerStatus)
@@ -442,11 +446,10 @@ struct SettingsView: View {
         }
     }
 
-    private func chooseCLIInstallFolder() {
-        guard let directoryURL = CLIInstaller.chooseInstallDirectory() else { return }
+    private func removeCLI() {
         do {
-            let installedURL = try CLIInstaller.installShim(in: directoryURL)
-            cliInstallerStatus = "Installed \(installedURL.path)"
+            let result = try CLIInstaller.removeShim()
+            cliInstallerStatus = result.statusMessage
         } catch {
             cliInstallerStatus = error.localizedDescription
         }
