@@ -6,6 +6,98 @@ import UIKit
 import AppKit
 #endif
 
+struct EventBuddyDebouncedSearchField: View {
+    @Binding var text: String
+    let prompt: String
+    let cornerRadius: CGFloat
+    var autocorrectionDisabled: Bool = false
+
+    @State private var draftText = ""
+
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField(prompt, text: $draftText)
+                .textFieldStyle(.plain)
+                .font(.body)
+                .autocorrectionDisabled(autocorrectionDisabled)
+
+            if !draftText.isEmpty {
+                Button {
+                    draftText = ""
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .eventBuddySearchFieldChrome(cornerRadius: cornerRadius)
+        .onAppear {
+            draftText = text
+        }
+        .onChange(of: text) { _, newValue in
+            if newValue != draftText {
+                draftText = newValue
+            }
+        }
+        .task(id: draftText) {
+            await applyDraftTextAfterDelay(draftText)
+        }
+    }
+
+    private func applyDraftTextAfterDelay(_ query: String) async {
+        do {
+            try await Task.sleep(for: .milliseconds(250))
+        } catch {
+            return
+        }
+
+        if text != query {
+            text = query
+        }
+    }
+}
+
+struct EventBuddyDebouncedSearchable<Content: View>: View {
+    @Binding var text: String
+    let prompt: String
+    @ViewBuilder let content: Content
+
+    @State private var draftText = ""
+
+    var body: some View {
+        content
+            .searchable(text: $draftText, placement: .toolbar, prompt: Text(prompt))
+            .onAppear {
+                draftText = text
+            }
+            .onChange(of: text) { _, newValue in
+                if newValue != draftText {
+                    draftText = newValue
+                }
+            }
+            .task(id: draftText) {
+                await applyDraftTextAfterDelay(draftText)
+            }
+    }
+
+    private func applyDraftTextAfterDelay(_ query: String) async {
+        do {
+            try await Task.sleep(for: .milliseconds(250))
+        } catch {
+            return
+        }
+
+        if text != query {
+            text = query
+        }
+    }
+}
+
 extension View {
     @ViewBuilder
     func eventBuddyInlineNavigationTitle() -> some View {

@@ -108,24 +108,12 @@ struct FriendListView: View {
     }
 
     private var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-            TextField("Search friends", text: $searchText)
-                .textFieldStyle(.plain)
-                .autocorrectionDisabled()
-            
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .eventBuddySearchFieldChrome(cornerRadius: 12)
+        EventBuddyDebouncedSearchField(
+            text: $searchText,
+            prompt: "Search friends",
+            cornerRadius: 12,
+            autocorrectionDisabled: true
+        )
         .padding(.horizontal)
     }
 
@@ -206,13 +194,14 @@ struct FriendListView: View {
     }
 
     private var filteredFriends: [StoredFriend] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let searchFiltered = storedFriends.filter { friend in
-            if searchText.isEmpty {
+            if query.isEmpty {
                 return true
             } else {
-                return friend.name.localizedCaseInsensitiveContains(searchText) ||
-                       (friend.email?.localizedCaseInsensitiveContains(searchText) ?? false) ||
-                       (friend.phone?.localizedCaseInsensitiveContains(searchText) ?? false)
+                return friend.name.localizedCaseInsensitiveContains(query) ||
+                       (friend.email?.localizedCaseInsensitiveContains(query) ?? false) ||
+                       (friend.phone?.localizedCaseInsensitiveContains(query) ?? false)
             }
         }
         

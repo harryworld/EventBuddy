@@ -132,25 +132,11 @@ struct EventListView: View {
     }
     
     private var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            
-            TextField("Search events", text: $searchText)
-                .textFieldStyle(.plain)
-                .font(.body)
-            
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .eventBuddySearchFieldChrome(cornerRadius: 20)
+        EventBuddyDebouncedSearchField(
+            text: $searchText,
+            prompt: "Search events",
+            cornerRadius: 20
+        )
         .padding(.horizontal)
         .padding(.top, 10)
         .padding(.bottom, 20)
@@ -339,11 +325,12 @@ struct EventListView: View {
         }
         
         // Filter by search text
-        if !searchText.isEmpty {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !query.isEmpty {
             result = result.filter { event in
-                event.title.localizedCaseInsensitiveContains(searchText) ||
-                event.location.localizedCaseInsensitiveContains(searchText) ||
-                event.eventDescription.localizedCaseInsensitiveContains(searchText)
+                event.title.localizedCaseInsensitiveContains(query) ||
+                event.location.localizedCaseInsensitiveContains(query) ||
+                event.eventDescription.localizedCaseInsensitiveContains(query)
             }
         }
         

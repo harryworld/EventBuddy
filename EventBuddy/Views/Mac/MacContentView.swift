@@ -220,40 +220,41 @@ private struct MacEventsWorkspace: View {
 
     var body: some View {
         HSplitView {
-            VStack(spacing: 0) {
-                MacEventFilterBar(
-                    selectedFilter: $selectedFilter,
-                    showOnlyAttending: $showOnlyAttending,
-                    showHistoricalEvents: $showHistoricalEvents,
-                    eventCount: filteredEvents.count,
-                    isLoading: eventSyncService.isLoading,
-                    lastSyncDate: eventSyncService.lastSyncDate
-                )
+            EventBuddyDebouncedSearchable(text: $searchText, prompt: "Search events") {
+                VStack(spacing: 0) {
+                    MacEventFilterBar(
+                        selectedFilter: $selectedFilter,
+                        showOnlyAttending: $showOnlyAttending,
+                        showHistoricalEvents: $showHistoricalEvents,
+                        eventCount: filteredEvents.count,
+                        isLoading: eventSyncService.isLoading,
+                        lastSyncDate: eventSyncService.lastSyncDate
+                    )
 
-                Divider()
+                    Divider()
 
-                if filteredEvents.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Events", systemImage: "calendar.badge.exclamationmark")
-                    } description: {
-                        Text("No WWDC events match the current filters.")
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(selection: $selectedEventID) {
-                        ForEach(groupedEventSections) { section in
-                            MacEventDaySection(
-                                section: section,
-                                attendanceByEventID: attendanceByEventID
-                            )
+                    if filteredEvents.isEmpty {
+                        ContentUnavailableView {
+                            Label("No Events", systemImage: "calendar.badge.exclamationmark")
+                        } description: {
+                            Text("No WWDC events match the current filters.")
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(selection: $selectedEventID) {
+                            ForEach(groupedEventSections) { section in
+                                MacEventDaySection(
+                                    section: section,
+                                    attendanceByEventID: attendanceByEventID
+                                )
+                            }
+                        }
+                        .macWorkspaceContentList()
+                        .frame(maxWidth: .infinity)
                     }
-                    .macWorkspaceContentList()
-                    .frame(maxWidth: .infinity)
                 }
+                .macWorkspaceListColumn()
             }
-            .macWorkspaceListColumn()
-            .searchable(text: $searchText, placement: .toolbar, prompt: "Search events")
 
             MacEventDetailPane(selectedEventID: selectedEventID)
                 .macFlexibleDetailSurface()
@@ -519,42 +520,43 @@ private struct MacFriendsWorkspace: View {
 
     var body: some View {
         HSplitView {
-            VStack(spacing: 0) {
-                MacFriendFilterBar(
-                    selectedFilter: $selectedFilter,
-                    friendCount: filteredFriends.count
-                )
+            EventBuddyDebouncedSearchable(text: $searchText, prompt: "Search friends") {
+                VStack(spacing: 0) {
+                    MacFriendFilterBar(
+                        selectedFilter: $selectedFilter,
+                        friendCount: filteredFriends.count
+                    )
 
-                Divider()
+                    Divider()
 
-                if filteredFriends.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Friends", systemImage: "person.2.slash")
-                    } description: {
-                        Text("No contacts match the current filters.")
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(selection: $selectedFriendID) {
-                        ForEach(filteredFriends) { friendRow in
-                            MacFriendRow(friendRow: friendRow)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    selectedFriendID = friendRow.id
-                                    focusFriendList()
-                                }
-                                .tag(friendRow.id)
+                    if filteredFriends.isEmpty {
+                        ContentUnavailableView {
+                            Label("No Friends", systemImage: "person.2.slash")
+                        } description: {
+                            Text("No contacts match the current filters.")
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(selection: $selectedFriendID) {
+                            ForEach(filteredFriends) { friendRow in
+                                MacFriendRow(friendRow: friendRow)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedFriendID = friendRow.id
+                                        focusFriendList()
+                                    }
+                                    .tag(friendRow.id)
+                            }
+                        }
+                        .macWorkspaceContentList()
+                        .focusable()
+                        .focused($focusedPane, equals: .friendList)
+                        .onMoveCommand(perform: moveFriendSelection)
+                        .frame(maxWidth: .infinity)
                     }
-                    .macWorkspaceContentList()
-                    .focusable()
-                    .focused($focusedPane, equals: .friendList)
-                    .onMoveCommand(perform: moveFriendSelection)
-                    .frame(maxWidth: .infinity)
                 }
+                .macWorkspaceListColumn()
             }
-            .macWorkspaceListColumn()
-            .searchable(text: $searchText, placement: .toolbar, prompt: "Search friends")
 
             MacFriendDetailPane(selectedFriendID: selectedFriendID)
                 .macFlexibleDetailSurface()
