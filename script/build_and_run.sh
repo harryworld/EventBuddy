@@ -9,7 +9,7 @@ DERIVED_DATA="$ROOT_DIR/build/EventBuddyMac-DerivedData"
 APP_NAME="WWDCBuddy"
 APP_BUNDLE="$DERIVED_DATA/Build/Products/Debug/$APP_NAME.app"
 APP_BINARY="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
-BUNDLE_ID="com.buildwithharry.EventBuddy.mac"
+BUNDLE_ID="com.buildwithharry.EventBuddy"
 
 build_app() {
   xcodebuild \

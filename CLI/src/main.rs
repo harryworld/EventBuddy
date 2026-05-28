@@ -18,7 +18,7 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 const APP_GROUP_ID: &str = "group.com.buildwithharry.EventBuddy";
-const MAC_APP_BUNDLE_ID: &str = "com.buildwithharry.EventBuddy.mac";
+const MAC_APP_BUNDLE_ID: &str = "com.buildwithharry.EventBuddy";
 const DATABASE_FILE_NAME: &str = "EventBuddy.sqlite";
 const COMMANDS_DIR_NAME: &str = "CLICommands";
 
