@@ -64,7 +64,7 @@
 		06E75CFD2DEDB9AF000EEE35 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		06E75CFF2DEDB9AF000EEE35 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		06E75D182DEDB9DD000EEE35 /* EventBuddyWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EventBuddyWidgetsExtension.entitlements; sourceTree = "<group>"; };
-		0B0D0C0A2E90000000000002 /* WWDCBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WWDCBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B0D0C0A2E90000000000002 /* Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Buddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -178,7 +178,7 @@
 			children = (
 				068753A92DD6D5A00048FD00 /* EventBuddy.app */,
 				06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */,
-				0B0D0C0A2E90000000000002 /* WWDCBuddy.app */,
+				0B0D0C0A2E90000000000002 /* Buddy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -265,8 +265,8 @@
 			packageProductDependencies = (
 				0B0D0C0A2E9000000000000B /* SQLiteData */,
 			);
-			productName = WWDCBuddy;
-			productReference = 0B0D0C0A2E90000000000002 /* WWDCBuddy.app */;
+			productName = Buddy;
+			productReference = 0B0D0C0A2E90000000000002 /* Buddy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -536,7 +536,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddy/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
@@ -581,7 +581,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddy/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
@@ -622,7 +622,7 @@
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -655,7 +655,7 @@
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -692,11 +692,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "WWDCBuddy needs calendar access to add attending events without creating duplicates";
-				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "WWDCBuddy would like to add events to your Calendar";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Buddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Buddy would like to add events to your Calendar";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -704,7 +704,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 2026.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy;
-				PRODUCT_NAME = WWDCBuddy;
+				PRODUCT_NAME = Buddy;
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
@@ -728,11 +728,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "WWDCBuddy needs calendar access to add attending events without creating duplicates";
-				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "WWDCBuddy would like to add events to your Calendar";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Buddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Buddy would like to add events to your Calendar";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -740,7 +740,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 2026.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy;
-				PRODUCT_NAME = WWDCBuddy;
+				PRODUCT_NAME = Buddy;
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;

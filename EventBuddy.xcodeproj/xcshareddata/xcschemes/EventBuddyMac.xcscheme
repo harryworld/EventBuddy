@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0B0D0C0A2E90000000000007"
-               BuildableName = "WWDCBuddy.app"
+               BuildableName = "Buddy.app"
                BlueprintName = "EventBuddyMac"
                ReferencedContainer = "container:EventBuddy.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0B0D0C0A2E90000000000007"
-            BuildableName = "WWDCBuddy.app"
+            BuildableName = "Buddy.app"
             BlueprintName = "EventBuddyMac"
             ReferencedContainer = "container:EventBuddy.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0B0D0C0A2E90000000000007"
-            BuildableName = "WWDCBuddy.app"
+            BuildableName = "Buddy.app"
             BlueprintName = "EventBuddyMac"
             ReferencedContainer = "container:EventBuddy.xcodeproj">
          </BuildableReference>
