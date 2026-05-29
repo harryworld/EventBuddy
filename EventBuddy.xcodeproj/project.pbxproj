@@ -10,10 +10,10 @@
 		06E75CFE2DEDB9AF000EEE35 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFD2DEDB9AF000EEE35 /* WidgetKit.framework */; };
 		06E75D002DEDB9AF000EEE35 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFF2DEDB9AF000EEE35 /* SwiftUI.framework */; };
 		06E75D112DEDB9B0000EEE35 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		0B0D0C0A2E90000000000013 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0A1B2C3D4E5F60718293A401 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A403 /* SQLiteData */; };
 		0A1B2C3D4E5F60718293A402 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A404 /* SQLiteData */; };
 		0B0D0C0A2E90000000000001 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0D0C0A2E9000000000000B /* SQLiteData */; };
+		0B0D0C0A2E90000000000013 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +97,7 @@
 				Models/Profile.swift,
 				Persistence/EventBuddyStorageConfiguration.swift,
 				Persistence/SQLiteSchema.swift,
+				Support/ProfileQRCodeCache.swift,
 			);
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 		};
@@ -536,10 +537,10 @@
 				INFOPLIST_FILE = EventBuddy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -581,10 +582,10 @@
 				INFOPLIST_FILE = EventBuddy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WWDCBuddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

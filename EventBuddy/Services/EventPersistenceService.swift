@@ -28,6 +28,13 @@ final class EventPersistenceService {
         try selectCurrentProfile(from: profiles())
     }
 
+    /// Pre-renders the current profile's QR code to the shared app group so the
+    /// widget can display it without generating the image itself.
+    func refreshProfileQRCodeCache() {
+        let profile = (try? currentProfile()) ?? nil
+        ProfileQRCodeCache.update(for: profile)
+    }
+
     func fetchEvent(id: UUID) throws -> Event? {
         try events().first { $0.id == id }
     }
@@ -108,6 +115,7 @@ final class EventPersistenceService {
         try database.write { db in
             try upsert(profile, in: db)
         }
+        refreshProfileQRCodeCache()
         saveDidComplete()
     }
 
@@ -144,6 +152,9 @@ final class EventPersistenceService {
                     try upsertAttendance(for: event, in: db)
                 }
             }
+        }
+        if !profiles.isEmpty {
+            refreshProfileQRCodeCache()
         }
         saveDidComplete()
     }
@@ -226,6 +237,7 @@ final class EventPersistenceService {
         try database.write { db in
             try deleteProfile(id: id, in: db)
         }
+        refreshProfileQRCodeCache()
         saveDidComplete()
     }
 
@@ -276,6 +288,7 @@ final class EventPersistenceService {
         try database.write { db in
             try db.execute(sql: #"DELETE FROM "storedProfiles""#)
         }
+        refreshProfileQRCodeCache()
         saveDidComplete()
     }
 
@@ -302,6 +315,7 @@ final class EventPersistenceService {
                 try upsertAttendance(for: event, in: db)
             }
         }
+        refreshProfileQRCodeCache()
         saveDidComplete()
     }
 

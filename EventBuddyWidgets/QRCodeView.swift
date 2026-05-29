@@ -13,61 +13,62 @@ private typealias PlatformImage = UIImage
 struct QRCodeView: View {
     let contact: CNContact
     let size: CGFloat
-    
-    @State private var qrCode: PlatformImage?
-    
+
     init(contact: CNContact, size: CGFloat = 200) {
         self.contact = contact
         self.size = size
     }
-    
+
     var body: some View {
+        // Prefer the image the app pre-rendered to the shared app group. The
+        // widget extension cannot reliably render a QR code on-device, so the
+        // cached PNG is the source of truth. Live generation is only a fallback
+        // for the rare case where the cache has not been written yet.
         Group {
-            if let qrCode {
-                platformImage(qrCode)
+            if let image = cachedImage() ?? generatedImage() {
+                platformImage(image)
                     .interpolation(.none)
                     .resizable()
                     .scaledToFit()
                     .frame(width: size, height: size)
             } else {
-                ProgressView()
+                Image(systemName: "qrcode")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(.secondary)
                     .frame(width: size, height: size)
             }
         }
-        .onAppear {
-            generateQRCode()
-        }
     }
-    
-    private func generateQRCode() {
-        // Create vCard data from CNContact
-        let data = try? CNContactVCardSerialization.data(with: [contact])
-        
-        guard let data = data else {
-            return
+
+    private func cachedImage() -> PlatformImage? {
+        guard let data = ProfileQRCodeCache.cachedData() else { return nil }
+        return PlatformImage(data: data)
+    }
+
+    private func generatedImage() -> PlatformImage? {
+        guard let data = try? CNContactVCardSerialization.data(with: [contact]) else {
+            return nil
         }
-        
-        // Create QR code from data
+
         let context = CIContext()
         let filter = CIFilter.qrCodeGenerator()
-        
         filter.message = data
         filter.correctionLevel = "H" // High error correction
-        
-        guard let outputImage = filter.outputImage else {
-            return
-        }
-        
-        // Scale the QR code for better visibility
+
+        guard let outputImage = filter.outputImage else { return nil }
+
         let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
-        
-        if let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) {
-            #if os(macOS)
-            qrCode = NSImage(cgImage: cgImage, size: NSSize(width: size, height: size))
-            #else
-            qrCode = UIImage(cgImage: cgImage)
-            #endif
+
+        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else {
+            return nil
         }
+
+        #if os(macOS)
+        return NSImage(cgImage: cgImage, size: NSSize(width: size, height: size))
+        #else
+        return UIImage(cgImage: cgImage)
+        #endif
     }
 
     private func platformImage(_ image: PlatformImage) -> Image {
@@ -77,4 +78,4 @@ struct QRCodeView: View {
         Image(uiImage: image)
         #endif
     }
-} 
+}

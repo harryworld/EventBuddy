@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 #if os(iOS)
 import UIKit
-import WidgetKit
 #elseif os(macOS)
 import AppKit
 #endif
@@ -78,6 +80,15 @@ struct EventBuddyApp: App {
                     eventPersistenceService: eventPersistenceService,
                     liveActivityService: liveActivityService
                 ))
+                .task {
+                    guard validationMode == nil else { return }
+                    // Ensure the widget's cached QR image exists for users who
+                    // already have a profile and haven't edited it since update.
+                    eventPersistenceService.refreshProfileQRCodeCache()
+                    #if canImport(WidgetKit)
+                    WidgetCenter.shared.reloadTimelines(ofKind: "QRCodeWidget")
+                    #endif
+                }
         }
         #if os(visionOS)
         .defaultSize(width: 720, height: 1040)
