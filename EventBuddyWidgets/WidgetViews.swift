@@ -1,6 +1,22 @@
 import SwiftUI
 import WidgetKit
 
+// MARK: - Platform-Adaptive Widget Colors
+//
+// On visionOS widgets render on a translucent glass background where the
+// default label/`.primary` color and faint `.secondary` color become
+// illegible. We force vibrant, light-based styles there while keeping the
+// standard semantic styles on iOS.
+#if os(visionOS)
+private let widgetPrimaryStyle = AnyShapeStyle(.white)
+private let widgetSecondaryStyle = AnyShapeStyle(.white.opacity(0.7))
+private let widgetAccentStyle = AnyShapeStyle(Color(red: 0.45, green: 0.78, blue: 1.0))
+#else
+private let widgetPrimaryStyle = AnyShapeStyle(.primary)
+private let widgetSecondaryStyle = AnyShapeStyle(.secondary)
+private let widgetAccentStyle = AnyShapeStyle(Color.blue)
+#endif
+
 // MARK: - Small Widget (Next Event)
 struct SmallEventWidgetView: View {
     let entry: EventBuddyEntry
@@ -10,15 +26,16 @@ struct SmallEventWidgetView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(nextEvent.title)
                     .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(widgetPrimaryStyle)
                     .lineLimit(2)
                 
                 Text(relativeTimeString(for: nextEvent.startDate))
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(widgetAccentStyle)
                 
                 Text(nextEvent.location)
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(widgetSecondaryStyle)
                     .lineLimit(1)
                 
                 Spacer()
@@ -26,14 +43,14 @@ struct SmallEventWidgetView: View {
                 HStack {
                     Image(systemName: eventTypeIcon(nextEvent.eventType))
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                     
                     Spacer()
                     
                     if nextEvent.isAttending {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(.green)
+                            .foregroundStyle(.green)
                     }
                 }
             }
@@ -45,11 +62,11 @@ struct SmallEventWidgetView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "calendar.badge.exclamationmark")
                         .font(.title2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                     
                     Text(entry.emptyEventMessage)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                         .multilineTextAlignment(.center)
                 }
                 
@@ -107,11 +124,12 @@ struct EventsListWidgetView: View {
                 Text(title)
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(widgetPrimaryStyle)
                 
                 Spacer()
                 
                 Image(systemName: "calendar")
-                    .foregroundColor(.blue)
+                    .foregroundStyle(widgetAccentStyle)
             }
             
             if events.isEmpty {
@@ -120,11 +138,11 @@ struct EventsListWidgetView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "calendar.badge.exclamationmark")
                         .font(.title)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                     
                     Text(emptyMessage)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                         .multilineTextAlignment(.center)
                 }
                 
@@ -154,16 +172,17 @@ struct EventRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
                     .font(.system(size: isCompact ? 12 : 14, weight: .medium))
+                    .foregroundStyle(widgetPrimaryStyle)
                     .lineLimit(1)
                 
                 Text(relativeTimeString(for: event.startDate))
                     .font(.system(size: isCompact ? 10 : 12))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(widgetAccentStyle)
                 
                 if !isCompact {
                     Text(event.location)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(widgetSecondaryStyle)
                         .lineLimit(1)
                 }
             }
@@ -173,12 +192,12 @@ struct EventRowView: View {
             VStack(spacing: 2) {
                 Image(systemName: eventTypeIcon(event.eventType))
                     .font(.system(size: isCompact ? 10 : 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(widgetSecondaryStyle)
                 
                 if event.isAttending {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: isCompact ? 8 : 10))
-                        .foregroundColor(.green)
+                        .foregroundStyle(.green)
                 }
             }
         }
