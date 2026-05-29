@@ -10,6 +10,7 @@
 		06E75CFE2DEDB9AF000EEE35 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFD2DEDB9AF000EEE35 /* WidgetKit.framework */; };
 		06E75D002DEDB9AF000EEE35 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06E75CFF2DEDB9AF000EEE35 /* SwiftUI.framework */; };
 		06E75D112DEDB9B0000EEE35 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0B0D0C0A2E90000000000013 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 06E75CFB2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0A1B2C3D4E5F60718293A401 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A403 /* SQLiteData */; };
 		0A1B2C3D4E5F60718293A402 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1B2C3D4E5F60718293A404 /* SQLiteData */; };
 		0B0D0C0A2E90000000000001 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0D0C0A2E9000000000000B /* SQLiteData */; };
@@ -17,6 +18,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		06E75D0F2DEDB9B0000EEE35 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 068753A12DD6D5A00048FD00 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06E75CFA2DEDB9AF000EEE35;
+			remoteInfo = EventBuddyWidgetsExtension;
+		};
+		0B0D0C0A2E90000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 068753A12DD6D5A00048FD00 /* Project object */;
 			proxyType = 1;
@@ -33,6 +41,17 @@
 			dstSubfolderSpec = 13;
 			files = (
 				06E75D112DEDB9B0000EEE35 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0B0D0C0A2E90000000000012 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0B0D0C0A2E90000000000013 /* EventBuddyWidgetsExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -231,10 +250,12 @@
 				0B0D0C0A2E90000000000004 /* Frameworks */,
 				0B0D0C0A2E90000000000006 /* Resources */,
 				0B0D0C0A2E9000000000000C /* Build Rust CLI */,
+				0B0D0C0A2E90000000000012 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0B0D0C0A2E90000000000011 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				068753AB2DD6D5A00048FD00 /* EventBuddy */,
@@ -368,6 +389,11 @@
 			isa = PBXTargetDependency;
 			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
 			targetProxy = 06E75D0F2DEDB9B0000EEE35 /* PBXContainerItemProxy */;
+		};
+		0B0D0C0A2E90000000000011 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06E75CFA2DEDB9AF000EEE35 /* EventBuddyWidgetsExtension */;
+			targetProxy = 0B0D0C0A2E90000000000010 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -601,12 +627,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 2026.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy.EventBuddyWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -632,12 +660,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 2026.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildwithharry.EventBuddy.EventBuddyWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
