@@ -354,10 +354,11 @@
 			);
 			outputPaths = (
 				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/wwdcbuddy",
+				"$(DWARF_DSYM_FOLDER_PATH)/wwdcbuddy.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nCLI_DIR=\"$SRCROOT/CLI\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.cargo/bin:$PATH\"\nif ! command -v cargo >/dev/null 2>&1; then\n  echo \"error: cargo is required to build wwdcbuddy\" >&2\n  exit 1\nfi\ncargo build --manifest-path \"$CLI_DIR/Cargo.toml\" --release\nDESTINATION=\"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/wwdcbuddy\"\nmkdir -p \"$(dirname \"$DESTINATION\")\"\nrm -f \"$DESTINATION\"\nrm -f \"$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/eventbuddyctl\"\ninstall -m 755 \"$CLI_DIR/target/release/wwdcbuddy\" \"$DESTINATION\"\nif [ \"${CODE_SIGNING_ALLOWED:-NO}\" = \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ] && [ \"$EXPANDED_CODE_SIGN_IDENTITY\" != \"-\" ]; then\n  xcrun codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --entitlements \"$SRCROOT/EventBuddy/EventBuddyCLI.entitlements\" \"$DESTINATION\"\nfi\n";
+			shellScript = "set -euo pipefail\nCLI_DIR=\"$SRCROOT/CLI\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.cargo/bin:$PATH\"\nif ! command -v cargo >/dev/null 2>&1; then\n  echo \"error: cargo is required to build wwdcbuddy\" >&2\n  exit 1\nfi\ncargo build --manifest-path \"$CLI_DIR/Cargo.toml\" --release\nCLI_BINARY=\"$CLI_DIR/target/release/wwdcbuddy\"\nCLI_DSYM=\"$CLI_DIR/target/release/wwdcbuddy.dSYM\"\nrm -rf \"$CLI_DSYM\"\nxcrun dsymutil \"$CLI_BINARY\" -o \"$CLI_DSYM\"\nDESTINATION=\"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/wwdcbuddy\"\nmkdir -p \"$(dirname \"$DESTINATION\")\"\nrm -f \"$DESTINATION\"\nrm -f \"$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/eventbuddyctl\"\ninstall -m 755 \"$CLI_BINARY\" \"$DESTINATION\"\nif [ \"${CODE_SIGNING_ALLOWED:-NO}\" = \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ] && [ \"$EXPANDED_CODE_SIGN_IDENTITY\" != \"-\" ]; then\n  xcrun codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --entitlements \"$SRCROOT/EventBuddy/EventBuddyCLI.entitlements\" \"$DESTINATION\"\nfi\nif [ -n \"${DWARF_DSYM_FOLDER_PATH:-}\" ]; then\n  DSYM_DESTINATION=\"$DWARF_DSYM_FOLDER_PATH/wwdcbuddy.dSYM\"\n  mkdir -p \"$DWARF_DSYM_FOLDER_PATH\"\n  rm -rf \"$DSYM_DESTINATION\"\n  cp -R \"$CLI_DSYM\" \"$DSYM_DESTINATION\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -527,7 +528,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -572,7 +573,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -617,7 +618,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = EventBuddyWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
@@ -650,7 +651,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = EventBuddyWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EventBuddyWidgets/Info.plist;
@@ -683,7 +684,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -719,7 +720,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EventBuddy/EventBuddyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_TEAM = 77GUV2264S;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
