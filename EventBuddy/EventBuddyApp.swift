@@ -79,6 +79,9 @@ struct EventBuddyApp: App {
                     liveActivityService: liveActivityService
                 ))
         }
+        #if os(visionOS)
+        .defaultSize(width: 720, height: 1040)
+        #endif
         #if os(macOS)
         .commands {
             SidebarCommands()
