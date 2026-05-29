@@ -26,6 +26,20 @@ struct FriendDetailView: View {
                 
                 FriendContactInfoView(friend: friend)
                 
+                if let notes = friend.notes, !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Notes")
+                            .font(.headline)
+                        
+                        Text(notes)
+                            .font(.body)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                }
+                
                 Divider()
                 
                 FriendSocialMediaView(

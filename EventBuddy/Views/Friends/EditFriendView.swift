@@ -62,6 +62,7 @@ struct EditFriendView: View {
                     socialMediaRow(platform: "linkedin", title: "LinkedIn")
                     socialMediaRow(platform: "github", title: "GitHub")
                     socialMediaRow(platform: "mastodon", title: "Mastodon")
+                    socialMediaRow(platform: "bluesky", title: "Bluesky")
                     
                     // Additional social media platforms
                     ForEach(Array(additionalSocialPlatforms.sorted()), id: \.self) { platform in

@@ -54,7 +54,7 @@ struct ProfileView: View {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Image(systemName: "pencil")
+                        Text("Edit")
                     }
                 }
             }

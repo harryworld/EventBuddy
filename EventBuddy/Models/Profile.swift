@@ -193,7 +193,7 @@ struct SocialLinkInfo: Identifiable {
 }
 
 enum SocialPlatform {
-    static let coreServices = ["twitter", "linkedin", "github", "mastodon"]
+    static let coreServices = ["twitter", "linkedin", "github", "mastodon", "bluesky"]
     static let allServices = coreServices + ["instagram", "facebook", "threads", "youtube"]
 
     static func displayName(for service: String) -> String {
@@ -202,6 +202,7 @@ enum SocialPlatform {
         case "linkedin": return "LinkedIn"
         case "github": return "GitHub"
         case "mastodon": return "Mastodon"
+        case "bluesky": return "Bluesky"
         case "instagram": return "Instagram"
         case "facebook": return "Facebook"
         case "threads": return "Threads"
@@ -216,6 +217,7 @@ enum SocialPlatform {
         case "linkedin": return "network"
         case "github": return "chevron.left.forwardslash.chevron.right"
         case "mastodon": return "at"
+        case "bluesky": return "cloud"
         case "instagram": return "camera"
         case "facebook": return "person.2.fill"
         case "threads": return "text.bubble"
@@ -232,6 +234,8 @@ enum SocialPlatform {
             return "e.g. johndoe"
         case "mastodon":
             return "e.g. johndoe@mastodon.social"
+        case "bluesky":
+            return "e.g. johndoe.bsky.social"
         case "facebook":
             return "e.g. john.doe"
         default:
@@ -240,13 +244,50 @@ enum SocialPlatform {
     }
 
     static func storageUsername(_ username: String, for service: String) -> String {
-        let trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        var trimmed = username.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard service.lowercased() != "mastodon" else {
-            return trimmed.hasPrefix("@") ? String(trimmed.dropFirst()) : trimmed
+        // If a full link was pasted, reduce it to just the handle so the UI
+        // can display the handle instead of the full URL.
+        if trimmed.contains("://"), let extracted = handle(fromURL: trimmed, for: service) {
+            trimmed = extracted
         }
 
         return trimmed.hasPrefix("@") ? String(trimmed.dropFirst()) : trimmed
+    }
+
+    /// Extracts the platform handle from a full profile URL.
+    private static func handle(fromURL urlString: String, for service: String) -> String? {
+        guard let url = URL(string: urlString) else { return nil }
+
+        let host = url.host?.lowercased() ?? ""
+        let parts = url.path.split(separator: "/").map(String.init)
+
+        func stripAt(_ value: String) -> String {
+            value.hasPrefix("@") ? String(value.dropFirst()) : value
+        }
+
+        switch service.lowercased() {
+        case "mastodon":
+            // https://mastodon.social/@johndoe -> johndoe@mastodon.social
+            guard let first = parts.first else { return nil }
+            let user = stripAt(first)
+            return host.isEmpty ? user : "\(user)@\(host)"
+        case "bluesky":
+            // https://bsky.app/profile/johndoe.bsky.social -> johndoe.bsky.social
+            if let idx = parts.firstIndex(of: "profile"), idx + 1 < parts.count {
+                return stripAt(parts[idx + 1])
+            }
+            return parts.last.map(stripAt)
+        case "linkedin":
+            // https://linkedin.com/in/johndoe -> johndoe
+            if let idx = parts.firstIndex(of: "in"), idx + 1 < parts.count {
+                return parts[idx + 1]
+            }
+            return parts.last
+        default:
+            // twitter, github, instagram, facebook, threads, youtube, ...
+            return parts.first.map(stripAt)
+        }
     }
 
     static func displayHandle(for service: String, username: String) -> String {
@@ -272,6 +313,8 @@ enum SocialPlatform {
             return "https://github.com/\(cleanUsername)"
         case "mastodon":
             return mastodonURLString(for: cleanUsername)
+        case "bluesky":
+            return "https://bsky.app/profile/\(cleanUsername)"
         case "instagram":
             return "https://instagram.com/\(cleanUsername)"
         case "facebook":

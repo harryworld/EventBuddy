@@ -53,6 +53,7 @@ struct FriendSocialMediaView: View {
                             Image(systemName: "arrow.up.right.square")
                                 .foregroundColor(.blue)
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
