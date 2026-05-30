@@ -387,20 +387,26 @@ fn list_events(database_path: &Path, filter: &ListFilter) -> Result<Vec<EventRow
     let connection = open_database(database_path)?;
     let mut sql = String::from(
         r#"
-        SELECT id, title, eventDescription, location, address, startDate, endDate,
-               eventType, notes, requiresTicket, requiresRegistration, url,
-               createdAt, updatedAt, isAttending, originalTimezoneIdentifier, isCustomEvent
-        FROM storedEvents
+        SELECT event.id, event.title, event.eventDescription, event.location, event.address,
+               event.startDate, event.endDate, event.eventType, event.notes,
+               event.requiresTicket, event.requiresRegistration, event.url,
+               event.createdAt, event.updatedAt,
+               COALESCE(attendance.isAttending, event.isAttending) AS effectiveIsAttending,
+               event.originalTimezoneIdentifier, event.isCustomEvent
+        FROM storedEvents event
+        LEFT JOIN storedEventAttendances attendance
+            ON lower(attendance.eventID) = lower(event.id)
         "#,
     );
     let search = filter.search.as_ref().map(|term| format!("%{}%", term));
     let mut predicates = Vec::new();
 
     if search.is_some() {
-        predicates.push("(title LIKE ?1 OR location LIKE ?1 OR eventDescription LIKE ?1)");
+        predicates
+            .push("(event.title LIKE ?1 OR event.location LIKE ?1 OR event.eventDescription LIKE ?1)");
     }
     if filter.favorites {
-        predicates.push("isAttending = 1");
+        predicates.push("COALESCE(attendance.isAttending, event.isAttending) = 1");
     }
 
     if !predicates.is_empty() {
@@ -408,7 +414,7 @@ fn list_events(database_path: &Path, filter: &ListFilter) -> Result<Vec<EventRow
         sql.push_str(&predicates.join(" AND "));
         sql.push(' ');
     }
-    sql.push_str("ORDER BY startDate ASC, title COLLATE NOCASE ASC");
+    sql.push_str("ORDER BY event.startDate ASC, event.title COLLATE NOCASE ASC");
 
     let mut statement = connection.prepare(&sql)?;
     let rows = if let Some(search) = search {

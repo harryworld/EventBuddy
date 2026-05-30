@@ -1,0 +1,70 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "wwdcbuddy",
+  "title": "WWDCBuddy",
+  "description": "Browse and update your WWDCBuddy events, friends, and relations using the wwdcbuddy CLI.",
+  "icon": "icon.png",
+  "author": "harryworld",
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "search-events",
+      "title": "Search Events",
+      "subtitle": "WWDCBuddy",
+      "description": "Browse and search WWDCBuddy events.",
+      "mode": "view"
+    },
+    {
+      "name": "search-friends",
+      "title": "Search Friends",
+      "subtitle": "WWDCBuddy",
+      "description": "Browse, search, and edit WWDCBuddy friends.",
+      "mode": "view"
+    },
+    {
+      "name": "browse-relations",
+      "title": "Browse Relations",
+      "subtitle": "WWDCBuddy",
+      "description": "Browse event attendees and wishlist relations.",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "cliPath",
+      "type": "textfield",
+      "required": false,
+      "title": "wwdcbuddy CLI Path",
+      "description": "Path to the wwdcbuddy binary. Leave as 'wwdcbuddy' to auto-resolve from common install locations.",
+      "default": "wwdcbuddy"
+    },
+    {
+      "name": "databasePath",
+      "type": "textfield",
+      "required": false,
+      "title": "Database Path",
+      "description": "Optional override for the EventBuddy SQLite database path. Leave empty to use the default app-group database."
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.83.1"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}

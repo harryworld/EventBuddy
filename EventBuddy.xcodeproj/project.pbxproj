@@ -251,6 +251,7 @@
 				0B0D0C0A2E90000000000004 /* Frameworks */,
 				0B0D0C0A2E90000000000006 /* Resources */,
 				0B0D0C0A2E9000000000000C /* Build Rust CLI */,
+				0B0D0C0A2E9000000000000D /* Bundle Raycast Extension */,
 				0B0D0C0A2E90000000000012 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -359,6 +360,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -euo pipefail\nCLI_DIR=\"$SRCROOT/CLI\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.cargo/bin:$PATH\"\nif ! command -v cargo >/dev/null 2>&1; then\n  echo \"error: cargo is required to build wwdcbuddy\" >&2\n  exit 1\nfi\ncargo build --manifest-path \"$CLI_DIR/Cargo.toml\" --release\nCLI_BINARY=\"$CLI_DIR/target/release/wwdcbuddy\"\nCLI_DSYM=\"$CLI_DIR/target/release/wwdcbuddy.dSYM\"\nrm -rf \"$CLI_DSYM\"\nxcrun dsymutil \"$CLI_BINARY\" -o \"$CLI_DSYM\"\nDESTINATION=\"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/wwdcbuddy\"\nmkdir -p \"$(dirname \"$DESTINATION\")\"\nrm -f \"$DESTINATION\"\nrm -f \"$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/eventbuddyctl\"\ninstall -m 755 \"$CLI_BINARY\" \"$DESTINATION\"\nif [ \"${CODE_SIGNING_ALLOWED:-NO}\" = \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ] && [ \"$EXPANDED_CODE_SIGN_IDENTITY\" != \"-\" ]; then\n  xcrun codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --entitlements \"$SRCROOT/EventBuddy/EventBuddyCLI.entitlements\" \"$DESTINATION\"\nfi\nif [ -n \"${DWARF_DSYM_FOLDER_PATH:-}\" ]; then\n  DSYM_DESTINATION=\"$DWARF_DSYM_FOLDER_PATH/wwdcbuddy.dSYM\"\n  mkdir -p \"$DWARF_DSYM_FOLDER_PATH\"\n  rm -rf \"$DSYM_DESTINATION\"\n  cp -R \"$CLI_DSYM\" \"$DSYM_DESTINATION\"\nfi\n";
+		};
+		0B0D0C0A2E9000000000000D /* Bundle Raycast Extension */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle Raycast Extension";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/wwdcbuddy-raycast",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH\"\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\nmkdir -p \"$RES_DIR\"\nsh \"$SRCROOT/script/bundle_raycast_extension.sh\" \"$RES_DIR/wwdcbuddy-raycast\" || echo \"warning: Raycast extension bundling failed\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

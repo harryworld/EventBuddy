@@ -36,6 +36,15 @@ export PATH="$HOME/.local/bin:$PATH"
 
 To uninstall the command, choose Remove CLI in the same settings section. This removes the installed shim only; the CLI helper remains bundled inside WWDCBuddy.
 
+## Raycast Extension
+
+WWDCBuddy bundles a Raycast extension that wraps this CLI (Search Events, Search Friends, Browse Relations). In Settings > Data & CLI:
+
+- **Install CLI** installs the `wwdcbuddy` command.
+- **Install Raycast Extension** places the prebuilt extension in WWDCBuddy's shared app-group container and opens Raycast's Import Extension command for that folder.
+
+The extension is prebuilt (compiled JavaScript), so no Node.js or `npm install` is needed on your machine. It runs the installed `wwdcbuddy` CLI under the hood, so the CLI must be installed and on your PATH. The extension source lives in `raycast-extension/`; rebuild the bundled copy with `script/bundle_raycast_extension.sh`.
+
 ## Read Data
 
 ```sh

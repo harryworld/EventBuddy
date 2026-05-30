@@ -12,6 +12,7 @@ struct MacSettingsWorkspace: View {
     @State private var isAddingCalendarEvents = false
     @State private var calendarBatchSummary: EventCalendarStore.BatchAddSummary?
     @State private var cliInstallerStatus: String?
+    @State private var raycastInstallerStatus: String?
     @State private var presentedSheet: MacSettingsSheet?
 
     private var activeCategory: MacSettingsCategory {
@@ -321,6 +322,26 @@ struct MacSettingsWorkspace: View {
                 }
             }
 
+            MacSettingsSection(title: "Raycast Extension", systemImage: "magnifyingglass") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Button {
+                        installRaycastExtension()
+                    } label: {
+                        Label("Install Raycast Extension", systemImage: "square.and.arrow.down")
+                    }
+                    .accessibilityLabel("Install Raycast extension")
+                    .accessibilityHint("Copies the WWDCBuddy Raycast extension and opens Raycast's import command.")
+
+                    if let raycastInstallerStatus {
+                        MacSettingsInlineStatus(
+                            icon: raycastStatusIsSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
+                            message: raycastInstallerStatus,
+                            tint: raycastStatusIsSuccess ? .green : .orange
+                        )
+                    }
+                }
+            }
+
             MacSettingsSection(title: "Version", systemImage: "info.circle") {
                 MacSettingsValueRow(
                     icon: "app.badge",
@@ -423,12 +444,30 @@ struct MacSettingsWorkspace: View {
         }
     }
 
+    private var raycastStatusIsSuccess: Bool {
+        guard let raycastInstallerStatus else { return false }
+        return raycastInstallerStatus.hasPrefix("Installed")
+    }
+
     private func installCLI() {
         do {
             let installedURL = try CLIInstaller.installShim()
             cliInstallerStatus = "Installed \(installedURL.path)"
         } catch {
             cliInstallerStatus = error.localizedDescription
+        }
+    }
+
+    @discardableResult
+    private func installRaycastExtension() -> Bool {
+        do {
+            let installedURL = try RaycastExtensionInstaller.install()
+            raycastInstallerStatus = "Installed \(installedURL.path). Raycast is opening the import command automatically."
+            RaycastExtensionInstaller.openRaycastImport(at: installedURL)
+            return true
+        } catch {
+            raycastInstallerStatus = error.localizedDescription
+            return false
         }
     }
 
