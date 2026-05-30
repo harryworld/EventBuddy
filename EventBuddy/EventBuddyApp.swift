@@ -96,6 +96,7 @@ struct EventBuddyApp: App {
         #if os(macOS)
         .commands {
             SidebarCommands()
+            EventBuddySearchCommands()
         }
         #endif
     }
@@ -159,6 +160,39 @@ private extension WidgetCenter {
     }
 }
 #elseif os(macOS)
+struct EventBuddySearchFocusAction {
+    let focus: () -> Void
+
+    func callAsFunction() {
+        focus()
+    }
+}
+
+private struct EventBuddySearchFocusActionKey: FocusedValueKey {
+    typealias Value = EventBuddySearchFocusAction
+}
+
+extension FocusedValues {
+    var eventBuddySearchFocusAction: EventBuddySearchFocusAction? {
+        get { self[EventBuddySearchFocusActionKey.self] }
+        set { self[EventBuddySearchFocusActionKey.self] = newValue }
+    }
+}
+
+private struct EventBuddySearchCommands: Commands {
+    @FocusedValue(\.eventBuddySearchFocusAction) private var focusSearch
+
+    var body: some Commands {
+        CommandMenu("Navigate") {
+            Button("Search") {
+                focusSearch?()
+            }
+            .keyboardShortcut("f", modifiers: .command)
+            .disabled(focusSearch == nil)
+        }
+    }
+}
+
 @MainActor
 private final class EventBuddyMacAppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {

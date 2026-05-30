@@ -26,8 +26,7 @@ struct EventBuddyDebouncedSearchField: View {
 
             if !draftText.isEmpty {
                 Button {
-                    draftText = ""
-                    text = ""
+                    clearSearch()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
@@ -47,6 +46,7 @@ struct EventBuddyDebouncedSearchField: View {
         .task(id: draftText) {
             await applyDraftTextAfterDelay(draftText)
         }
+        .eventBuddySearchExitCommand(clearSearch)
     }
 
     private func applyDraftTextAfterDelay(_ query: String) async {
@@ -60,12 +60,18 @@ struct EventBuddyDebouncedSearchField: View {
             text = query
         }
     }
+
+    private func clearSearch() {
+        draftText = ""
+        text = ""
+    }
 }
 
 struct EventBuddyDebouncedSearchable<Content: View>: View {
     @Binding var text: String
     let prompt: String
     let placement: SearchFieldPlacement
+    let clearTrigger: Int
     @ViewBuilder let content: Content
 
     @State private var draftText = ""
@@ -74,11 +80,13 @@ struct EventBuddyDebouncedSearchable<Content: View>: View {
         text: Binding<String>,
         prompt: String,
         placement: SearchFieldPlacement = .toolbar,
+        clearTrigger: Int = 0,
         @ViewBuilder content: () -> Content
     ) {
         self._text = text
         self.prompt = prompt
         self.placement = placement
+        self.clearTrigger = clearTrigger
         self.content = content()
     }
 
@@ -96,6 +104,10 @@ struct EventBuddyDebouncedSearchable<Content: View>: View {
             .task(id: draftText) {
                 await applyDraftTextAfterDelay(draftText)
             }
+            .onChange(of: clearTrigger) { _, _ in
+                clearSearch()
+            }
+            .eventBuddySearchExitCommand(clearSearch)
     }
 
     private func applyDraftTextAfterDelay(_ query: String) async {
@@ -108,6 +120,11 @@ struct EventBuddyDebouncedSearchable<Content: View>: View {
         if text != query {
             text = query
         }
+    }
+
+    private func clearSearch() {
+        draftText = ""
+        text = ""
     }
 }
 
@@ -124,6 +141,15 @@ extension SearchFieldPlacement {
 }
 
 extension View {
+    @ViewBuilder
+    func eventBuddySearchExitCommand(_ action: @escaping () -> Void) -> some View {
+        #if os(macOS)
+        self.onExitCommand(perform: action)
+        #else
+        self
+        #endif
+    }
+
     @ViewBuilder
     func eventBuddyInlineNavigationTitle() -> some View {
         #if os(iOS)

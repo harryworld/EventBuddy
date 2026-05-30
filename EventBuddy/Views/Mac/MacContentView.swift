@@ -1,4 +1,5 @@
 #if os(macOS)
+import AppKit
 import SQLiteData
 import SwiftUI
 
@@ -180,6 +181,86 @@ private enum MacWorkspaceLayout {
     static let detailMinimumWidth: CGFloat = 500
 }
 
+private struct MacSearchKeyboardHandler: NSViewRepresentable {
+    let isActive: Bool
+    let onMove: (MoveCommandDirection) -> Void
+    let onClear: () -> Void
+    let onSubmit: () -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        context.coordinator.startMonitoring()
+        return NSView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.handler = self
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(handler: self)
+    }
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        coordinator.stopMonitoring()
+    }
+
+    final class Coordinator {
+        var handler: MacSearchKeyboardHandler
+        private var monitor: Any?
+
+        init(handler: MacSearchKeyboardHandler) {
+            self.handler = handler
+        }
+
+        deinit {
+            stopMonitoring()
+        }
+
+        func startMonitoring() {
+            guard monitor == nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                self?.handle(event) ?? event
+            }
+        }
+
+        func stopMonitoring() {
+            if let monitor {
+                NSEvent.removeMonitor(monitor)
+            }
+            monitor = nil
+        }
+
+        private func handle(_ event: NSEvent) -> NSEvent? {
+            guard handler.isActive, event.modifierFlags.eventBuddyRelevantModifiers.isEmpty else {
+                return event
+            }
+
+            switch event.keyCode {
+            case 126:
+                handler.onMove(.up)
+                return nil
+            case 125:
+                handler.onMove(.down)
+                return nil
+            case 53:
+                handler.onClear()
+                return nil
+            case 36, 76:
+                handler.onSubmit()
+                return nil
+            default:
+                return event
+            }
+        }
+    }
+}
+
+private extension NSEvent.ModifierFlags {
+    var eventBuddyRelevantModifiers: NSEvent.ModifierFlags {
+        intersection(.deviceIndependentFlagsMask).subtracting([.capsLock, .numericPad])
+    }
+}
+
 private extension View {
     func macWorkspaceListColumn() -> some View {
         frame(
@@ -220,10 +301,17 @@ private struct MacEventsWorkspace: View {
     @State private var searchText = ""
     @AppStorage("showOnlyAttending") private var showOnlyAttending = false
     @State private var showHistoricalEvents = false
+    @State private var searchClearTrigger = 0
+    @FocusState private var isSearchFocused: Bool
+    @FocusState private var isEventListFocused: Bool
 
     var body: some View {
         HSplitView {
-            EventBuddyDebouncedSearchable(text: $searchText, prompt: "Search events") {
+            EventBuddyDebouncedSearchable(
+                text: $searchText,
+                prompt: "Search events",
+                clearTrigger: searchClearTrigger
+            ) {
                 VStack(spacing: 0) {
                     MacEventFilterBar(
                         selectedFilter: $selectedFilter,
@@ -253,16 +341,31 @@ private struct MacEventsWorkspace: View {
                             }
                         }
                         .macWorkspaceContentList()
+                        .focusable()
+                        .focused($isEventListFocused)
+                        .onMoveCommand(perform: moveEventSelection)
                         .frame(maxWidth: .infinity)
                     }
                 }
                 .macWorkspaceListColumn()
             }
+            .searchFocused($isSearchFocused)
 
             MacEventDetailPane(selectedEventID: selectedEventID)
                 .macFlexibleDetailSurface()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .focusedSceneValue(\.eventBuddySearchFocusAction, EventBuddySearchFocusAction {
+            isSearchFocused = true
+        })
+        .background {
+            MacSearchKeyboardHandler(
+                isActive: isSearchFocused,
+                onMove: moveEventSelection,
+                onClear: clearEventSearch,
+                onSubmit: focusEventList
+            )
+        }
         .onAppear(perform: selectFirstEventIfNeeded)
         .onChange(of: filteredEvents.map(\.id)) { _, _ in
             selectFirstEventIfNeeded()
@@ -328,6 +431,37 @@ private struct MacEventsWorkspace: View {
     private func selectFirstEventIfNeeded() {
         guard !filteredEvents.contains(where: { $0.id == selectedEventID }) else { return }
         selectedEventID = filteredEvents.first?.id
+    }
+
+    private func moveEventSelection(_ direction: MoveCommandDirection) {
+        guard !filteredEvents.isEmpty else { return }
+
+        let currentIndex = selectedEventID.flatMap { selectedID in
+            filteredEvents.firstIndex { $0.id == selectedID }
+        }
+        let nextIndex: Int
+
+        switch direction {
+        case .up:
+            nextIndex = currentIndex.map { max($0 - 1, 0) } ?? filteredEvents.count - 1
+        case .down:
+            nextIndex = currentIndex.map { min($0 + 1, filteredEvents.count - 1) } ?? 0
+        default:
+            return
+        }
+
+        selectedEventID = filteredEvents[nextIndex].id
+    }
+
+    private func focusEventList() {
+        guard !filteredEvents.isEmpty else { return }
+        isSearchFocused = false
+        isEventListFocused = true
+    }
+
+    private func clearEventSearch() {
+        searchText = ""
+        searchClearTrigger += 1
     }
 }
 
@@ -519,11 +653,17 @@ private struct MacFriendsWorkspace: View {
     @Binding var selectedFriendID: UUID?
     @State private var selectedFilter: MacFriendFilter = .all
     @State private var searchText = ""
+    @State private var searchClearTrigger = 0
+    @FocusState private var isSearchFocused: Bool
     @FocusState private var focusedPane: MacFriendWorkspaceFocus?
 
     var body: some View {
         HSplitView {
-            EventBuddyDebouncedSearchable(text: $searchText, prompt: "Search friends") {
+            EventBuddyDebouncedSearchable(
+                text: $searchText,
+                prompt: "Search friends",
+                clearTrigger: searchClearTrigger
+            ) {
                 VStack(spacing: 0) {
                     MacFriendFilterBar(
                         selectedFilter: $selectedFilter,
@@ -560,11 +700,23 @@ private struct MacFriendsWorkspace: View {
                 }
                 .macWorkspaceListColumn()
             }
+            .searchFocused($isSearchFocused)
 
             MacFriendDetailPane(selectedFriendID: selectedFriendID)
                 .macFlexibleDetailSurface()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .focusedSceneValue(\.eventBuddySearchFocusAction, EventBuddySearchFocusAction {
+            isSearchFocused = true
+        })
+        .background {
+            MacSearchKeyboardHandler(
+                isActive: isSearchFocused,
+                onMove: moveFriendSelection,
+                onClear: clearFriendSearch,
+                onSubmit: focusFriendList
+            )
+        }
         .onAppear {
             selectFirstFriendIfNeeded()
             focusFriendList()
@@ -599,11 +751,12 @@ private struct MacFriendsWorkspace: View {
 
     private func focusFriendList() {
         guard !filteredFriends.isEmpty else { return }
+        isSearchFocused = false
         focusedPane = .friendList
     }
 
     private func moveFriendSelection(_ direction: MoveCommandDirection) {
-        guard focusedPane == .friendList, !filteredFriends.isEmpty else { return }
+        guard (isSearchFocused || focusedPane == .friendList), !filteredFriends.isEmpty else { return }
 
         let currentIndex = selectedFriendID.flatMap { selectedID in
             filteredFriends.firstIndex { $0.id == selectedID }
@@ -620,6 +773,11 @@ private struct MacFriendsWorkspace: View {
         }
 
         selectedFriendID = filteredFriends[nextIndex].id
+    }
+
+    private func clearFriendSearch() {
+        searchText = ""
+        searchClearTrigger += 1
     }
 }
 
