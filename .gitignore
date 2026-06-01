@@ -97,5 +97,12 @@ buildServer.json
 target/
 CLI/target/
 
+# Node / Cloudflare
+node_modules/
+.wrangler/
+.env
+.env.*
+!.env.example
+
 # App Store Connect preflight artifacts (pulled metadata, upscaled screenshots)
 .preflight/

@@ -1,1 +1,11 @@
-{}
+{
+  "name": "eventbuddy",
+  "private": true,
+  "scripts": {
+    "wrangler": "wrangler",
+    "publish:events": "script/publish_events_json.sh"
+  },
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  }
+}

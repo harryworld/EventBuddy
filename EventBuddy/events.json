@@ -161,6 +161,22 @@
       "updatedAt": "2026-05-17T13:59:53Z"
     },
     {
+      "id": "34950789-0a65-567a-a8a6-dcce990a7a6f",
+      "title": "Workshop: Inclusive by Design",
+      "eventDescription": "CommunityKit accessibility workshop about applying high-impact SwiftUI accessibility techniques to an inaccessible starter app.",
+      "location": "Residence Inn by Marriott San Jose Cupertino",
+      "address": "19429 Stevens Creek Blvd, Cupertino, CA 95014, USA",
+      "startDate": "2026-06-07T14:00:00-07:00",
+      "endDate": "2026-06-07T17:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Approval required on Luma. CommunityKit schedule lists this in the Main Hall.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/e8rw6fri",
+      "createdAt": "2026-06-01T07:29:49Z",
+      "updatedAt": "2026-06-01T07:29:49Z"
+    },
+    {
       "id": "833667cb-7bc1-5093-9e69-a9a7808007da",
       "title": "WWDC26 Welcome Reception",
       "eventDescription": "Official welcome reception for WWDC26 special-event attendees, including badge pickup, Apple Design Award winner and finalist meetups, and community mingling.",
@@ -721,6 +737,22 @@
       "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
+      "id": "1befb66d-2d22-5ae7-bb94-9f7ea780ce14",
+      "title": "Beer with Swift @WWDC26",
+      "eventDescription": "Create with Swift social meetup for WWDC attendees and local developers.",
+      "location": "Cupertino Area - TBD",
+      "address": "Cupertino, CA, USA",
+      "startDate": "2026-06-09T19:00:00-07:00",
+      "endDate": "2026-06-09T21:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Apple Community-driven events lists this as a WWDC26 Cupertino meetup. Luma currently lists the exact Cupertino-area venue as TBD.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/y95acvdw",
+      "createdAt": "2026-06-01T07:29:49Z",
+      "updatedAt": "2026-06-01T07:29:49Z"
+    },
+    {
       "id": "b51a6761-34c1-57c4-a66e-05d7b162d9d6",
       "title": "iOSDevHappyHour @ WWDC26 IRL!",
       "eventDescription": "In-person iOSDevHappyHour during WWDC26.",
@@ -785,6 +817,22 @@
       "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
+      "id": "70347537-8ebf-5ec2-bd63-8db2d87f1009",
+      "title": "Container Install Meetup",
+      "eventDescription": "CommunityKit meetup introducing the Containerization framework and container CLI tooling for building and running Linux container images on Mac.",
+      "location": "Residence Inn by Marriott San Jose Cupertino",
+      "address": "19429 Stevens Creek Blvd, Cupertino, CA 95014, USA",
+      "startDate": "2026-06-10T12:00:00-07:00",
+      "endDate": "2026-06-10T14:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Source: CommunityKit schedule and Luma organizer page.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/rh1k2tpy",
+      "createdAt": "2026-06-01T07:29:49Z",
+      "updatedAt": "2026-06-01T07:29:49Z"
+    },
+    {
       "id": "eee199a0-3a61-5c55-b344-2ff25c0702be",
       "title": "Indie Fair",
       "eventDescription": "CommunityKit indie app fair during WWDC26.",
@@ -799,6 +847,22 @@
       "url": "https://communitykit.social/schedule/",
       "createdAt": "2026-05-17T00:00:00Z",
       "updatedAt": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "2b1c0e4d-c6c0-521a-9606-b4b48998d955",
+      "title": "Make It Visible: Accessibility Meetup @ CommunityKit",
+      "eventDescription": "Community meetup about accessibility, inclusive design, and the human impact of software across Apple platforms.",
+      "location": "Residence Inn by Marriott San Jose Cupertino",
+      "address": "19429 Stevens Creek Blvd, Cupertino, CA 95014, USA",
+      "startDate": "2026-06-10T16:00:00-07:00",
+      "endDate": "2026-06-10T18:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Luma currently obfuscates the exact venue as Cupertino; CommunityKit schedule places this in the Main Hall.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/ro48u8fw",
+      "createdAt": "2026-06-01T07:29:49Z",
+      "updatedAt": "2026-06-01T07:29:49Z"
     },
     {
       "id": "b50644f3-7bb4-554e-b9f9-318ff2bef216",
@@ -977,6 +1041,6 @@
       "updatedAt": "2026-05-17T13:20:21Z"
     }
   ],
-  "lastUpdated": "2026-05-21T00:00:00Z",
-  "version": "2.7-wwdc26-official-events"
+  "lastUpdated": "2026-06-01T07:29:49Z",
+  "version": "2.8-wwdc26-communitykit-refresh"
 }
