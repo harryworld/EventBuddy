@@ -657,6 +657,22 @@
       "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
+      "id": "96476f78-cb05-5894-af65-b8bd37533289",
+      "title": "RevenueCat House Mansionparty: WWDC Edition",
+      "eventDescription": "Invite-only RevenueCat WWDC week gathering with food, lightning talks, and networking.",
+      "location": "Hillsborough, California",
+      "address": "Hillsborough, CA, USA",
+      "startDate": "2026-06-09T13:00:00-07:00",
+      "endDate": "2026-06-09T21:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Luma lists the event as private with an obfuscated Hillsborough location; the agenda runs 1:00pm-9:00pm with venue details for approved guests.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://luma.com/mjoh0kzy",
+      "createdAt": "2026-06-03T10:49:28Z",
+      "updatedAt": "2026-06-03T10:49:28Z"
+    },
+    {
       "id": "5570f805-ab8d-5748-a02c-decfe7ddce4c",
       "title": "Mixer at Apple Developer Center Cupertino",
       "eventDescription": "Official Tuesday afternoon food and community mixer at the Apple Developer Center Cupertino for WWDC26 special-event attendees.",
@@ -737,6 +753,38 @@
       "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
+      "id": "b51a6761-34c1-57c4-a66e-05d7b162d9d6",
+      "title": "iOSDevHappyHour @ WWDC26 IRL!",
+      "eventDescription": "In-person iOSDevHappyHour during WWDC26.",
+      "location": "Fuego Sports Bar and Club",
+      "address": "140 South Murphy Avenue, Sunnyvale, CA 94086, USA",
+      "startDate": "2026-06-09T17:00:00-07:00",
+      "endDate": "2026-06-09T21:00:00-07:00",
+      "eventType": "Social",
+      "notes": "Eventbrite currently shows Tuesday, June 9, 5:00pm-9:00pm and marks tickets sold out. A June 2 X post mentioned 7pm, but EventBuddy follows the organizer page for exact time.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://www.eventbrite.com/e/iosdevhappyhour-wwdc26-irl-tickets-1988360174808",
+      "createdAt": "2026-05-17T00:00:00Z",
+      "updatedAt": "2026-06-03T10:49:28Z"
+    },
+    {
+      "id": "a0a05291-ea9f-545a-9a2e-77f283a9192f",
+      "title": "The Talk Show Live From WWDC 2026",
+      "eventDescription": "Daring Fireball's annual live audience episode of The Talk Show during WWDC week.",
+      "location": "The California Theatre",
+      "address": "345 S. First St., San Jose, CA 95113, USA",
+      "startDate": "2026-06-09T18:00:00-07:00",
+      "endDate": "2026-06-09T21:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Tito lists the event as 6:00pm-9:00pm; doors open at 6:00pm and the show starts at 7:00pm.",
+      "requiresTicket": true,
+      "requiresRegistration": true,
+      "url": "https://ti.to/daringfireball/the-talk-show-live-from-wwdc-2026",
+      "createdAt": "2026-06-03T10:49:28Z",
+      "updatedAt": "2026-06-03T10:49:28Z"
+    },
+    {
       "id": "1befb66d-2d22-5ae7-bb94-9f7ea780ce14",
       "title": "Beer with Swift @WWDC26",
       "eventDescription": "Create with Swift social meetup for WWDC attendees and local developers.",
@@ -751,22 +799,6 @@
       "url": "https://luma.com/y95acvdw",
       "createdAt": "2026-06-01T07:29:49Z",
       "updatedAt": "2026-06-01T07:29:49Z"
-    },
-    {
-      "id": "b51a6761-34c1-57c4-a66e-05d7b162d9d6",
-      "title": "iOSDevHappyHour @ WWDC26 IRL!",
-      "eventDescription": "In-person iOSDevHappyHour during WWDC26.",
-      "location": "Fuego Sports Bar and Club",
-      "address": "140 South Murphy Avenue, Sunnyvale, CA 94086, USA",
-      "startDate": "2026-06-09T19:00:00-07:00",
-      "endDate": "2026-06-09T22:00:00-07:00",
-      "eventType": "Social",
-      "notes": "Eventbrite notes limited venue capacity and asks attendees to RSVP only if they plan to attend in person.",
-      "requiresTicket": false,
-      "requiresRegistration": true,
-      "url": "https://www.eventbrite.com/e/iosdevhappyhour-wwdc26-irl-tickets-1988360174808",
-      "createdAt": "2026-05-17T00:00:00Z",
-      "updatedAt": "2026-05-17T00:00:00Z"
     },
     {
       "id": "9ba5c1e4-5a3f-5544-ad2f-f215a5d9915e",
@@ -799,6 +831,22 @@
       "url": "https://luma.com/dxme2hiw",
       "createdAt": "2026-05-17T00:00:00Z",
       "updatedAt": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "e5bd3089-f64c-58d4-92eb-46863fe14a7e",
+      "title": "Bitrig Hacks: WWDC Edition",
+      "eventDescription": "In-person WWDC week hackathon using Apple's newly released developer betas.",
+      "location": "YC office",
+      "address": "Mountain View, CA, USA",
+      "startDate": "2026-06-10T11:00:00-07:00",
+      "endDate": "2026-06-10T17:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Y Combinator page lists the public location as Mountain View, CA; the exact YC office address is provided to accepted attendees.",
+      "requiresTicket": false,
+      "requiresRegistration": true,
+      "url": "https://events.ycombinator.com/bitrighacks-june2026",
+      "createdAt": "2026-06-03T10:49:28Z",
+      "updatedAt": "2026-06-03T10:49:28Z"
     },
     {
       "id": "7866d7ba-a254-5642-9cfd-56e3eb505398",
@@ -1041,6 +1089,6 @@
       "updatedAt": "2026-05-17T13:20:21Z"
     }
   ],
-  "lastUpdated": "2026-06-01T07:29:49Z",
-  "version": "2.8-wwdc26-communitykit-refresh"
+  "lastUpdated": "2026-06-03T10:49:28Z",
+  "version": "2.9-wwdc26-tuesday-source-refresh"
 }

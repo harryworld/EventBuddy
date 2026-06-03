@@ -23,6 +23,9 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 | CommunityKit schedule | https://communitykit.social/schedule/ | Current CommunityKit day-by-day schedule. |
 | CommunityKit Luma hub | https://luma.com/848w7ld2 | RSVP source for the multi-day CommunityKit hub. |
 | CommunityKit Luma calendar | https://luma.com/communitykit | Calendar view for CommunityKit event pages. |
+| Daring Fireball Tito page | https://ti.to/daringfireball/the-talk-show-live-from-wwdc-2026 | Canonical page for The Talk Show time, ticketing, and venue. |
+| Y Combinator Events | https://events.ycombinator.com/bitrighacks-june2026 | Canonical page for Bitrig Hacks time, application window, and public location. |
+| MufasaYC X post | https://x.com/mufasaYC/status/2061819952307528137 | Discovery source for Tuesday clashes; organizer pages still override exact time. |
 
 ## Imported Bay Area Events
 
@@ -48,14 +51,17 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 | Jun 9 | 8:00am-10:00am | WWDCWomen Get Together Breakfast | Cupertino | https://luma.com/xz8lx6c1 |
 | Jun 9 | 10:00am-12:00pm | WWDC26 Step Into Vision - @CommunityKit | Cupertino | https://luma.com/kdqxj5nq |
 | Jun 9 | 12:00pm-2:00pm | WWDC App Money Lunch Club: Presented by RevenueCat | Cupertino | https://luma.com/vv8rdeci |
+| Jun 9 | 1:00pm-9:00pm | RevenueCat House Mansionparty: WWDC Edition | Hillsborough | https://luma.com/mjoh0kzy |
 | Jun 9 | 2:00pm-4:00pm | Apple Intelligence Automators Meetup at CommunityKit | Cupertino | https://luma.com/dnpnqonr |
 | Jun 9 | 2:00pm-4:00pm | Indie Developer Meetup | Cupertino | https://luma.com/9rgkw05a |
 | Jun 9 | 3:00pm-6:00pm | The Interface WWDC26 | Cupertino | https://luma.com/j7hmf0gm |
 | Jun 9 | 4:00pm-6:00pm | What's New in iOS 27? Feat. Paul Hudson | Cupertino | https://luma.com/bwg9eoer |
+| Jun 9 | 5:00pm-9:00pm | iOSDevHappyHour @ WWDC26 IRL! | Sunnyvale | https://www.eventbrite.com/e/iosdevhappyhour-wwdc26-irl-tickets-1988360174808 |
+| Jun 9 | 6:00pm-9:00pm | The Talk Show Live From WWDC 2026 | San Jose | https://ti.to/daringfireball/the-talk-show-live-from-wwdc-2026 |
 | Jun 9 | 7:00pm-9:00pm | Beer with Swift @WWDC26 | Cupertino | https://luma.com/y95acvdw |
-| Jun 9 | 7:00pm-10:00pm | iOSDevHappyHour @ WWDC26 IRL! | Sunnyvale | https://www.eventbrite.com/e/iosdevhappyhour-wwdc26-irl-tickets-1988360174808 |
 | Jun 10 | 9:00am-11:00am | Community Breakfast & Trivia - feat. Core Coffee | Cupertino | https://luma.com/afu4pnbp |
 | Jun 10 | 11:00am-12:00pm | Launched LIVE - featuring Charlie Chapman | Cupertino | https://luma.com/dxme2hiw |
+| Jun 10 | 11:00am-5:00pm | Bitrig Hacks: WWDC Edition | Mountain View | https://events.ycombinator.com/bitrighacks-june2026 |
 | Jun 10 | 12:00pm-2:00pm | try!Swift | Cupertino | https://luma.com/1vi0u421 |
 | Jun 10 | 12:00pm-2:00pm | Container Install Meetup | Cupertino | https://luma.com/rh1k2tpy |
 | Jun 10 | 2:00pm-4:00pm | Indie Fair | Cupertino | https://communitykit.social/schedule/ |
@@ -79,6 +85,10 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 - CommunityKit schedule currently adds several child events not listed on Apple or twostraws, including WWDC App Money Lunch Club, Apple Intelligence Automators, try!Swift, Container Install Meetup, Make It Visible, Vapor, Feedback Friday, and Make Something, Ship Nothing.
 - Organizer pages currently place Feedback Friday on Friday, June 12; Apple Community-driven events currently lists it under June 11, so EventBuddy follows the Luma organizer page and CommunityKit schedule.
 - Eventbrite Cupertino WWDC search currently surfaces Apple Park Happy Hour, iOSDevHappyHour @ WWDC26 IRL, and James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026; the James Dempsey venue is X Bar Cupertino, about 1.7 miles west of Apple Park.
+- iOSDevHappyHour was rechecked on 2026-06-03: Eventbrite and twostraws list 5:00pm-9:00pm, while the June 2 MufasaYC X post mentions 7pm. EventBuddy follows Eventbrite for exact organizer time and notes that Eventbrite currently marks tickets sold out.
+- The June 2 MufasaYC X post also surfaced RevenueCat Mansionparty and The Talk Show. EventBuddy imports those only after checking their organizer pages. The Steve Jobs Theater movie remains out of the feed until a public Apple detail page is available.
+- RevenueCat Mansionparty is private/invite-only; Luma exposes Hillsborough, CA as the obfuscated public location and keeps the exact venue for approved guests.
+- Bitrig Hacks is imported from the Y Combinator page with Mountain View as the public location; the exact YC office address is provided to accepted attendees.
 - X-indexed search currently adds try! Swift WWDC Nomikai via https://luma.com/oha511rl. Framna's WWDC livestream posts point to the Copenhagen and Stockholm watch-party pages already present in events.json.
 - Several Luma pages are approval-required, full, or registration-closed; EventBuddy keeps them because users may still want to track the event even if RSVP status changes.
 - Recheck CommunityKit and Luma before publishing the remote feed; both sources state that details can continue to change.
