@@ -58,6 +58,7 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 | Jun 9 | 4:00pm-6:00pm | What's New in iOS 27? Feat. Paul Hudson | Cupertino | https://luma.com/bwg9eoer |
 | Jun 9 | 5:00pm-9:00pm | iOSDevHappyHour @ WWDC26 IRL! | Sunnyvale | https://www.eventbrite.com/e/iosdevhappyhour-wwdc26-irl-tickets-1988360174808 |
 | Jun 9 | 6:00pm-9:00pm | The Talk Show Live From WWDC 2026 | San Jose | https://ti.to/daringfireball/the-talk-show-live-from-wwdc-2026 |
+| Jun 9 | 7:00pm-11:00pm | Movie with special guest: The Mandalorian and Grogu | Cupertino | https://developer.apple.com/wwdc26/special-event/#movie-with-special-guest |
 | Jun 9 | 7:00pm-9:00pm | Beer with Swift @WWDC26 | Cupertino | https://luma.com/y95acvdw |
 | Jun 10 | 9:00am-11:00am | Community Breakfast & Trivia - feat. Core Coffee | Cupertino | https://luma.com/afu4pnbp |
 | Jun 10 | 11:00am-12:00pm | Launched LIVE - featuring Charlie Chapman | Cupertino | https://luma.com/dxme2hiw |
@@ -86,7 +87,8 @@ Scope: only WWDC26-related events around San Francisco, San Jose, Cupertino, and
 - Organizer pages currently place Feedback Friday on Friday, June 12; Apple Community-driven events currently lists it under June 11, so EventBuddy follows the Luma organizer page and CommunityKit schedule.
 - Eventbrite Cupertino WWDC search currently surfaces Apple Park Happy Hour, iOSDevHappyHour @ WWDC26 IRL, and James Dempsey and the Breakpoints - LIVE near WWDC Concert 2026; the James Dempsey venue is X Bar Cupertino, about 1.7 miles west of Apple Park.
 - iOSDevHappyHour was rechecked on 2026-06-03: Eventbrite and twostraws list 5:00pm-9:00pm, while the June 2 MufasaYC X post mentions 7pm. EventBuddy follows Eventbrite for exact organizer time and notes that Eventbrite currently marks tickets sold out.
-- The June 2 MufasaYC X post also surfaced RevenueCat Mansionparty and The Talk Show. EventBuddy imports those only after checking their organizer pages. The Steve Jobs Theater movie remains out of the feed until a public Apple detail page is available.
+- The June 2 MufasaYC X post also surfaced RevenueCat Mansionparty and The Talk Show. EventBuddy imports those only after checking their organizer pages.
+- Apple selected-attendee special-event information adds Tuesday night's Steve Jobs Theater screening of The Mandalorian and Grogu: doors open at 7:00pm, the Apple-technologies pre-show presentation with a special guest begins at 8:00pm, and the screening follows immediately. EventBuddy models the end time as 11:00pm because the Apple copy captured for the feed does not include an end time.
 - RevenueCat Mansionparty is private/invite-only; Luma exposes Hillsborough, CA as the obfuscated public location and keeps the exact venue for approved guests.
 - Bitrig Hacks is imported from the Y Combinator page with Mountain View as the public location; the exact YC office address is provided to accepted attendees.
 - X-indexed search currently adds try! Swift WWDC Nomikai via https://luma.com/oha511rl. Framna's WWDC livestream posts point to the Copenhagen and Stockholm watch-party pages already present in events.json.

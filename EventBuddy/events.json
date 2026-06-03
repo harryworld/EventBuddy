@@ -785,6 +785,22 @@
       "updatedAt": "2026-06-03T10:49:28Z"
     },
     {
+      "id": "1a7013dd-b005-5c26-aee5-1116e1382c04",
+      "title": "Movie with special guest: The Mandalorian and Grogu",
+      "eventDescription": "Apple special-event screening of The Mandalorian and Grogu at Steve Jobs Theater, preceded by a presentation about Apple technologies used in the movie's production.",
+      "location": "Steve Jobs Theater",
+      "address": "1 Apple Park Way, Cupertino, CA 95014, USA",
+      "startDate": "2026-06-09T19:00:00-07:00",
+      "endDate": "2026-06-09T23:00:00-07:00",
+      "eventType": "Meetup",
+      "notes": "Apple selected-attendee special-event information says doors open at 7:00pm, a pre-show presentation about the role of Apple technologies in the movie's production begins at 8:00pm, and the screening follows immediately. End time is modeled because Apple did not provide one in the captured event copy.",
+      "requiresTicket": true,
+      "requiresRegistration": true,
+      "url": "https://developer.apple.com/wwdc26/special-event/#movie-with-special-guest",
+      "createdAt": "2026-06-03T11:10:54Z",
+      "updatedAt": "2026-06-03T11:10:54Z"
+    },
+    {
       "id": "1befb66d-2d22-5ae7-bb94-9f7ea780ce14",
       "title": "Beer with Swift @WWDC26",
       "eventDescription": "Create with Swift social meetup for WWDC attendees and local developers.",
@@ -1089,6 +1105,6 @@
       "updatedAt": "2026-05-17T13:20:21Z"
     }
   ],
-  "lastUpdated": "2026-06-03T10:49:28Z",
-  "version": "2.9-wwdc26-tuesday-source-refresh"
+  "lastUpdated": "2026-06-03T11:10:54Z",
+  "version": "2.10-wwdc26-apple-movie-refresh"
 }
