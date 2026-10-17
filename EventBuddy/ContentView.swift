@@ -9,9 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(EventPersistenceService.self) private var eventPersistenceService
-    #if os(iOS)
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    #endif
     @State private var eventSyncService: EventSyncService?
     @State private var showingSyncError = false
     @State private var navigationCoordinator = NavigationCoordinator()
@@ -146,7 +143,9 @@ struct ContentView: View {
 
     private var includesSearchTab: Bool {
         #if os(iOS)
-        horizontalSizeClass == .compact
+        // Keep the same tabs and search view identity when a scene changes size.
+        // Duo can move between compact and regular width during an active search.
+        true
         #elseif os(visionOS)
         false
         #else
