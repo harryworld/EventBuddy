@@ -30,10 +30,6 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-	<string>Buddy would like to add events to your Calendar</string>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Buddy needs calendar access to add attending events without creating duplicates</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -1,0 +1,9 @@
+{
+  "id" : "cd5de7bb-a209-4115-9735-3ef0e98b14a4",
+  "targets" : [
+    {
+      "id" : "82C21144-CA6F-4623-ACC6-50DAE67D9572",
+      "name" : "EventBuddy"
+    }
+  ]
+}

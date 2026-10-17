@@ -302,6 +302,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */,
+				066BD9472FD8EAEA007A009A /* XCRemoteSwiftPackageReference "swift-sharing" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 068753AA2DD6D5A00048FD00 /* Products */;
@@ -559,6 +560,10 @@
 				INFOPLIST_FILE = EventBuddy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Buddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Buddy would like to add events to your Calendar";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
@@ -604,6 +609,10 @@
 				INFOPLIST_FILE = EventBuddy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Buddy needs calendar access to add attending events without creating duplicates";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Buddy would like to add events to your Calendar";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_NSSupportsLiveActivities[sdk=iphoneos*]" = YES;
@@ -813,6 +822,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		066BD9472FD8EAEA007A009A /* XCRemoteSwiftPackageReference "swift-sharing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-sharing";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0A1B2C3D4E5F60718293A405 /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
@@ -820,6 +837,8 @@
 				branch = main;
 				kind = branch;
 			};
+			traits = (
+			);
 		};
 /* End XCRemoteSwiftPackageReference section */
 
